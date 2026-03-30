@@ -51,24 +51,6 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, []);
 
-  useEffect(() => {
-    if (isMobile && isMobileOpen) {
-      document.body.style.overflow = "hidden";
-      document.documentElement.style.overflow = "hidden";
-      document.body.style.touchAction = "none";
-    } else {
-      document.body.style.overflow = "";
-      document.documentElement.style.overflow = "";
-      document.body.style.touchAction = "";
-    }
-
-    return () => {
-      document.body.style.overflow = "";
-      document.documentElement.style.overflow = "";
-      document.body.style.touchAction = "";
-    };
-  }, [isMobile, isMobileOpen]);
-
   const toggleSidebar = () => {
     setIsExpanded((prev) => !prev);
   };

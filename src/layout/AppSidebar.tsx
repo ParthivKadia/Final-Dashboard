@@ -338,7 +338,7 @@ const AppSidebar: React.FC = () => {
         }`}
       >
         <Link to="/" onClick={closeMobileSidebar} className="flex items-center gap-3">
-          <img src="/images/logo/logo-icon.svg" alt="Logo" width={32} height={32} />
+          <img src="/images/logo/Storly-Trasn.png" alt="Logo" width={32} height={32} />
           {isSidebarOpen && (
             <span className="text-2xl font-semibold text-slate-900">
               Seller Hub
@@ -347,7 +347,7 @@ const AppSidebar: React.FC = () => {
         </Link>
       </div>
 
-      <div className="no-scrollbar flex flex-col overflow-y-auto pb-10">
+<div className="no-scrollbar flex-1 overflow-y-auto overscroll-contain pb-10">
         <nav className="mb-6">
           {dashboardItem && (
             <div className="mb-6">

@@ -5,6 +5,7 @@ import SignUp from "./pages/AuthPages/SignUp";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
+import { SidebarProvider } from "./context/SidebarContext";
 
 import AllProducts from "./pages/Products/AllProducts";
 import AddProduct from "./pages/Products/AddProducts";
@@ -45,19 +46,22 @@ import LogoutPage from "./pages/Settings/LogoutPage";
 
 export default function App() {
   return (
-    <Router>
-      <ScrollToTop />
-      <Routes>
-        <Route element={<AppLayout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/products" element={<AllProducts />} />
-          <Route path="/products/add" element={<AddProduct />} />
-          <Route path="/products/categories" element={<Categories />} />
-          <Route path="/products/inventory" element={<Inventory />} />
-          <Route path="/products/low-stock" element={<LowStock />} />
-          <Route path="/profile" element={<UserProfiles />} />
+    <SidebarProvider>
+      <Router>
+        <ScrollToTop />
+        <Routes>
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<Home />} />
 
-           <Route path="/orders" element={<AllOrders />} />
+            {/* Products */}
+            <Route path="/products" element={<AllProducts />} />
+            <Route path="/products/add" element={<AddProduct />} />
+            <Route path="/products/categories" element={<Categories />} />
+            <Route path="/products/inventory" element={<Inventory />} />
+            <Route path="/products/low-stock" element={<LowStock />} />
+
+            {/* Orders */}
+            <Route path="/orders" element={<AllOrders />} />
             <Route path="/orders/pending" element={<PendingOrders />} />
             <Route path="/orders/processing" element={<ProcessingOrders />} />
             <Route path="/orders/shipped" element={<ShippedOrders />} />
@@ -65,34 +69,40 @@ export default function App() {
             <Route path="/orders/cancelled" element={<CancelledOrders />} />
             <Route path="/orders/returned" element={<ReturnedOrders />} />
 
+            {/* Customers */}
             <Route path="/customers" element={<AllCustomers />} />
             <Route path="/customers/review" element={<CustomerReviews />} />
             <Route path="/customers/messages" element={<Messages />} />
 
-
+            {/* Analytics */}
             <Route path="/analytics/sales-analytics" element={<SalesAnalytics />} />
             <Route path="/analytics/top-products" element={<TopProducts />} />
             <Route path="/analytics/revenue" element={<RevenueReport />} />
 
+            {/* Marketing */}
             <Route path="/marketing/coupons" element={<Coupons />} />
             <Route path="/marketing/campaigns" element={<Campaigns />} />
             <Route path="/marketing/discounts" element={<Discount />} />
             <Route path="/marketing/email" element={<EmailMarketing />} />
 
+            {/* Store */}
             <Route path="/store/store-profile" element={<StoreProfile />} />
             <Route path="/store/shipping" element={<Shipping />} />
             <Route path="/store/payments" element={<Payments />} />
-            <Route path="/store/user-profile" element={<UserProfiles/>}/>
+            <Route path="/store/user-profile" element={<UserProfiles />} />
 
+            {/* Settings */}
             <Route path="/settings/account" element={<AccountSettings />} />
             <Route path="/settings/notifications" element={<Notifications />} />
             <Route path="/settings/security" element={<Security />} />
             <Route path="/settings/logout" element={<LogoutPage />} />
-        </Route>
+          </Route>
 
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
-      </Routes>
-    </Router>
+          {/* Auth */}
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+        </Routes>
+      </Router>
+    </SidebarProvider>
   );
 }

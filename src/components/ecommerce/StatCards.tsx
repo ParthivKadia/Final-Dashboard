@@ -11,6 +11,31 @@ interface StatCardProps {
   iconBg: string;
 }
 
+const CartIcon = () => (
+  <svg
+    className="h-6 w-6 text-white"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M7.5 7H18.8L17.4 14.8H9L7.5 7Z"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M7.5 7L6.9 4.9C6.75 4.35 6.24 4 5.67 4H4.5"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    />
+    <circle cx="10.2" cy="18.2" r="1.2" fill="currentColor" />
+    <circle cx="16.5" cy="18.2" r="1.2" fill="currentColor" />
+  </svg>
+);
+
 const StatCard: React.FC<StatCardProps> = ({
   icon,
   label,
@@ -29,7 +54,7 @@ const StatCard: React.FC<StatCardProps> = ({
 
   return (
     <div
-      className={`${bgColor} rounded-2xl p-6 text-white flex flex-col justify-between min-h-[200px] shadow-sm`}
+      className={`${bgColor} rounded-2xl p-5 sm:p-6 text-white flex flex-col justify-between min-h-[180px] sm:min-h-[200px] shadow-sm`}
     >
       <div className="flex items-start justify-between gap-3">
         <div
@@ -71,7 +96,7 @@ const StatCards: React.FC = () => {
       />
 
       <StatCard
-        icon="🛒"
+        icon={<CartIcon />}
         label="Total Orders"
         subLabel="This month"
         value="1,284"

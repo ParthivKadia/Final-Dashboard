@@ -53,24 +53,9 @@ const AnalyticsIcon = () => (
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path
-      d="M5 19V11"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-    />
-    <path
-      d="M12 19V7"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-    />
-    <path
-      d="M19 19V4"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-    />
+    <path d="M5 19V11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    <path d="M12 19V7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    <path d="M19 19V4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
   </svg>
 );
 
@@ -122,12 +107,7 @@ const StoreIcon = () => (
       strokeWidth="1.8"
       strokeLinejoin="round"
     />
-    <path
-      d="M9 14H15"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-    />
+    <path d="M9 14H15" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
   </svg>
 );
 
@@ -236,7 +216,14 @@ const dashboardItem = menuItems.find((item) => item.name === "Dashboard");
 const otherMenuItems = menuItems.filter((item) => item.name !== "Dashboard");
 
 const AppSidebar: React.FC = () => {
-  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
+  const {
+    isExpanded,
+    isMobileOpen,
+    isHovered,
+    setIsHovered,
+    closeMobileSidebar,
+  } = useSidebar();
+
   const location = useLocation();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
 
@@ -291,6 +278,7 @@ const AppSidebar: React.FC = () => {
                 <li key={subItem.name}>
                   <Link
                     to={subItem.path}
+                    onClick={closeMobileSidebar}
                     className={`menu-dropdown-item flex items-center gap-3 ${
                       isActive(subItem.path)
                         ? "menu-dropdown-item-active"
@@ -313,6 +301,7 @@ const AppSidebar: React.FC = () => {
         item.path && (
           <Link
             to={item.path}
+            onClick={closeMobileSidebar}
             className={`menu-item group ${
               isActive(item.path) ? "menu-item-active" : "menu-item-inactive"
             } ${!isSidebarOpen ? "lg:justify-center" : "lg:justify-start"}`}
@@ -348,7 +337,7 @@ const AppSidebar: React.FC = () => {
           !isSidebarOpen ? "lg:justify-center" : "justify-start"
         }`}
       >
-        <Link to="/" className="flex items-center gap-3">
+        <Link to="/" onClick={closeMobileSidebar} className="flex items-center gap-3">
           <img src="/images/logo/logo-icon.svg" alt="Logo" width={32} height={32} />
           {isSidebarOpen && (
             <span className="text-2xl font-semibold text-slate-900">

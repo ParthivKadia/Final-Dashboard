@@ -1,66 +1,98 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
-import NotFound from "./pages/OtherPage/NotFound";
-import UserProfiles from "./pages/UserProfiles";
-import Videos from "./pages/UiElements/Videos";
-import Images from "./pages/UiElements/Images";
-import Alerts from "./pages/UiElements/Alerts";
-import Badges from "./pages/UiElements/Badges";
-import Avatars from "./pages/UiElements/Avatars";
-import Buttons from "./pages/UiElements/Buttons";
-import LineChart from "./pages/Charts/LineChart";
-import BarChart from "./pages/Charts/BarChart";
-import Calendar from "./pages/Calendar";
-import BasicTables from "./pages/Tables/BasicTables";
-import FormElements from "./pages/Forms/FormElements";
-import Blank from "./pages/Blank";
+// import UserProfiles from "./pages/Store/UserProfiles";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 
+import AllProducts from "./pages/Products/AllProducts";
+import AddProduct from "./pages/Products/AddProducts";
+import Categories from "./pages/Products/Categories";
+import Inventory from "./pages/Products/Inventory";
+import LowStock from "./pages/Products/LowStock";
+
+import AllOrders from "./pages/Orders/AllOrders";
+import PendingOrders from "./pages/Orders/PendingOrders";
+import ProcessingOrders from "./pages/Orders/ProcessingOrders";
+import ShippedOrders from "./pages/Orders/ShippedOrders";
+import DeliveredOrders from "./pages/Orders/DeliveredOrders";
+import CancelledOrders from "./pages/Orders/CancelledOrders";
+import ReturnedOrders from "./pages/Orders/ReturnedOrders";
+
+import AllCustomers from "./pages/Customers/AllCustomers";
+import CustomerReviews from "./pages/Customers/CustomerReviews";
+import Messages from "./pages/Customers/Messages";
+
+import SalesAnalytics from "./pages/Analytics/SalesAnalytics";
+import TopProducts from "./pages/Analytics/TopProducts";
+import RevenueReport from "./pages/Analytics/RevenueReport";
+
+import Coupons from "./pages/Marketing/Coupons";
+import Campaigns from "./pages/Marketing/Campaigns";
+import Discount from "./pages/Marketing/Discount";
+import EmailMarketing from "./pages/Marketing/EmailMarketing";
+
+import StoreProfile from "./pages/Store/StoreProfile";
+import UserProfiles from "./pages/Store/UserProfiles";
+import Shipping from "./pages/Store/Shipping";
+import Payments from "./pages/Store/Payments";
+
+import AccountSettings from "./pages/Settings/AccountSettings";
+import Notifications from "./pages/Settings/Notifications";
+import Security from "./pages/Settings/Security";
+import LogoutPage from "./pages/Settings/LogoutPage";
+
 export default function App() {
   return (
-    <>
-      <Router>
-        <ScrollToTop />
-        <Routes>
-          {/* Dashboard Layout */}
-          <Route element={<AppLayout />}>
-            <Route index path="/" element={<Home />} />
+    <Router>
+      <ScrollToTop />
+      <Routes>
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/products" element={<AllProducts />} />
+          <Route path="/products/add" element={<AddProduct />} />
+          <Route path="/products/categories" element={<Categories />} />
+          <Route path="/products/inventory" element={<Inventory />} />
+          <Route path="/products/low-stock" element={<LowStock />} />
+          <Route path="/profile" element={<UserProfiles />} />
 
-            {/* Others Page */}
-            <Route path="/profile" element={<UserProfiles />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/blank" element={<Blank />} />
+           <Route path="/orders" element={<AllOrders />} />
+            <Route path="/orders/pending" element={<PendingOrders />} />
+            <Route path="/orders/processing" element={<ProcessingOrders />} />
+            <Route path="/orders/shipped" element={<ShippedOrders />} />
+            <Route path="/orders/delivered" element={<DeliveredOrders />} />
+            <Route path="/orders/cancelled" element={<CancelledOrders />} />
+            <Route path="/orders/returned" element={<ReturnedOrders />} />
 
-            {/* Forms */}
-            <Route path="/form-elements" element={<FormElements />} />
+            <Route path="/customers" element={<AllCustomers />} />
+            <Route path="/customers/review" element={<CustomerReviews />} />
+            <Route path="/customers/messages" element={<Messages />} />
 
-            {/* Tables */}
-            <Route path="/basic-tables" element={<BasicTables />} />
 
-            {/* Ui Elements */}
-            <Route path="/alerts" element={<Alerts />} />
-            <Route path="/avatars" element={<Avatars />} />
-            <Route path="/badge" element={<Badges />} />
-            <Route path="/buttons" element={<Buttons />} />
-            <Route path="/images" element={<Images />} />
-            <Route path="/videos" element={<Videos />} />
+            <Route path="/analytics/sales-analytics" element={<SalesAnalytics />} />
+            <Route path="/analytics/top-products" element={<TopProducts />} />
+            <Route path="/analytics/revenue" element={<RevenueReport />} />
 
-            {/* Charts */}
-            <Route path="/line-chart" element={<LineChart />} />
-            <Route path="/bar-chart" element={<BarChart />} />
-          </Route>
+            <Route path="/marketing/coupons" element={<Coupons />} />
+            <Route path="/marketing/campaigns" element={<Campaigns />} />
+            <Route path="/marketing/discounts" element={<Discount />} />
+            <Route path="/marketing/email" element={<EmailMarketing />} />
 
-          {/* Auth Layout */}
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
+            <Route path="/store/store-profile" element={<StoreProfile />} />
+            <Route path="/store/shipping" element={<Shipping />} />
+            <Route path="/store/payments" element={<Payments />} />
+            <Route path="/store/user-profile" element={<UserProfiles/>}/>
 
-          {/* Fallback Route */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Router>
-    </>
+            <Route path="/settings/account" element={<AccountSettings />} />
+            <Route path="/settings/notifications" element={<Notifications />} />
+            <Route path="/settings/security" element={<Security />} />
+            <Route path="/settings/logout" element={<LogoutPage />} />
+        </Route>
+
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} />
+      </Routes>
+    </Router>
   );
 }

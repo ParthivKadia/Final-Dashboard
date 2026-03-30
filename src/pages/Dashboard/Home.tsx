@@ -1,41 +1,55 @@
-import EcommerceMetrics from "../../components/ecommerce/EcommerceMetrics";
-import MonthlySalesChart from "../../components/ecommerce/MonthlySalesChart";
-import StatisticsChart from "../../components/ecommerce/StatisticsChart";
-import MonthlyTarget from "../../components/ecommerce/MonthlyTarget";
-import RecentOrders from "../../components/ecommerce/RecentOrders";
-import DemographicCard from "../../components/ecommerce/DemographicCard";
-import PageMeta from "../../components/common/PageMeta";
+import React from "react";
+import WelcomeCard from "../../components/ecommerce/WelcomeCard";
+import StatCards from "../../components/ecommerce/StatCards";
+import ProfitExpensesChart from "../../components/ecommerce/ProfitExpensesChart";
+import ProductSalesChart from "../../components/ecommerce/ProductSalesChart";
+import NewGoalsCard from "../../components/ecommerce/NewGoalsCard";
+import LowStockAlerts from "../../components/ecommerce/LowStockAlerts";
+import RecentOrdersCard from "../../components/ecommerce/RecentOrdersCard";
+import TopProductsTable from "../../components/ecommerce/TopProductsTable";
 
-export default function Home() {
+const Home: React.FC = () => {
   return (
-    <>
-      <PageMeta
-        title="React.js Ecommerce Dashboard | TailAdmin - React.js Admin Dashboard Template"
-        description="This is React.js Ecommerce Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
-      />
-      <div className="grid grid-cols-12 gap-4 md:gap-6">
-        <div className="col-span-12 space-y-6 xl:col-span-7">
-          <EcommerceMetrics />
+    <div className="flex flex-col gap-5">
+      {/* Row 1: Welcome + Stat Cards */}
+     <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 items-stretch">
+  <div className="xl:col-span-2">
+    <WelcomeCard />
+  </div>
 
-          <MonthlySalesChart />
+  <div className="xl:col-span-1">
+    <StatCards />
+  </div>
+</div>
+
+
+      {/* Row 2: P&L Chart + Units Sold / Top Categories */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2">
+          <ProfitExpensesChart />
         </div>
-
-        <div className="col-span-12 xl:col-span-5">
-          <MonthlyTarget />
-        </div>
-
-        <div className="col-span-12">
-          <StatisticsChart />
-        </div>
-
-        <div className="col-span-12 xl:col-span-5">
-          <DemographicCard />
-        </div>
-
-        <div className="col-span-12 xl:col-span-7">
-          <RecentOrders />
+        <div className="lg:col-span-1">
+          <ProductSalesChart />
         </div>
       </div>
-    </>
+
+      {/* Row 3: Monthly Goals + Low Stock + Order History */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-1">
+          <NewGoalsCard />
+        </div>
+        <div className="lg:col-span-1">
+          <LowStockAlerts />
+        </div>
+        <div className="lg:col-span-1">
+          <RecentOrdersCard />
+        </div>
+      </div>
+
+      {/* Row 4: Top Selling Products Table (full width) */}
+      <TopProductsTable />
+    </div>
   );
-}
+};
+
+export default Home;

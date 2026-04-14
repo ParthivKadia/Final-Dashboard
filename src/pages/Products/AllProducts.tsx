@@ -63,7 +63,9 @@ export default function AllProducts() {
     const init = async () => {
       try {
         const res = await userDetails();
+        console.log(res)
         const username = res?.data?.stores?.[0]?.username;
+        console.log(username)
         if (username) setStoreUsername(username);
         else setError('No store found. Please create a store first.');
       } catch {
@@ -445,7 +447,7 @@ export default function AllProducts() {
       {/* ── ADD PRODUCT DIALOG ─────────────────────────────────── */}
       {/* ══════════════════════════════════════════════════════════ */}
       {showDialog && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-xl shadow-2xl flex flex-col" style={{ maxHeight: '90vh' }}>
 
             {/* Header */}
@@ -681,7 +683,7 @@ export default function AllProducts() {
 
       {/* ── DELETE CONFIRM ── */}
       {deleteTarget && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             <div className="text-4xl text-center mb-3">🗑️</div>
             <h2 className="text-lg font-bold text-slate-900 text-center mb-2">Delete Product?</h2>

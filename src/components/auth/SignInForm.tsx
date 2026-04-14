@@ -6,7 +6,7 @@ import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
 import { login } from "../../services/authService";
-import { tokenStorage } from "../../utils/tokenStorage"; 
+import { tokenStorage } from "../../utils/tokenStorage";
 
 export default function SignInForm() {
   const navigate = useNavigate();
@@ -43,8 +43,10 @@ export default function SignInForm() {
         timestamp: Date.now(),
       });
 
-      if (response?.token) {
-        tokenStorage.set(response.token); 
+      const token = response?.data?.token;
+
+      if (token) {
+        tokenStorage.set(token);
         navigate("/");
       } else {
         setError("Login succeeded but no token received.");
@@ -80,7 +82,6 @@ export default function SignInForm() {
           </div>
 
           <div>
-            {/* Error Message */}
             {error && (
               <div className="mb-4 px-4 py-3 rounded-lg bg-error-50 dark:bg-error-500/10 text-error-600 dark:text-error-400 text-sm">
                 {error}
@@ -90,7 +91,6 @@ export default function SignInForm() {
             <form onSubmit={handleSubmit}>
               <div className="space-y-6">
 
-                {/* Username */}
                 <div>
                   <Label>Username <span className="text-error-500">*</span></Label>
                   <Input
@@ -104,7 +104,6 @@ export default function SignInForm() {
                   />
                 </div>
 
-                {/* Password */}
                 <div>
                   <Label>Password <span className="text-error-500">*</span></Label>
                   <div className="relative">
@@ -130,7 +129,6 @@ export default function SignInForm() {
                   </div>
                 </div>
 
-                {/* Remember Me & Forgot Password */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Checkbox checked={isChecked} onChange={setIsChecked} />
@@ -146,7 +144,6 @@ export default function SignInForm() {
                   </Link>
                 </div>
 
-                {/* Submit Button */}
                 <div>
                   <Button className="w-full" size="sm" disabled={isLoading}>
                     {isLoading ? "Signing in..." : "Sign in"}

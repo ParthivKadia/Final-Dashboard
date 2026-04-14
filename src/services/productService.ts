@@ -2,13 +2,21 @@
 
 import { api } from "../api/apiClient";
 import { ENDPOINTS } from "../api/endpoints";
+// import type {
+//     DeleteProductParams,
+//     GetProductBySlugParams,
+//     UpdateProductParams,
+//     CreateProductRequestBody,
+//     GetAllProducts,
+//     ApiResponse,
+// } from "../types/store";
 import type {
-    DeleteProductParams,
-    GetProductBySlugParams,
-    UpdateProductParams,
-    CreateProductRequestBody,
-    GetAllProducts,
     ApiResponse,
+    GetAllProducts,
+    Product,
+    CreateProductRequestBody,
+    UpdateProductRequestBody,
+    GetProductBySlugParams,
 } from "../types/store";
 
 const PAGE_SIZE = 10;
@@ -16,7 +24,7 @@ const PAGE_SIZE = 10;
 // GET /rest/stores/{username}/products  — filters sent as request body
 export const getProducts = (
     username: string,
-    body?: {
+    filters?: {
         page?: number;
         pageSize?: number;
         category?: string;
@@ -27,17 +35,17 @@ export const getProducts = (
         method: "GET",
         requiresAuth: true,
         body: {
-            page:     body?.page     ?? 1,
-            pageSize: body?.pageSize ?? PAGE_SIZE,
-            ...(body?.category !== undefined ? { category: body.category } : {}),
-            ...(body?.featured !== undefined ? { featured: body.featured } : {}),
+            page:     filters?.page     ?? 1,
+            pageSize: filters?.pageSize ?? PAGE_SIZE,
+            ...(filters?.category !== undefined ? { category: filters.category } : {}),
+            ...(filters?.featured !== undefined ? { featured: filters.featured } : {}),
         },
     });
 
 // GET /rest/stores/{username}/products/{slug}
 export const getProductBySlug = (
     data: GetProductBySlugParams
-): Promise<ApiResponse<any>> =>
+): Promise<ApiResponse<Product>> =>
     api(ENDPOINTS.GET_PRODUCT_BY_SLUG(data.username, data.slug), {
         method: "GET",
         requiresAuth: true,
@@ -47,7 +55,7 @@ export const getProductBySlug = (
 export const createProduct = (
     username: string,
     body: CreateProductRequestBody
-): Promise<ApiResponse<any>> =>
+): Promise<ApiResponse<Product>> =>
     api(ENDPOINTS.CREATE_PRODUCT(username), {
         method: "POST",
         requiresAuth: true,
@@ -56,19 +64,22 @@ export const createProduct = (
 
 // PUT /rest/stores/{username}/products/{slug}
 export const updateProduct = (
-    data: UpdateProductParams
-): Promise<ApiResponse<any>> =>
-    api(ENDPOINTS.UPDATE_PRODUCT(data.username, data.slug), {
+    username: string,
+    slug: string,
+    body: UpdateProductRequestBody
+): Promise<ApiResponse<Product>> =>
+    api(ENDPOINTS.UPDATE_PRODUCT(username, slug), {
         method: "PUT",
         requiresAuth: true,
-        body: data.data,
+        body,
     });
 
 // DELETE /rest/stores/{username}/products/{slug}
 export const deleteProduct = (
-    data: DeleteProductParams
-): Promise<ApiResponse<any>> =>
-    api(ENDPOINTS.DELETE_PRODUCT(data.username, data.slug), {
+    username: string,
+    slug: string
+): Promise<ApiResponse<void>> =>
+    api(ENDPOINTS.DELETE_PRODUCT(username, slug), {
         method: "DELETE",
         requiresAuth: true,
     });

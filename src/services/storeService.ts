@@ -2,7 +2,8 @@
 
 import { api } from "../api/apiClient";
 import { ENDPOINTS } from "../api/endpoints";
-import type { Store, Product, GetStoreProductsParams, CreateStoreBody } from "../types/store";
+// import type { Store, Product, GetStoreProductsParams, CreateStoreBody } from "../types/store";
+import type { ApiResponse, Store, CreateStoreBody, GetStoreProductsParams, Product } from "../types/store";
 
 // GET /v1/stores/{username}
 // export const getStore = (username: string) =>
@@ -35,20 +36,25 @@ export const getStore = (username: string) =>
     });
 
 // POST /rest/stores
-export const createStore = (data: CreateStoreBody) =>
-    api<Store>(ENDPOINTS.CREATE_STORE, {
-      method: "POST",
-      body: data,
+export const createStore = (data: CreateStoreBody): Promise<ApiResponse<Store>> =>
+    api(ENDPOINTS.CREATE_STORE, {
+        method: "POST",
+        requiresAuth: true,
+        body: data,
     });
 
-export const updateStore = (username: string) =>
+export const updateStore = (
+    username: string,
+    data: Partial<CreateStoreBody>   
+): Promise<ApiResponse<Store>> =>
     api(ENDPOINTS.UPDATE_STORE(username), {
         method: "PUT",
-        // body: username,
+        requiresAuth: true,
+        body: data,
     });
 
-export const deleteStore = (username: string) =>
+export const deleteStore = (username: string): Promise<ApiResponse<void>> =>
     api(ENDPOINTS.DELETE_STORE(username), {
         method: "DELETE",
-        // body: username,
+        requiresAuth: true,
     });

@@ -12,6 +12,7 @@ import RecentOrdersCard from "../../components/ecommerce/RecentOrdersCard";
 import TopProductsTable from "../../components/ecommerce/TopProductsTable";
 import { userDetails } from "../../services/userService";
 import { tokenStorage } from "../../utils/tokenStorage";
+import type { ApiResponse, User } from "../../types/store"; // ✅ import types
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -19,36 +20,37 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     const verifyUserAndStore = async () => {
-      const token = tokenStorage.get();
 
       // Step 1: No token → go to signin
+      const token = tokenStorage.get();
       if (!token) {
         navigate("/signin");
         return;
       }
 
       try {
-        const response = await userDetails();
+        // Step 2: Call userDetails with Bearer token (requiresAuth: true in service)
+        const response: ApiResponse<User> = await userDetails();
+        console.log(response)
 
-        // Step 2: Response is { status, data: { stores: [] } }
+        // Step 3: Check stores array from typed response
         const stores = response?.data?.stores;
 
-        // Step 3: stores is empty array → redirect to create store
         if (!stores || stores.length === 0) {
           navigate("/store/create-store");
           return;
         }
 
-        // Step 4: stores exist → allow dashboard to render
+        // Step 4: All good — render dashboard
         setIsVerifying(false);
 
       } catch (err: any) {
-        // Only clear token if it's actually unauthorized
         if (err?.status === 401 || err?.message?.toLowerCase().includes("unauthorized")) {
+          // Token invalid/expired — clear and redirect
           tokenStorage.remove();
           navigate("/signin");
         } else {
-          // Network/server error — don't wipe token, just show dashboard
+          // Network/server error — don't wipe token
           setIsVerifying(false);
         }
       }

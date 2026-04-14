@@ -5,7 +5,7 @@ import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import { register } from "../../services/authService";
-import { tokenStorage } from "../../utils/tokenStorage"; // ✅ shared token util
+import { tokenStorage } from "../../utils/tokenStorage";
 
 export default function RegisterForm() {
   const navigate = useNavigate();
@@ -49,9 +49,12 @@ export default function RegisterForm() {
         password: formData.password,
         image: formData.image,
       });
+      console.log(response)
 
-      if (response?.token) {
-        tokenStorage.set(response.token); // ✅ saves to localStorage as "authToken"
+      const token = response?.data?.token;
+
+      if (token) {
+        tokenStorage.set(token);
         navigate("/");
       } else {
         setError("Registration succeeded but no token received.");
@@ -65,7 +68,7 @@ export default function RegisterForm() {
 
   return (
     <div className="flex flex-col flex-1 w-full overflow-y-auto lg:w-1/2 no-scrollbar">
-      <div className="w-full max-w-md mx-auto mb-5 sm:pt-10">
+      {/* <div className="w-full max-w-md mx-auto mb-5 sm:pt-10">
         <Link
           to="/"
           className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
@@ -73,7 +76,7 @@ export default function RegisterForm() {
           <ChevronLeftIcon className="size-5" />
           Back to dashboard
         </Link>
-      </div>
+      </div> */}
 
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>
@@ -87,7 +90,6 @@ export default function RegisterForm() {
           </div>
 
           <div>
-            {/* Error Message */}
             {error && (
               <div className="mb-4 px-4 py-3 rounded-lg bg-error-50 dark:bg-error-500/10 text-error-600 dark:text-error-400 text-sm">
                 {error}
@@ -97,7 +99,6 @@ export default function RegisterForm() {
             <form onSubmit={handleSubmit}>
               <div className="space-y-5">
 
-                {/* Name */}
                 <div>
                   <Label>Name<span className="text-error-500">*</span></Label>
                   <Input
@@ -111,7 +112,6 @@ export default function RegisterForm() {
                   />
                 </div>
 
-                {/* Email */}
                 <div>
                   <Label>Email<span className="text-error-500">*</span></Label>
                   <Input
@@ -125,7 +125,6 @@ export default function RegisterForm() {
                   />
                 </div>
 
-                {/* Mobile */}
                 <div>
                   <Label>Mobile<span className="text-error-500">*</span></Label>
                   <Input
@@ -139,7 +138,6 @@ export default function RegisterForm() {
                   />
                 </div>
 
-                {/* Username */}
                 <div>
                   <Label>Username<span className="text-error-500">*</span></Label>
                   <Input
@@ -153,7 +151,6 @@ export default function RegisterForm() {
                   />
                 </div>
 
-                {/* Password */}
                 <div>
                   <Label>Password<span className="text-error-500">*</span></Label>
                   <div className="relative">
@@ -179,7 +176,6 @@ export default function RegisterForm() {
                   </div>
                 </div>
 
-                {/* Profile Image URL (optional) */}
                 <div>
                   <Label>Profile Image URL</Label>
                   <Input
@@ -192,7 +188,6 @@ export default function RegisterForm() {
                   />
                 </div>
 
-                {/* Terms Checkbox */}
                 <div className="flex items-center gap-3">
                   <Checkbox
                     className="w-5 h-5"
@@ -207,7 +202,6 @@ export default function RegisterForm() {
                   </p>
                 </div>
 
-                {/* Submit Button */}
                 <div>
                   <button
                     type="submit"

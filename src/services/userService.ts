@@ -2,6 +2,7 @@
 
 import { api } from "../api/apiClient";
 import { ENDPOINTS } from "../api/endpoints";
+import type { ApiResponse, User } from "../types/store";
 
 // export const getUser = () => api(ENDPOINTS.GET_USER);
 
@@ -19,11 +20,17 @@ import { ENDPOINTS } from "../api/endpoints";
 //         body: data,
 //     });
 
-export const userDetails = (
-    // jwt_token: string
-) =>
+// export const userDetails = (
+//     // jwt_token: string
+// ) =>
+//     api(ENDPOINTS.USER_DETAILS, {
+//         method: "POST",
+//         requiresAuth: true,
+//         // body: jwt_token,
+//     });
+
+export const userDetails = (): Promise<ApiResponse<User>> =>
     api(ENDPOINTS.USER_DETAILS, {
         method: "POST",
         requiresAuth: true,
-        // body: jwt_token,
     });

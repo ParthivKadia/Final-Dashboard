@@ -37,8 +37,8 @@ export default function AllProducts() {
   const { isVerifying } = useAuth();
 
   const { stores, activeStore, setActiveStore } = useAppStore();
-  const { fetchPage, loading: cacheLoading, errors: cacheErrors, invalidate } = useProductStore();
-
+  const { fetchPage, errors: cacheErrors, invalidate } = useProductStore();
+  
   const storeUsername = activeStore?.username ?? '';
 
   const [products, setProducts]       = useState<Product[]>([]);

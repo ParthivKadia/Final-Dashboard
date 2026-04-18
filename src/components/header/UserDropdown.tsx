@@ -1,47 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { Dropdown } from "../ui/dropdown/Dropdown";
-import { Link, useNavigate } from "react-router";
-import { ApiResponse, User } from "../../types/store";
-import { tokenStorage } from "../../utils/tokenStorage";
-import { userDetails } from "../../services/userService";
+import { Link } from "react-router";
+import { useAppStore } from "../../store/useAppStore";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
-  const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const load = async () => {
-      const token = tokenStorage.get();
-      if (!token) {
-        navigate("/signin");
-        return;
-      }
-      try {
-        const response: ApiResponse<User> = await userDetails();
-        console.log(response.data)
-        // const stores = response?.data?.stores;
-        // if (!stores || stores.length === 0) {
-        //   navigate("/store/create-store");
-        //   return;
-        // }
-        setUser(response.data);
-      } catch (err: any) {
-        if (err?.status === 401 || err?.message?.toLowerCase().includes("unauthorized")) {
-          tokenStorage.remove();
-          navigate("/signin");
-        } else {
-          setError("Failed to load profile. Please try again.");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, [navigate]);
+  const { user } = useAppStore();
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -50,8 +15,6 @@ export default function UserDropdown() {
   function closeDropdown() {
     setIsOpen(false);
   }
-
-  console.log(user)
 
   return (
     <div className="relative">

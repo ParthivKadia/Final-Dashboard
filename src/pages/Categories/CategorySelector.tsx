@@ -13,105 +13,105 @@
 //   label          — label text (default "Categories")
 //   maxSelect      — max selectable (default unlimited)
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useCategoryStore } from '../../store/useCategoryStore';
 import type { Category } from '../../store/useCategoryStore';
-import { createCategories } from '../../services/productService';
+// import { createCategories } from '../../services/productService';
 import { useNavigate } from 'react-router-dom';
 
-const inp = "w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-blue-500 dark:focus:ring-blue-900/30 dark:placeholder:text-slate-500";
-const lbl = "block text-sm font-semibold text-slate-700 mb-1.5 dark:text-slate-300";
+// const inp = "w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-blue-500 dark:focus:ring-blue-900/30 dark:placeholder:text-slate-500";
+// const lbl = "block text-sm font-semibold text-slate-700 mb-1.5 dark:text-slate-300";
 
-const autoSlug = (n: string) =>
-  n.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+// const autoSlug = (n: string) =>
+//   n.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 // ─── Inline create form ────────────────────────────────────────────────────────
 
-function NewCategoryForm({ storeUsername, parents, onCreated, onCancel }: {
-  storeUsername: string;
-  parents: Category[];
-  onCreated: (cat: Category) => void;
-  onCancel: () => void;
-}) {
-  const [name,     setName]     = useState('');
-  const [slug,     setSlug]     = useState('');
-  const [parentId, setParentId] = useState<number | null>(null);
-  const [saving,   setSaving]   = useState(false);
-  const [error,    setError]    = useState<string | null>(null);
-  const { invalidate } = useCategoryStore();
-  const ref = useRef<HTMLInputElement>(null);
+// function NewCategoryForm({ storeUsername, parents, onCreated, onCancel }: {
+//   storeUsername: string;
+//   parents: Category[];
+//   onCreated: (cat: Category) => void;
+//   onCancel: () => void;
+// }) {
+//   const [name,     setName]     = useState('');
+//   const [slug,     setSlug]     = useState('');
+//   const [parentId, setParentId] = useState<number | null>(null);
+//   const [saving,   setSaving]   = useState(false);
+//   const [error,    setError]    = useState<string | null>(null);
+//   const { invalidate } = useCategoryStore();
+//   const ref = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { ref.current?.focus(); }, []);
+//   useEffect(() => { ref.current?.focus(); }, []);
 
-  const handleNameChange = (val: string) => {
-    setName(val);
-    setSlug(prev => prev === '' || prev === autoSlug(name) ? autoSlug(val) : prev);
-  };
+//   const handleNameChange = (val: string) => {
+//     setName(val);
+//     setSlug(prev => prev === '' || prev === autoSlug(name) ? autoSlug(val) : prev);
+//   };
 
-  const handleSave = async () => {
-    if (!name.trim()) { setError('Name is required.'); return; }
-    if (!slug.trim()) { setError('Slug is required.'); return; }
-    setSaving(true); setError(null);
-    try {
-      const res = await createCategories(storeUsername, {
-        name: name.trim(), slug: slug.trim(), description: '', imageUrl: '',
-        parentId: parentId ?? 0, displayOrder: 0,
-      });
-      // Optimistically build the category object; real ID comes from API if returned
-      const newCat: Category = {
-        id:       (res as any)?.data?.id ?? Date.now(),
-        name:     name.trim(),
-        slug:     slug.trim(),
-        parentId: parentId ?? undefined,
-        active:   true,
-      };
-      invalidate(storeUsername);
-      onCreated(newCat);
-    } catch (err: any) {
-      setError(err?.message || 'Failed to create category.');
-      setSaving(false);
-    }
-  };
+//   const handleSave = async () => {
+//     if (!name.trim()) { setError('Name is required.'); return; }
+//     if (!slug.trim()) { setError('Slug is required.'); return; }
+//     setSaving(true); setError(null);
+//     try {
+//       const res = await createCategories(storeUsername, {
+//         name: name.trim(), slug: slug.trim(), description: '', imageUrl: '',
+//         parentId: parentId ?? 0, displayOrder: 0,
+//       });
+//       // Optimistically build the category object; real ID comes from API if returned
+//       const newCat: Category = {
+//         id:       (res as any)?.data?.id ?? Date.now(),
+//         name:     name.trim(),
+//         slug:     slug.trim(),
+//         parentId: parentId ?? undefined,
+//         active:   true,
+//       };
+//       invalidate(storeUsername);
+//       onCreated(newCat);
+//     } catch (err: any) {
+//       setError(err?.message || 'Failed to create category.');
+//       setSaving(false);
+//     }
+//   };
 
-  return (
-    <div className="mt-3 rounded-2xl border border-blue-200 dark:border-blue-800 bg-blue-50/60 dark:bg-blue-900/20 p-4 space-y-3">
-      <p className="text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
-        <span>🏷️</span> New Category
-      </p>
-      {error && (
-        <div className="px-3 py-2 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 text-red-600 dark:text-red-400 text-xs flex items-center justify-between">
-          <span>⚠️ {error}</span>
-          <button onClick={() => setError(null)} className="ml-2 text-red-400 hover:text-red-600">×</button>
-        </div>
-      )}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {parents.length > 0 && (
-          <div className="sm:col-span-2">
-            <label className={lbl}>Parent <span className="text-slate-400 font-normal text-xs">(optional)</span></label>
-            <select value={parentId ?? ''} onChange={e => setParentId(e.target.value === '' ? null : Number(e.target.value))} className={inp}>
-              <option value="">Root (top-level)</option>
-              {parents.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
-          </div>
-        )}
-        <div>
-          <label className={lbl}>Name <span className="text-red-500">*</span></label>
-          <input ref={ref} value={name} onChange={e => handleNameChange(e.target.value)} placeholder="e.g. Electronics" className={inp} />
-        </div>
-        <div>
-          <label className={lbl}>Slug <span className="text-red-500">*</span></label>
-          <input value={slug} onChange={e => setSlug(e.target.value)} placeholder="electronics" className={`${inp} font-mono text-blue-600 dark:text-blue-400`} />
-        </div>
-      </div>
-      <div className="flex gap-2 pt-1">
-        <button onClick={onCancel} className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Cancel</button>
-        <button onClick={handleSave} disabled={saving} className="px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center gap-1.5">
-          {saving ? <><span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Creating…</> : '✓ Create'}
-        </button>
-      </div>
-    </div>
-  );
-}
+//   return (
+//     <div className="mt-3 rounded-2xl border border-blue-200 dark:border-blue-800 bg-blue-50/60 dark:bg-blue-900/20 p-4 space-y-3">
+//       <p className="text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
+//         <span>🏷️</span> New Category
+//       </p>
+//       {error && (
+//         <div className="px-3 py-2 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 text-red-600 dark:text-red-400 text-xs flex items-center justify-between">
+//           <span>⚠️ {error}</span>
+//           <button onClick={() => setError(null)} className="ml-2 text-red-400 hover:text-red-600">×</button>
+//         </div>
+//       )}
+//       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+//         {parents.length > 0 && (
+//           <div className="sm:col-span-2">
+//             <label className={lbl}>Parent <span className="text-slate-400 font-normal text-xs">(optional)</span></label>
+//             <select value={parentId ?? ''} onChange={e => setParentId(e.target.value === '' ? null : Number(e.target.value))} className={inp}>
+//               <option value="">Root (top-level)</option>
+//               {parents.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+//             </select>
+//           </div>
+//         )}
+//         <div>
+//           <label className={lbl}>Name <span className="text-red-500">*</span></label>
+//           <input ref={ref} value={name} onChange={e => handleNameChange(e.target.value)} placeholder="e.g. Electronics" className={inp} />
+//         </div>
+//         <div>
+//           <label className={lbl}>Slug <span className="text-red-500">*</span></label>
+//           <input value={slug} onChange={e => setSlug(e.target.value)} placeholder="electronics" className={`${inp} font-mono text-blue-600 dark:text-blue-400`} />
+//         </div>
+//       </div>
+//       <div className="flex gap-2 pt-1">
+//         <button onClick={onCancel} className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Cancel</button>
+//         <button onClick={handleSave} disabled={saving} className="px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center gap-1.5">
+//           {saving ? <><span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Creating…</> : '✓ Create'}
+//         </button>
+//       </div>
+//     </div>
+//   );
+// }
 
 // ─── Main Selector ─────────────────────────────────────────────────────────────
 
@@ -163,12 +163,12 @@ export default function CategorySelector({
     else                          onChange([...selectedIds, id]);
   };
 
-  const handleCreated = (cat: Category) => {
-    setCategories(prev => [...prev, cat]);
-    setFetchState('loaded');
-    onChange([...selectedIds, cat.id]);
-    setShowNew(false);
-  };
+  // const handleCreated = (cat: Category) => {
+  //   setCategories(prev => [...prev, cat]);
+  //   setFetchState('loaded');
+  //   onChange([...selectedIds, cat.id]);
+  //   setShowNew(false);
+  // };
 
   // Group into parent → children
   const parents  = categories.filter(c => !c.parentId || c.parentId === 0);

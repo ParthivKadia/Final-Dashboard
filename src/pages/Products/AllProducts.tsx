@@ -29,14 +29,6 @@ const statusDot: Record<string, string> = {
   'Out of Stock': 'bg-red-500',
 };
 
-// Outside component — stable reference, never causes re-renders
-// const UW_CONFIG: Record<string, unknown> = {
-//   cloudName:            import.meta.env.VITE_CLOUD_NAME ?? '',
-//   uploadPreset:         import.meta.env.VITE_UPLOAD_PRESET ?? '',
-//   multiple:             false,
-//   clientAllowedFormats: ['image'],
-// };
-
 const MAX_ADDITIONAL_IMAGES = 2;
 
 const emptyForm = (): CreateProductRequestBody => ({
@@ -87,20 +79,13 @@ export default function AllProducts() {
   const [showDialog, setShowDialog] = useState(false);
   const [form, setForm]             = useState<CreateProductRequestBody>(emptyForm());
   const [tagsInput, setTagsInput]   = useState('');
-  // ✅ images is now string[] managed directly on form, no separate imagesInput string
+  // images is now string[] managed directly on form, no separate imagesInput string
   const [saving, setSaving]         = useState(false);
   const [formError, setFormError]   = useState<string | null>(null);
   const [activeTab, setActiveTab]   = useState<'basic' | 'pricing' | 'inventory'>('basic');
 
   const [deleteTarget, setDeleteTarget] = useState<{ slug: string; name: string } | null>(null);
   const [deleting, setDeleting]         = useState(false);
-
-  const UW_CONFIG = useMemo(() => ({
-    cloudName:            import.meta.env.VITE_CLOUD_NAME,
-    uploadPreset:         import.meta.env.VITE_UPLOAD_PRESET,
-    multiple:             false,
-    clientAllowedFormats: ['image'],
-  }), []); // empty deps — env vars never change at runtime
 
   const inp = "w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-blue-500 dark:focus:ring-blue-900/30 dark:placeholder:text-slate-500";
   const lbl = "block text-sm font-semibold text-slate-700 mb-1.5 dark:text-slate-300";
@@ -190,7 +175,6 @@ export default function AllProducts() {
       slug: prev.slug === '' || prev.slug === autoSlug(prev.name) ? autoSlug(name) : prev.slug,
     }));
 
-  // ✅ Stable upload callbacks — won't trigger widget re-init on re-render
   const handleMainImageUpload = useCallback((url: string) => {
     setForm(prev => ({ ...prev, imageUrl: url }));
   }, []);
@@ -628,7 +612,7 @@ export default function AllProducts() {
                   <div>
                     <label className={lbl}>Main Image</label>
                     <div className="flex items-center gap-3 flex-wrap">
-                      <CloudinaryUploadWidget uwConfig={UW_CONFIG} onUpload={handleMainImageUpload} />
+                      <CloudinaryUploadWidget onUpload={handleMainImageUpload} />
                       {form.imageUrl && (
                         <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0">
                           <img src={form.imageUrl} alt="Main" className="w-full h-full object-cover" />
@@ -663,7 +647,7 @@ export default function AllProducts() {
                         </div>
                       ))}
                       {(form.images ?? []).length < MAX_ADDITIONAL_IMAGES && (
-                        <CloudinaryUploadWidget uwConfig={UW_CONFIG} onUpload={handleAdditionalImageUpload} />
+                        <CloudinaryUploadWidget onUpload={handleAdditionalImageUpload} />
                       )}
                     </div>
                     {(form.images ?? []).length >= MAX_ADDITIONAL_IMAGES && (

@@ -204,3 +204,12 @@ export type CreateCategoriesBody = {
   parentId: number,
   displayOrder: number
 }
+
+// ─── CLOUDIARY IMAGE ──────────────────────────────────────────────────────────────
+export type CloudiaryResponseBody = {
+  folder: string,
+  apiKey: string,
+  signature: string,
+  cloudName: string,
+  timestamp: number
+}

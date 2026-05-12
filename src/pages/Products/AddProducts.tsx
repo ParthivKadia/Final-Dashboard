@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createProduct } from '../../services/productService';
 import { userDetails } from '../../services/userService';
@@ -9,14 +9,6 @@ import CloudinaryUploadWidget from '../../ImageUpload';
 
 const inp = "w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-blue-500 dark:focus:ring-blue-900/30 dark:placeholder:text-slate-500";
 const lbl  = "block text-sm font-semibold text-slate-700 mb-1.5 dark:text-slate-300";
-
-// Outside component — never recreated on re-render
-// const UW_CONFIG: Record<string, unknown> = {
-//   cloudName:            import.meta.env.VITE_CLOUD_NAME ?? '',
-//   uploadPreset:         import.meta.env.VITE_UPLOAD_PRESET,
-//   multiple:             false,
-//   clientAllowedFormats: ['image'],
-// };
 
 const MAX_ADDITIONAL_IMAGES = 2; // main image + 2 additional = 3 total
 
@@ -61,13 +53,6 @@ export default function AddProduct() {
 
   const storeUsername = activeStore?.username ?? '';
 
-  const UW_CONFIG = useMemo(() => ({
-    cloudName:            import.meta.env.VITE_CLOUD_NAME,
-    uploadPreset:         import.meta.env.VITE_UPLOAD_PRESET,
-    multiple:             false,
-    clientAllowedFormats: ['image'],
-  }), []); // empty deps — env vars never change at runtime
-
   const { fetchCategories } = useCategoryStore();
   useEffect(() => {
     if (storeUsername) fetchCategories(storeUsername);
@@ -107,21 +92,24 @@ export default function AddProduct() {
     }));
   };
 
-  // Stable callbacks via useCallback — won't cause widget re-init
-  const handleMainImageUpload = useCallback((url: string) => {
-    setForm(prev => ({ ...prev, imageUrl: url }));
-  }, []);
+  // ── Image upload handlers ──────────────────────────────────────────────────
+  // These are plain functions (no useCallback needed) because ImageUploadButton
+  // calls them only after a successful Cloudinary upload — they don't affect
+  // widget initialisation.
 
-  const handleAdditionalImageUpload = useCallback((url: string) => {
+  const handleMainImageUpload = (url: string) =>
+    setForm(prev => ({ ...prev, imageUrl: url }));
+
+  const handleAdditionalImageUpload = (url: string) =>
     setForm(prev => {
       if (prev.images.length >= MAX_ADDITIONAL_IMAGES) return prev;
       return { ...prev, images: [...prev.images, url] };
     });
-  }, []);
 
-  const removeAdditionalImage = (index: number) => {
+  const removeAdditionalImage = (index: number) =>
     setForm(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== index) }));
-  };
+
+  // ── Validation ─────────────────────────────────────────────────────────────
 
   const validate = (): string | null => {
     if (!form.name.trim())                      { setActiveTab('basic');     return 'Product name is required.'; }
@@ -149,7 +137,7 @@ export default function AddProduct() {
         compareAtPrice: Number(form.compareAtPrice) || 0,
         currency:       form.currency,
         imageUrl:       form.imageUrl.trim(),
-        images:         form.images,           // already string[], sent as-is
+        images:         form.images,
         tags:           form.tags.split(',').map(t => t.trim()).filter(Boolean),
         inStock:        form.inStock,
         stockCount:     Number(form.stockCount) || 0,
@@ -355,7 +343,7 @@ export default function AddProduct() {
                 <div>
                   <label className={lbl}>Main Image</label>
                   <div className="flex items-center gap-3 flex-wrap">
-                    <CloudinaryUploadWidget uwConfig={UW_CONFIG} onUpload={handleMainImageUpload} />
+                    <CloudinaryUploadWidget onUpload={handleMainImageUpload} />
                     {form.imageUrl && (
                       <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0">
                         <img src={form.imageUrl} alt="Main preview" className="w-full h-full object-cover" />
@@ -392,7 +380,7 @@ export default function AddProduct() {
                       </div>
                     ))}
                     {form.images.length < MAX_ADDITIONAL_IMAGES && (
-                      <CloudinaryUploadWidget uwConfig={UW_CONFIG} onUpload={handleAdditionalImageUpload} />
+                      <CloudinaryUploadWidget onUpload={handleAdditionalImageUpload} />
                     )}
                   </div>
                   {form.images.length >= MAX_ADDITIONAL_IMAGES && (
@@ -536,7 +524,6 @@ export default function AddProduct() {
           <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-5">
             <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-4">Product Images</h3>
 
-            {/* Main image preview */}
             {form.imageUrl ? (
               <div className="rounded-xl overflow-hidden border border-slate-100 dark:border-slate-700 mb-3">
                 <img
@@ -558,7 +545,6 @@ export default function AddProduct() {
               </div>
             )}
 
-            {/* Additional image thumbnails */}
             {form.images.length > 0 && (
               <div className="flex gap-2 flex-wrap mt-2">
                 {form.images.map((url, i) => (

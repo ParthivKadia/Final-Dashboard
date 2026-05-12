@@ -5,14 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { createStore } from "../../services/storeService";
 import CloudinaryUploadWidget from "../../ImageUpload";
 
-// Outside component — never recreated on re-render
-// const UW_CONFIG: Record<string, unknown> = {
-//   cloudName:            import.meta.env.VITE_CLOUD_NAME ?? '',
-//   uploadPreset:         import.meta.env.VITE_UPLOAD_PRESET ?? '',
-//   multiple:             false,
-//   clientAllowedFormats: ['image'],
-// };
-
 const THEMES = [
   { id: "MINIMAL_LIGHT", label: "Minimal Light", desc: "Clean & airy",        icon: "☀️" },
   { id: "MINIMAL_DARK",  label: "Minimal Dark",  desc: "Sleek & bold",        icon: "🌙" },
@@ -52,13 +44,6 @@ export default function CreateStore() {
     facebook: "",
     twitter: "",
   });
-
-  const UW_CONFIG = useMemo(() => ({
-    cloudName:            import.meta.env.VITE_CLOUD_NAME,
-    uploadPreset:         import.meta.env.VITE_UPLOAD_PRESET,
-    multiple:             false,
-    clientAllowedFormats: ['image'],
-  }), []); // empty deps — env vars never change at runtime
 
   const update = (field: keyof FormData, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -284,7 +269,7 @@ export default function CreateStore() {
                 <div>
                   <label className={lbl}>Store Logo</label>
                   <div className="flex items-center gap-3 flex-wrap">
-                    <CloudinaryUploadWidget uwConfig={UW_CONFIG} onUpload={handleLogoUpload} />
+                    <CloudinaryUploadWidget onUpload={handleLogoUpload} />
                     {form.logoUrl && (
                       <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0">
                         <img
@@ -310,7 +295,7 @@ export default function CreateStore() {
                 <div>
                   <label className={lbl}>Store Banner</label>
                   <div className="flex items-center gap-3 flex-wrap">
-                    <CloudinaryUploadWidget uwConfig={UW_CONFIG} onUpload={handleBannerUpload} />
+                    <CloudinaryUploadWidget onUpload={handleBannerUpload} />
                     {form.bannerUrl && (
                       <div className="relative w-full rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 mt-2">
                         <img

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
@@ -7,15 +7,6 @@ import Checkbox from "../form/input/Checkbox";
 import { register } from "../../services/authService";
 import { tokenStorage } from "../../utils/tokenStorage";
 import CloudinaryUploadWidget from "../../ImageUpload";
-
-// TODO: i have added upload image logic here, check it once
-// TODO: after registation is successed redirst user to /signin page
-// const UW_CONFIG: Record<string, unknown> = {
-//   cloudName:            import.meta.env.VITE_CLOUD_NAME ?? '',
-//   uploadPreset:         import.meta.env.VITE_UPLOAD_PRESET ?? '',
-//   multiple:             false,
-//   clientAllowedFormats: ['image'],
-// };
 
 interface FormData {
   name:           string;
@@ -32,13 +23,6 @@ export default function RegisterForm() {
   const [isChecked, setIsChecked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const UW_CONFIG = useMemo(() => ({
-    cloudName:            import.meta.env.VITE_CLOUD_NAME,
-    uploadPreset:         import.meta.env.VITE_UPLOAD_PRESET,
-    multiple:             false,
-    clientAllowedFormats: ['image'],
-  }), []); // empty deps — env vars never change at runtime
 
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -82,7 +66,7 @@ export default function RegisterForm() {
         password: formData.password,
         image: formData.image,
       });
-      console.log(response)
+      // console.log(response)
 
       const token = response?.data?.token;
 
@@ -219,7 +203,7 @@ export default function RegisterForm() {
                     value={formData.image}
                     onChange={handleChange}
                   /> */}
-                  <CloudinaryUploadWidget uwConfig={UW_CONFIG} onUpload={handleProfileImageUpload} />
+                  <CloudinaryUploadWidget onUpload={handleProfileImageUpload} />
                     {formData.image && (
                       <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0">
                         <img src={formData.image} alt="Main preview" className="w-full h-full object-cover" />

@@ -32,6 +32,8 @@ export const ENDPOINTS = {
     UPDATE_STORE: (username: string) => `/api/v1/rest/stores/${username}`,
     DELETE_STORE: (username: string) => `/api/v1/rest/stores/${username}`,
 
+    // Cloudinary Image 
+    CLOUDINARY_SIGNATURE: () => `/api/v1/cloudinary/signature`,
 
     GET_STORE_PRODUCTS: (username: string) => `/api/v1/rest/stores/${username}/products`,
     GET_STORE_PRODUCT_BY_SLUG: (username: string, slug: string) => `/api/v1/rest/stores/${username}/products/${slug}`,

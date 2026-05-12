@@ -1,111 +1,71 @@
+// src/ImageUpload.tsx
+
 import { useRef, useState, useEffect } from 'react';
-
-const CLOUDINARY_SCRIPT_URL = 'https://upload-widget.cloudinary.com/global/all.js';
-
-let scriptState: 'idle' | 'loading' | 'ready' = 'idle';
-const pendingCallbacks: (() => void)[] = [];
-
-function ensureScript(onReady: () => void) {
-  if (scriptState === 'ready') { onReady(); return; }
-  pendingCallbacks.push(onReady);
-  if (scriptState === 'loading') return;
-  scriptState = 'loading';
-  const s = document.createElement('script');
-  s.src = CLOUDINARY_SCRIPT_URL;
-  s.async = true;
-  s.onload = () => {
-    scriptState = 'ready';
-    pendingCallbacks.splice(0).forEach(cb => cb());
-  };
-  document.body.appendChild(s);
-}
-
-declare global {
-  interface Window {
-    cloudinary: {
-      createUploadWidget: (
-        config: Record<string, unknown>,
-        callback: (
-          error: unknown,
-          result: { event?: string; info?: Record<string, unknown> } | null
-        ) => void
-      ) => { open: () => void; destroy: () => void };
-    };
-  }
-}
+import { prefetchCloudinarySignature, uploadImageToCloudinary } from './utils/cloudinaryUpload';
 
 type Props = {
-  uwConfig: Record<string, unknown>;
-  onUpload: (url: string) => void;
+  onUpload:   (url: string) => void;
+  uwConfig?:  Record<string, unknown>; // kept for call-site compatibility, not used
 };
 
-export default function CloudinaryUploadWidget({ uwConfig, onUpload }: Props) {
+export default function CloudinaryUploadWidget({ onUpload }: Props) {
   const [loading, setLoading] = useState(false);
-  const onUploadRef  = useRef(onUpload);
-  const uwConfigRef  = useRef(uwConfig);
-  const widgetRef    = useRef<{ open: () => void; destroy: () => void } | null>(null);
+  const [error, setError]     = useState<string | null>(null);
+  const inputRef              = useRef<HTMLInputElement>(null);
+  const onUploadRef           = useRef(onUpload);
+  onUploadRef.current         = onUpload;
 
-  // Always keep refs current
-  onUploadRef.current = onUpload;
-  uwConfigRef.current = uwConfig;
-  console.log(uwConfig)
+  // Warm the signature on mount so the first click has a head start
+  useEffect(() => { prefetchCloudinarySignature(); }, []);
 
-  // Pre-load the script on mount so it's ready before first click
-  useEffect(() => {
-    ensureScript(() => {});
-    return () => {
-      widgetRef.current?.destroy?.();
-      widgetRef.current = null;
-    };
-  }, []);
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = ''; // reset so same file can be re-picked after removal
 
-  const openWidget = () => {
-    // Always read config from ref — guaranteed to have latest values
-    const config = uwConfigRef.current;
-
-    // Safety check before opening
-    console.log('Opening widget with config:', config);
-
-    if (!config.cloudName || !config.uploadPreset) {
-      console.error('Missing cloudName or uploadPreset:', config);
-      return;
-    }
-
-    // Destroy stale widget and create fresh one with current config
-    widgetRef.current?.destroy?.();
-    widgetRef.current = window.cloudinary.createUploadWidget(
-      config,
-      (error, result) => {
-        if (error) { console.error('Cloudinary error:', error); return; }
-        if (result?.event === 'success' && result.info) {
-          const url = result.info['secure_url'] as string | undefined;
-          if (url) onUploadRef.current(url);
-        }
-      }
-    );
-    widgetRef.current.open();
-  };
-
-  const handleClick = () => {
-    if (scriptState === 'ready') {
-      openWidget();
-    } else {
-      setLoading(true);
-      ensureScript(() => {
-        setLoading(false);
-        openWidget();
-      });
+    setLoading(true);
+    setError(null);
+    try {
+      const url = await uploadImageToCloudinary(file);
+      onUploadRef.current(url);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Upload failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      disabled={loading}
-      className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      {loading ? '⏳ Loading...' : '📤 Upload Image'}
-    </button>
+    <div className="inline-flex flex-col gap-1">
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleChange}
+        disabled={loading}
+      />
+      <button
+        type="button"
+        onClick={() => { setError(null); inputRef.current?.click(); }}
+        disabled={loading}
+        className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {loading
+          ? <span className="flex items-center gap-2">
+              <span className="w-4 h-4 border-2 border-slate-300 border-t-slate-600 dark:border-t-slate-300 rounded-full animate-spin inline-block" />
+              Uploading…
+            </span>
+          : '📤 Upload Image'
+        }
+      </button>
+      {error && (
+        <p className="text-[11px] text-red-500 dark:text-red-400 flex items-center gap-1">
+          ⚠️ {error}
+          <button type="button" onClick={() => setError(null)}
+            className="ml-0.5 text-red-400 hover:text-red-600 text-sm leading-none">×</button>
+        </p>
+      )}
+    </div>
   );
 }

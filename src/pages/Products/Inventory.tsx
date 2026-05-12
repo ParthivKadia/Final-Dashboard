@@ -41,18 +41,6 @@ const REORDER_POINT        = 10;
 const PAGE_SIZE            = 50;
 const MAX_ADDITIONAL_IMAGES = 2;
 
-// Outside component — stable reference, never causes re-renders
-// const UW_CONFIG: Record<string, unknown> = {
-//   cloudName:            import.meta.env.VITE_CLOUD_NAME,
-//   uploadPreset:         import.meta.env.VITE_UPLOAD_NAME,
-//   multiple:             false,
-//   clientAllowedFormats: ['image'],
-// };
-
-// console.log('VITE_CLOUD_NAME:', import.meta.env.VITE_CLOUD_NAME)
-// console.log('VITE_UPLOAD_NAME:', import.meta.env.VITE_UPLOAD_PRESET)
-// console.log(import.meta.env);
-
 const inp = "w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-blue-500 dark:focus:ring-blue-900/30 dark:placeholder:text-slate-500";
 const lbl = "block text-sm font-semibold text-slate-700 mb-1.5 dark:text-slate-300";
 
@@ -299,13 +287,6 @@ function CardImageSlider({ mainUrl, extras }: { mainUrl: string; extras: string[
 // ─── Component ─────────────────────────────────────────────────────────────────
 
 export default function Inventory() {
-  const UW_CONFIG = useMemo(() => ({
-    cloudName:            import.meta.env.VITE_CLOUD_NAME,
-    uploadPreset:         import.meta.env.VITE_UPLOAD_PRESET,
-    multiple:             false,
-    clientAllowedFormats: ['image'],
-  }), []); // empty deps — env vars never change at runtime
-
   const navigate = useNavigate();
   const { isVerifying } = useAuth();
 
@@ -369,7 +350,7 @@ export default function Inventory() {
     if (storeUsername && !isVerifying) fetchInventory();
   }, [storeUsername, isVerifying, fetchInventory]);
 
-  console.log(items)
+  // console.log(items)
 
   // ── Filtering ──────────────────────────────────────────────────────────────
 
@@ -907,7 +888,7 @@ export default function Inventory() {
                   <div>
                     <label className={lbl}>Main Image</label>
                     <div className="flex items-center gap-3 flex-wrap">
-                      <CloudinaryUploadWidget uwConfig={UW_CONFIG} onUpload={handleMainImageUpload} />
+                      <CloudinaryUploadWidget onUpload={handleMainImageUpload} />
                       {editForm.imageUrl && (
                         <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0">
                           <img src={editForm.imageUrl} alt="Main" className="w-full h-full object-cover" />
@@ -942,7 +923,7 @@ export default function Inventory() {
                         </div>
                       ))}
                       {(editForm.images ?? []).length < MAX_ADDITIONAL_IMAGES && (
-                        <CloudinaryUploadWidget uwConfig={UW_CONFIG} onUpload={handleAdditionalImageUpload} />
+                        <CloudinaryUploadWidget onUpload={handleAdditionalImageUpload} />
                       )}
                     </div>
                     {(editForm.images ?? []).length >= MAX_ADDITIONAL_IMAGES && (

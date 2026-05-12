@@ -67,8 +67,6 @@ export async function api<T = any>(
     let data: any;
     try {
         data = await response.json();
-        // console.log("Response status:", response.status);
-        // console.log("Response data:", data);
     } catch {
         throw new ApiError("Invalid response from server.", response.status);
     }

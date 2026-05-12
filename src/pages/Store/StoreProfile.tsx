@@ -9,14 +9,6 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import CloudinaryUploadWidget from "../../ImageUpload";
 
-// Outside component — never recreated on re-render
-// const UW_CONFIG: Record<string, unknown> = {
-//   cloudName:            import.meta.env.VITE_CLOUD_NAME ?? '',
-//   uploadPreset:         import.meta.env.VITE_UPLOAD_PRESET ?? '',
-//   multiple:             false,
-//   clientAllowedFormats: ['image'],
-// };
-
 const THEMES = [
   { id: "MINIMAL_LIGHT", label: "Minimal Light", icon: "☀️" },
   { id: "MINIMAL_DARK",  label: "Minimal Dark",  icon: "🌙" },
@@ -71,13 +63,6 @@ export default function StoreProfile() {
   const [isEditing,   setIsEditing]   = useState(false);
   const [saving,      setSaving]      = useState(false);
   const [saveError,   setSaveError]   = useState<string | null>(null);
-
-  const UW_CONFIG = useMemo(() => ({
-    cloudName:            import.meta.env.VITE_CLOUD_NAME,
-    uploadPreset:         import.meta.env.VITE_UPLOAD_PRESET,
-    multiple:             false,
-    clientAllowedFormats: ['image'],
-  }), []); // empty deps — env vars never change at runtime
 
   // If stores load after render (edge case: landing directly on this page)
   useEffect(() => {
@@ -324,7 +309,7 @@ export default function StoreProfile() {
                   {isEditing ? (
                     <div className="space-y-2">
                       <div className="flex items-center gap-3 flex-wrap">
-                        <CloudinaryUploadWidget uwConfig={UW_CONFIG} onUpload={handleLogoUpload} />
+                        <CloudinaryUploadWidget onUpload={handleLogoUpload} />
                         {draft.logoUrl && (
                           <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 shrink-0">
                             <img src={draft.logoUrl} alt="Logo preview"
@@ -362,7 +347,7 @@ export default function StoreProfile() {
                   {isEditing ? (
                     <div className="space-y-2">
                       <div className="flex items-center gap-3 flex-wrap">
-                        <CloudinaryUploadWidget uwConfig={UW_CONFIG} onUpload={handleBannerUpload} />
+                        <CloudinaryUploadWidget onUpload={handleBannerUpload} />
                       </div>
                       {draft.bannerUrl && (
                         <div className="relative w-full rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">

@@ -287,7 +287,7 @@ export default function AllProducts() {
         <div className="flex gap-2">
           <button onClick={() => navigate('/products/categories')}
             className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-            🏷️ Categories
+            Categories
           </button>
           <button onClick={openDialog} disabled={!storeUsername}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-md shadow-blue-200 disabled:opacity-50 disabled:cursor-not-allowed">

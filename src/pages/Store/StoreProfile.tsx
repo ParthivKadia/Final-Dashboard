@@ -1,6 +1,6 @@
 // src/pages/Store/StoreProfile.tsx
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { updateStore } from "../../services/storeService";
 import { useAppStore } from "../../store/useAppStore";

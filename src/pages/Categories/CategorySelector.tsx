@@ -33,7 +33,7 @@ export default function CategorySelector({
   storeUsername,
   selectedIds,
   onChange,
-  allowCreate = true,
+  // allowCreate = true,
   required    = false,
   label       = 'Categories',
   className   = '',
@@ -43,7 +43,7 @@ export default function CategorySelector({
 
   const [categories,  setCategories]  = useState<Category[]>([]);
   const [fetchState,  setFetchState]  = useState<'idle' | 'loading' | 'error' | 'empty' | 'loaded'>('idle');
-  const [showNew,     setShowNew]     = useState(false);
+  // const [showNew,     setShowNew]     = useState(false);
 
   useEffect(() => {
     if (!storeUsername) return;
@@ -104,7 +104,7 @@ export default function CategorySelector({
       )}
 
       {/* ── Empty: 200 but no categories ── */}
-      {fetchState === 'empty' && !showNew && (
+      {fetchState === 'empty' && (
         <div className="rounded-xl border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/30 px-4 py-3 flex items-center justify-between gap-3">
           <div>
             <p className="text-sm font-medium text-slate-600 dark:text-slate-300">No categories yet</p>

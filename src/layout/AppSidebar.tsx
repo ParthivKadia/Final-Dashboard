@@ -1,3 +1,5 @@
+// src/layout/AppSidebar.tsx
+
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -160,9 +162,7 @@ const AppSidebar: React.FC = () => {
     const activeParent = menuItems.find((item) =>
       item.subItems?.some((sub) => isActive(sub.path))
     );
-    if (activeParent) {
-      setOpenMenu(activeParent.name);
-    }
+    if (activeParent) setOpenMenu(activeParent.name);
   }, [location.pathname]);
 
   const renderMenuItem = (item: MenuItem) => (
@@ -172,25 +172,38 @@ const AppSidebar: React.FC = () => {
           <button
             onClick={() => setOpenMenu(openMenu === item.name ? null : item.name)}
             className={`menu-item group w-full cursor-pointer ${
-              openMenu === item.name ? "menu-item-active" : "menu-item-inactive"
-            } ${!isSidebarOpen ? "lg:justify-center" : "lg:justify-start"}`}
+              !isSidebarOpen ? "lg:justify-center" : "lg:justify-start"
+            }`}
+            style={
+              openMenu === item.name
+                ? {
+                    backgroundColor: "rgba(33,80,212,0.15)",
+                    color: "var(--btn-outline-text, #6d97ef)",
+                  }
+                : {
+                    color: "var(--navbar-subtext)",
+                  }
+            }
+            onMouseEnter={(e) => {
+              if (openMenu !== item.name) {
+                e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.06)";
+                e.currentTarget.style.color = "var(--navbar-text)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (openMenu !== item.name) {
+                e.currentTarget.style.backgroundColor = "transparent";
+                e.currentTarget.style.color = "var(--navbar-subtext)";
+              }
+            }}
           >
-            <span
-              className={`menu-item-icon-size ${
-                openMenu === item.name
-                  ? "menu-item-icon-active"
-                  : "menu-item-icon-inactive"
-              }`}
-            >
-              {item.icon}
-            </span>
-
+            <span className="menu-item-icon-size">{item.icon}</span>
             {isSidebarOpen && (
               <>
                 <span className="menu-item-text">{item.name}</span>
                 <ChevronDownIcon
                   className={`ml-auto h-5 w-5 transition-transform duration-200 ${
-                    openMenu === item.name ? "rotate-180 text-brand-500" : ""
+                    openMenu === item.name ? "rotate-180" : ""
                   }`}
                 />
               </>
@@ -204,18 +217,35 @@ const AppSidebar: React.FC = () => {
                   <Link
                     to={subItem.path}
                     onClick={closeMobileSidebar}
-                    className={`menu-dropdown-item flex items-center gap-3 ${
+                    className="menu-dropdown-item flex items-center gap-3 transition-colors"
+                    style={
                       isActive(subItem.path)
-                        ? "menu-dropdown-item-active"
-                        : "menu-dropdown-item-inactive"
-                    }`}
+                        ? {
+                            backgroundColor: "rgba(33,80,212,0.15)",
+                            color: "var(--btn-outline-text, #6d97ef)",
+                          }
+                        : { color: "var(--navbar-subtext)" }
+                    }
+                    onMouseEnter={(e) => {
+                      if (!isActive(subItem.path)) {
+                        e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.06)";
+                        e.currentTarget.style.color = "var(--navbar-text)";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive(subItem.path)) {
+                        e.currentTarget.style.backgroundColor = "transparent";
+                        e.currentTarget.style.color = "var(--navbar-subtext)";
+                      }
+                    }}
                   >
                     <span
-                      className={`h-2 w-2 rounded-full ${
-                        isActive(subItem.path)
-                          ? "bg-brand-500"
-                          : "bg-gray-300 dark:bg-gray-600"
-                      }`}
+                      className="h-2 w-2 rounded-full flex-shrink-0"
+                      style={{
+                        backgroundColor: isActive(subItem.path)
+                          ? "var(--btn-primary-bg)"
+                          : "rgba(255,255,255,0.2)",
+                      }}
                     />
                     <span>{subItem.name}</span>
                   </Link>
@@ -229,19 +259,31 @@ const AppSidebar: React.FC = () => {
           <Link
             to={item.path}
             onClick={closeMobileSidebar}
-            className={`menu-item group ${
-              isActive(item.path) ? "menu-item-active" : "menu-item-inactive"
-            } ${!isSidebarOpen ? "lg:justify-center" : "lg:justify-start"}`}
+            className={`menu-item group transition-colors ${
+              !isSidebarOpen ? "lg:justify-center" : "lg:justify-start"
+            }`}
+            style={
+              isActive(item.path)
+                ? {
+                    backgroundColor: "rgba(33,80,212,0.15)",
+                    color: "var(--btn-outline-text, #6d97ef)",
+                  }
+                : { color: "var(--navbar-subtext)" }
+            }
+            onMouseEnter={(e) => {
+              if (!isActive(item.path!)) {
+                e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.06)";
+                e.currentTarget.style.color = "var(--navbar-text)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isActive(item.path!)) {
+                e.currentTarget.style.backgroundColor = "transparent";
+                e.currentTarget.style.color = "var(--navbar-subtext)";
+              }
+            }}
           >
-            <span
-              className={`menu-item-icon-size ${
-                isActive(item.path)
-                  ? "menu-item-icon-active"
-                  : "menu-item-icon-inactive"
-              }`}
-            >
-              {item.icon}
-            </span>
+            <span className="menu-item-icon-size">{item.icon}</span>
             {isSidebarOpen && <span className="menu-item-text">{item.name}</span>}
           </Link>
         )
@@ -251,20 +293,22 @@ const AppSidebar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed left-0 top-16 z-50 flex h-[calc(100vh-4rem)] flex-col border-r border-gray-200 bg-white px-5 text-gray-900 transition-all duration-300 ease-in-out
-        dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100
+      className={`fixed left-0 top-16 z-50 flex h-[calc(100vh-4rem)] flex-col border-r px-5 transition-all duration-300 ease-in-out
         lg:top-0 lg:h-screen
         ${isSidebarOpen ? "w-[290px]" : "w-[90px]"}
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0`}
+      style={{
+        backgroundColor: "var(--navbar-bg)",
+        borderColor: "rgba(255,255,255,0.08)",
+        color: "var(--navbar-text)",
+      }}
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Logo */}
       <div
-        className={`flex py-8 ${
-          !isSidebarOpen ? "lg:justify-center" : "justify-start"
-        }`}
+        className={`flex py-8 ${!isSidebarOpen ? "lg:justify-center" : "justify-start"}`}
       >
         <Link to="/" onClick={closeMobileSidebar} className="flex items-center gap-3">
           <img
@@ -275,7 +319,10 @@ const AppSidebar: React.FC = () => {
             className="rounded-xl"
           />
           {isSidebarOpen && (
-            <span className="text-2xl font-semibold text-slate-900 dark:text-white">
+            <span
+              className="text-2xl font-semibold"
+              style={{ color: "var(--navbar-text)" }}
+            >
               Seller Hub
             </span>
           )}
@@ -285,24 +332,31 @@ const AppSidebar: React.FC = () => {
       {/* Scrollable nav */}
       <div className="no-scrollbar flex-1 overflow-y-auto overscroll-contain pb-10">
         <nav className="mb-6">
+
+          {/* Home section */}
           {dashboardItem && (
             <div className="mb-6">
               <h2
-                className={`mb-3 flex text-xs font-semibold uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500 ${
+                className={`mb-3 flex text-xs font-semibold uppercase tracking-[0.16em] ${
                   !isSidebarOpen ? "lg:justify-center" : "justify-start"
                 }`}
+                style={{ color: "rgba(154,161,201,0.5)" }}
               >
                 {isSidebarOpen ? "Home" : <HorizontaLDots className="size-5" />}
               </h2>
-              <ul className="flex flex-col gap-2">{renderMenuItem(dashboardItem)}</ul>
+              <ul className="flex flex-col gap-2">
+                {renderMenuItem(dashboardItem)}
+              </ul>
             </div>
           )}
 
+          {/* Menu section */}
           <div>
             <h2
-              className={`mb-3 flex text-xs font-semibold uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500 ${
+              className={`mb-3 flex text-xs font-semibold uppercase tracking-[0.16em] ${
                 !isSidebarOpen ? "lg:justify-center" : "justify-start"
               }`}
+              style={{ color: "rgba(154,161,201,0.5)" }}
             >
               {isSidebarOpen ? "Menu" : <HorizontaLDots className="size-5" />}
             </h2>
@@ -310,6 +364,7 @@ const AppSidebar: React.FC = () => {
               {otherMenuItems.map((item) => renderMenuItem(item))}
             </ul>
           </div>
+
         </nav>
       </div>
     </aside>

@@ -6,8 +6,18 @@ export const ThemeToggleButton: React.FC = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-dark-900 h-11 w-11 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+      title="Toggle theme"
+      className="
+        relative flex items-center justify-center
+        h-11 w-11 rounded-full
+        border transition-colors duration-200
+        border-[var(--color-gray-200)] bg-white text-[var(--color-navy-700)]
+        hover:bg-[var(--color-surface-blue-100)] hover:border-[var(--color-site-blue-300)] hover:text-[var(--color-site-blue-500)]
+        dark:border-[var(--color-navy-600)] dark:bg-[var(--color-navy-800)] dark:text-[var(--color-surface-blue-200)]
+        dark:hover:bg-[var(--color-navy-700)] dark:hover:border-[var(--color-site-blue-400)] dark:hover:text-white
+      "
     >
+      {/* Sun icon — shown in dark mode */}
       <svg
         className="hidden dark:block"
         width="20"
@@ -23,6 +33,8 @@ export const ThemeToggleButton: React.FC = () => {
           fill="currentColor"
         />
       </svg>
+
+      {/* Moon icon — shown in light mode */}
       <svg
         className="dark:hidden"
         width="20"

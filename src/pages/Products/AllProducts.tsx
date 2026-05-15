@@ -152,10 +152,10 @@ export default function AllProducts() {
     });
 
   const stats = [
-    { label: 'Total',        value: total,                                                        icon: '📦', color: 'text-blue-600 dark:text-blue-400',   bg: 'bg-blue-50 dark:bg-blue-900/20'    },
-    { label: 'Active',       value: products.filter(p => getStatus(p) === 'Active').length,       icon: '✅', color: 'text-green-600 dark:text-green-400',  bg: 'bg-green-50 dark:bg-green-900/20'  },
-    { label: 'Low Stock',    value: products.filter(p => getStatus(p) === 'Low Stock').length,    icon: '⚠️', color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-50 dark:bg-yellow-900/20' },
-    { label: 'Out of Stock', value: products.filter(p => getStatus(p) === 'Out of Stock').length, icon: '❌', color: 'text-red-600 dark:text-red-400',      bg: 'bg-red-50 dark:bg-red-900/20'     },
+    { label: 'Total',        value: total,                                                         color: 'text-blue-600 dark:text-blue-400',   bg: 'bg-blue-50 dark:bg-blue-900/20'    },
+    { label: 'Active',       value: products.filter(p => getStatus(p) === 'Active').length,        color: 'text-green-600 dark:text-green-400',  bg: 'bg-green-50 dark:bg-green-900/20'  },
+    { label: 'Low Stock',    value: products.filter(p => getStatus(p) === 'Low Stock').length,     color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-50 dark:bg-yellow-900/20' },
+    { label: 'Out of Stock', value: products.filter(p => getStatus(p) === 'Out of Stock').length,  color: 'text-red-600 dark:text-red-400',      bg: 'bg-red-50 dark:bg-red-900/20'     },
   ];
 
   const totalPages   = Math.ceil(total / PAGE_SIZE);
@@ -310,7 +310,7 @@ export default function AllProducts() {
           <div key={s.label} className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-100 dark:border-slate-700 shadow-sm">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">{s.label}</span>
-              <div className={`w-8 h-8 rounded-xl ${s.bg} flex items-center justify-center text-sm`}>{s.icon}</div>
+              {/* <div className={`w-8 h-8 rounded-xl ${s.bg} flex items-center justify-center text-sm`}>{s.icon}</div> */}
             </div>
             <div className={`text-2xl font-bold ${s.color}`}>
               {loading
@@ -567,9 +567,9 @@ export default function AllProducts() {
             {/* Dialog Tabs */}
             <div className="flex shrink-0 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/30">
               {([
-                { id: 'basic',     label: '📝 Basic',     desc: 'Name, slug, category' },
-                { id: 'pricing',   label: '💰 Pricing',   desc: 'Price, MRP'           },
-                { id: 'inventory', label: '📦 Inventory', desc: 'Stock, featured'      },
+                { id: 'basic',     label: 'Basic',     desc: 'Name, slug, category' },
+                { id: 'pricing',   label: 'Pricing',   desc: 'Price, MRP'           },
+                { id: 'inventory', label: 'Inventory', desc: 'Stock, featured'      },
               ] as const).map(tab => (
                 <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                   className={`flex-1 py-3 px-2 text-center transition-all border-b-2 ${activeTab === tab.id ? 'border-blue-600 bg-white dark:bg-slate-800 text-blue-600' : 'border-transparent text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
@@ -779,7 +779,7 @@ export default function AllProducts() {
                 className="px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2">
                 {saving
                   ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</>
-                  : '🚀 Add Product'
+                  : 'Add Product'
                 }
               </button>
             </div>

@@ -169,9 +169,9 @@ export default function AddProduct() {
   const progress = Math.round((checklist.filter(c => c.done).length / checklist.length) * 100);
 
   const tabs = [
-    { id: 'basic',     label: 'Basic Info',    icon: '📝' },
-    { id: 'pricing',   label: 'Pricing & Tax', icon: '💰' },
-    { id: 'inventory', label: 'Inventory',     icon: '📦' },
+    { id: 'basic',     label: 'Basic Info' },
+    { id: 'pricing',   label: 'Pricing & Tax' },
+    { id: 'inventory', label: 'Inventory' },
   ] as const;
 
   if (initError) {
@@ -255,7 +255,7 @@ export default function AddProduct() {
             className={`px-5 py-2.5 rounded-xl text-white text-sm font-semibold transition-all shadow-md shadow-blue-200 flex items-center gap-2 ${saving || !storeUsername ? 'bg-slate-400 dark:bg-slate-600 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}>
             {saving
               ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Publishing...</>
-              : '🚀 Publish'
+              : 'Publish'
             }
           </button>
         </div>
@@ -280,7 +280,7 @@ export default function AddProduct() {
             {tabs.map(tab => (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                 className={`flex-1 min-w-[80px] flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all ${activeTab === tab.id ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700'}`}>
-                <span>{tab.icon}</span><span>{tab.label}</span>
+                <span>{tab.label}</span>
               </button>
             ))}
           </div>
@@ -490,8 +490,8 @@ export default function AddProduct() {
                       onChange={e => update('inStock', e.target.value === 'true')}
                       className={inp}
                     >
-                      <option value="true">✅ In Stock</option>
-                      <option value="false">❌ Out of Stock</option>
+                      <option value="true">In Stock</option>
+                      <option value="false">Out of Stock</option>
                     </select>
                   </div>
                 </div>
@@ -613,7 +613,7 @@ export default function AddProduct() {
             className={`w-full py-3 rounded-xl text-white text-sm font-semibold transition-all flex items-center justify-center gap-2 ${saving || !storeUsername ? 'bg-slate-400 dark:bg-slate-600 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-200'}`}>
             {saving
               ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Publishing...</>
-              : '🚀 Publish Product'
+              : 'Publish Product'
             }
           </button>
         </div>

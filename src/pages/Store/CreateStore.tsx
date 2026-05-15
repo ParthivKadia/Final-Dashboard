@@ -94,9 +94,9 @@ export default function CreateStore() {
   };
 
   const tabs = [
-    { id: "basic",      label: "Basic Info",   icon: "🏪" },
-    { id: "appearance", label: "Appearance",   icon: "🎨" },
-    { id: "social",     label: "Social Links", icon: "🔗" },
+    { id: "basic",      label: "Basic Info" },
+    { id: "appearance", label: "Appearance" },
+    { id: "social",     label: "Social Links" },
   ] as const;
 
   const inp =
@@ -134,7 +134,7 @@ export default function CreateStore() {
               saving ? "bg-slate-400 dark:bg-slate-600 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
             }`}
           >
-            {saving ? "⏳ Creating..." : "🚀 Launch Store"}
+            {saving ? "Creating..." : "Launch Store"}
           </button>
         </div>
       </div>
@@ -160,7 +160,7 @@ export default function CreateStore() {
                     : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
                 }`}
               >
-                <span>{tab.icon}</span>
+                {/* <span>{tab.icon}</span> */}
                 <span>{tab.label}</span>
               </button>
             ))}

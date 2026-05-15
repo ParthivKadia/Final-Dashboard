@@ -530,7 +530,7 @@ export default function Inventory() {
         <div className="flex gap-2 shrink-0">
           <button onClick={() => fetchInventory(true)}
             className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-            🔄 Refresh
+            Refresh
           </button>
           <button onClick={() => navigate('/products/add')}
             className="px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-md shadow-blue-200">
@@ -550,15 +550,15 @@ export default function Inventory() {
       {/* ── Stats ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-5">
         {[
-          { label: 'Total Stock Units', value: loading ? '—' : totalStock.toLocaleString(), icon: '📦', color: 'text-blue-600 dark:text-blue-400',   bg: 'bg-blue-50 dark:bg-blue-900/20'    },
-          { label: 'Active Items',      value: loading ? '—' : activeCount,                 icon: '✅', color: 'text-green-600 dark:text-green-400',  bg: 'bg-green-50 dark:bg-green-900/20'  },
-          { label: 'Low Stock',         value: loading ? '—' : lowCount,                    icon: '⚠️', color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-50 dark:bg-yellow-900/20' },
-          { label: 'Out of Stock',      value: loading ? '—' : outCount,                    icon: '❌', color: 'text-red-600 dark:text-red-400',      bg: 'bg-red-50 dark:bg-red-900/20'      },
+          { label: 'Total Stock Units', value: loading ? '—' : totalStock.toLocaleString(), color: 'text-blue-600 dark:text-blue-400',   bg: 'bg-blue-50 dark:bg-blue-900/20'    },
+          { label: 'Active Items',      value: loading ? '—' : activeCount,                 color: 'text-green-600 dark:text-green-400',  bg: 'bg-green-50 dark:bg-green-900/20'  },
+          { label: 'Low Stock',         value: loading ? '—' : lowCount,                    color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-50 dark:bg-yellow-900/20' },
+          { label: 'Out of Stock',      value: loading ? '—' : outCount,                    color: 'text-red-600 dark:text-red-400',      bg: 'bg-red-50 dark:bg-red-900/20'      },
         ].map(s => (
           <div key={s.label} className="bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-5 border border-slate-100 dark:border-slate-700 shadow-sm">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-tight">{s.label}</span>
-              <div className={`w-8 h-8 rounded-xl ${s.bg} flex items-center justify-center text-sm shrink-0`}>{s.icon}</div>
+              {/* <div className={`w-8 h-8 rounded-xl ${s.bg} flex items-center justify-center text-sm shrink-0`}>{s.icon}</div> */}
             </div>
             {loading
               ? <div className="h-8 w-16 bg-slate-100 dark:bg-slate-700 rounded animate-pulse" />
@@ -699,7 +699,7 @@ export default function Inventory() {
                           <div className="flex gap-1.5">
                             <button onClick={() => openEdit(item)}
                               className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors whitespace-nowrap">
-                              ✏️ Edit
+                              Edit
                             </button>
                             {item.stock <= item.reorderPoint && (
                               <button onClick={() => navigate('/products/add')}
@@ -781,7 +781,7 @@ export default function Inventory() {
                           <div className="flex gap-1.5 pt-1">
                             <button onClick={() => openEdit(item)}
                               className="flex-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-semibold py-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors text-center">
-                              ✏️ Edit
+                              Edit
                             </button>
                             {item.stock <= item.reorderPoint && (
                               <button onClick={() => navigate('/products/add')}

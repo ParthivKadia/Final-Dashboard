@@ -132,7 +132,7 @@ function CategoryDialog({ mode, initial, defaultParentId = null, allCategories, 
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700 shrink-0">
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-              {mode === 'create' ? (form.parentId ? '↳ New Sub-category' : '🏷️ New Category') : '✏️ Edit Category'}
+              {mode === 'create' ? (form.parentId ? '↳ New Sub-category' : 'New Category') : 'Edit Category'}
             </h2>
             <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
               {mode === 'create'
@@ -381,12 +381,12 @@ function CategoryRow({ cat, children, onEdit, onToggle, onAddChild, depth = 0 }:
         </td>
         <td className="py-3 px-4">
           <div className="flex gap-1.5 flex-wrap">
-            <button onClick={() => onEdit(cat)} className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-semibold px-2.5 py-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors">✏️ Edit</button>
+            <button onClick={() => onEdit(cat)} className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-semibold px-2.5 py-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors">Edit</button>
             {/* + Sub available on every row regardless of depth */}
             <button onClick={() => onAddChild(cat.id)} className="bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">+ Sub</button>
             {isActive
-              ? <button onClick={() => onToggle(cat, 'deactivate')} className="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 text-xs font-semibold px-2.5 py-1.5 rounded-lg hover:bg-yellow-100 transition-colors">⏸️ Disable</button>
-              : <button onClick={() => onToggle(cat, 'activate')}   className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-semibold px-2.5 py-1.5 rounded-lg hover:bg-green-100 transition-colors">▶️ Enable</button>
+              ? <button onClick={() => onToggle(cat, 'deactivate')} className="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 text-xs font-semibold px-2.5 py-1.5 rounded-lg hover:bg-yellow-100 transition-colors">Disable</button>
+              : <button onClick={() => onToggle(cat, 'activate')}   className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-semibold px-2.5 py-1.5 rounded-lg hover:bg-green-100 transition-colors">Enable</button>
             }
           </div>
         </td>
@@ -553,7 +553,7 @@ export default function Categories() {
           <StoreSwitcher stores={stores} activeStore={activeStore} setActiveStore={setActiveStore} onSwitch={() => setCategories([])} />
         </div>
         <div className="flex gap-2 shrink-0">
-          <button onClick={() => load(true)} className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">🔄 Refresh</button>
+          <button onClick={() => load(true)} className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Refresh</button>
           <button onClick={() => setDialog({ mode: 'create', defaultParentId: null })} disabled={!storeUsername}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-md shadow-blue-200 disabled:opacity-50 disabled:cursor-not-allowed">
             + Add Category
@@ -566,17 +566,16 @@ export default function Categories() {
       {actionError && <div className="mb-5 flex items-center justify-between px-4 py-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm"><span>⚠️ {actionError}</span><button onClick={() => setActionError(null)} className="ml-2 text-lg leading-none text-red-400 hover:text-red-600">×</button></div>}
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
         {[
-          { label: 'Total',    value: categories.length,                                icon: '🏷️', color: 'text-blue-600 dark:text-blue-400',  bg: 'bg-blue-50 dark:bg-blue-900/20'   },
-          { label: 'Parents',  value: parentCount,                                       icon: '📁', color: 'text-slate-700 dark:text-slate-300', bg: 'bg-slate-100 dark:bg-slate-700'   },
-          { label: 'Active',   value: categories.filter(c => c.active !== false).length, icon: '✅', color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-900/20' },
-          { label: 'Inactive', value: categories.filter(c => c.active === false).length, icon: '⏸️', color: 'text-slate-500 dark:text-slate-400', bg: 'bg-slate-100 dark:bg-slate-700'   },
+          { label: 'Total',    value: categories.length,                                 color: 'text-blue-600 dark:text-blue-400',  bg: 'bg-blue-50 dark:bg-blue-900/20'   },
+          { label: 'Parents',  value: parentCount,                                       color: 'text-slate-700 dark:text-slate-300', bg: 'bg-slate-100 dark:bg-slate-700'   },
+          { label: 'Active',   value: categories.filter(c => c.active !== false).length, color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-900/20' },
         ].map(s => (
           <div key={s.label} className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-100 dark:border-slate-700 shadow-sm">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">{s.label}</span>
-              <div className={`w-8 h-8 rounded-xl ${s.bg} flex items-center justify-center text-sm`}>{s.icon}</div>
+              {/* <div className={`w-8 h-8 rounded-xl ${s.bg} flex items-center justify-center text-sm`}>{s.icon}</div> */}
             </div>
             <div className={`text-2xl font-bold ${s.color}`}>
               {loading ? <span className="inline-block w-8 h-6 bg-slate-100 dark:bg-slate-700 rounded animate-pulse" /> : s.value}

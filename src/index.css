@@ -134,8 +134,49 @@ layer(base);
   --color-warning-950: #4e1d09;
 
   --color-theme-pink-500: #ee46bc;
-
   --color-theme-purple-500: #7a5af8;
+
+  /* ============================================
+     NEW WEBSITE SECTION THEME COLORS
+     From design: Navbar/Footer (Navy), Hero/CTA (Blue),
+     Features (Off-white), How it works (Light Blue),
+     Testimonials (White)
+  ============================================ */
+
+  /* Navy — Navbar & Footer backgrounds */
+  --color-navy-50:  #ebedf5;
+  --color-navy-100: #c2c7df;
+  --color-navy-200: #9aa1c9;
+  --color-navy-300: #717bb3;
+  --color-navy-400: #49559d;
+  --color-navy-500: #2f3a6e;
+  --color-navy-600: #252e58;
+  --color-navy-700: #1a2042;
+  --color-navy-800: #14192e; /* ← Navbar/Footer bg */
+  --color-navy-900: #0e1120;
+  --color-navy-950: #080b15;
+
+  /* Site Blue — Hero, CTA banner, buttons, icons */
+  --color-site-blue-50:  #eaf0fd;
+  --color-site-blue-100: #c9d9f9;
+  --color-site-blue-200: #9bb8f4;
+  --color-site-blue-300: #6d97ef;
+  --color-site-blue-400: #4076ea;
+  --color-site-blue-500: #2150d4; /* ← Primary blue */
+  --color-site-blue-600: #1a40a9;
+  --color-site-blue-700: #133080;
+  --color-site-blue-800: #0d2057;
+  --color-site-blue-900: #08142f;
+  --color-site-blue-950: #040a18;
+
+  /* Surface Light Blue — "How it works" section bg */
+  --color-surface-blue-50:  #f0f5fd;
+  --color-surface-blue-100: #e4eefb; /* ← How it works bg */
+  --color-surface-blue-200: #c9ddf7;
+  --color-surface-blue-300: #aeccf3;
+
+  /* Surface Off-white — Features section bg */
+  --color-surface-offwhite: #f7f8fc; /* ← Features section bg */
 
   --shadow-theme-md: 0px 4px 8px -2px rgba(16, 24, 40, 0.1),
     0px 2px 4px -2px rgba(16, 24, 40, 0.06);
@@ -165,13 +206,95 @@ layer(base);
   --z-index-999999: 999999;
 }
 
+/* ============================================
+   CSS VARIABLE ALIASES — use these in components
+   Light mode defaults, dark mode overrides below
+============================================ */
+:root {
+  /* Navbar & Footer */
+  --navbar-bg:          #14192e; /* navy-800 */
+  --navbar-text:        #ffffff;
+  --navbar-subtext:     #9aa1c9; /* navy-200 */
+
+  /* Hero & CTA Banner */
+  --hero-bg:            #2150d4; /* site-blue-500 */
+  --hero-text:          #ffffff;
+  --hero-subtext:       rgba(255, 255, 255, 0.85);
+  --cta-bg:             #2150d4;
+  --cta-text:           #ffffff;
+
+  /* Features section */
+  --features-bg:        #f7f8fc; /* surface-offwhite */
+  --features-heading:   #14192e; /* navy-800 */
+  --features-card-bg:   #e4eefb; /* surface-blue-100 */
+  --features-icon:      #2150d4; /* site-blue-500 */
+
+  /* How it works section */
+  --how-bg:             #e4eefb; /* surface-blue-100 */
+  --how-text:           #14192e; /* navy-800 */
+  --how-step:           #2150d4; /* site-blue-500 */
+
+  /* Testimonials */
+  --testimonials-bg:    #ffffff;
+  --testimonials-text:  #14192e;
+  --testimonials-quote: #2150d4;
+  --testimonials-star:  #2150d4;
+
+  /* Buttons */
+  --btn-primary-bg:     #2150d4;
+  --btn-primary-text:   #ffffff;
+  --btn-primary-hover:  #1a40a9;
+  --btn-secondary-bg:   #14192e;
+  --btn-secondary-text: #ffffff;
+  --btn-secondary-hover:#0e1120;
+  --btn-outline-bg:     #ffffff;
+  --btn-outline-text:   #2150d4;
+  --btn-outline-border: #2150d4;
+  --btn-outline-hover:  #eaf0fd;
+}
+
+/* Dark mode overrides */
+.dark {
+  --navbar-bg:          #0e1120; /* navy-900 */
+  --navbar-text:        #ffffff;
+  --navbar-subtext:     #9aa1c9;
+
+  --hero-bg:            #1a40a9; /* site-blue-600 */
+  --hero-text:          #ffffff;
+  --hero-subtext:       rgba(255, 255, 255, 0.75);
+  --cta-bg:             #1a40a9;
+  --cta-text:           #ffffff;
+
+  --features-bg:        #0e1120;
+  --features-heading:   #e4eefb;
+  --features-card-bg:   #14192e;
+  --features-icon:      #6d97ef; /* site-blue-300 */
+
+  --how-bg:             #14192e;
+  --how-text:           #e4eefb;
+  --how-step:           #6d97ef;
+
+  --testimonials-bg:    #0e1120;
+  --testimonials-text:  #e4eefb;
+  --testimonials-quote: #6d97ef;
+  --testimonials-star:  #6d97ef;
+
+  --btn-primary-bg:     #2150d4;
+  --btn-primary-text:   #ffffff;
+  --btn-primary-hover:  #4076ea;
+  --btn-secondary-bg:   #1a2042;
+  --btn-secondary-text: #ffffff;
+  --btn-secondary-hover:#252e58;
+  --btn-outline-bg:     transparent;
+  --btn-outline-text:   #6d97ef;
+  --btn-outline-border: #6d97ef;
+  --btn-outline-hover:  #14192e;
+}
+
 /*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
   looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
 */
 @layer base {
   *,
@@ -255,14 +378,15 @@ layer(base);
 @utility menu-dropdown-badge-inactive {
   @apply bg-brand-50 group-hover:bg-brand-100 dark:bg-brand-500/15 dark:group-hover:bg-brand-500/20;
 }
+
 @utility no-scrollbar {
-  /* Chrome, Safari and Opera */
   &::-webkit-scrollbar {
     display: none;
   }
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
+
 @utility custom-scrollbar {
   &::-webkit-scrollbar {
     @apply size-1.5;
@@ -281,7 +405,6 @@ layer(base);
 }
 
 @layer utilities {
-  /* For Remove Date Icon */
   input[type="date"]::-webkit-inner-spin-button,
   input[type="time"]::-webkit-inner-spin-button,
   input[type="date"]::-webkit-calendar-picker-indicator,
@@ -759,7 +882,7 @@ span.flatpickr-weekday,
 }
 
 .task {
-  transition: all 0.2s ease; /* Smooth transition for visual effects */
+  transition: all 0.2s ease;
 }
 
 .task {
@@ -767,7 +890,7 @@ span.flatpickr-weekday,
   box-shadow: 0px 1px 3px 0px rgba(16, 24, 40, 0.1),
     0px 1px 2px 0px rgba(16, 24, 40, 0.06);
   opacity: 0.8;
-  cursor: grabbing; /* Changes the cursor to indicate dragging */
+  cursor: grabbing;
 }
 
 .custom-calendar .fc-h-event {

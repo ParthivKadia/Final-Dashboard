@@ -1,9 +1,11 @@
 // src/pages/Store/CreateStore.tsx
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { createStore } from "../../services/storeService";
 import CloudinaryUploadWidget from "../../ImageUpload";
+import { useApiError } from "../../hooks/useApiError";
+import ErrorToast from "../Error/ErrorToast";
 
 const THEMES = [
   { id: "MINIMAL_LIGHT", label: "Minimal Light", desc: "Clean & airy",        icon: "☀️" },
@@ -30,7 +32,8 @@ export default function CreateStore() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"basic" | "appearance" | "social">("basic");
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // const [error, setError] = useState<string | null>(null);
+  const { error, handleError, clearError } = useApiError();
 
   const [form, setForm] = useState<FormData>({
     username: "",
@@ -47,7 +50,7 @@ export default function CreateStore() {
 
   const update = (field: keyof FormData, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
-    setError(null);
+    clearError();
   };
 
   // Stable callbacks via useCallback — won't cause widget re-init
@@ -61,11 +64,12 @@ export default function CreateStore() {
 
   const handleSubmit = async () => {
     if (!form.username || !form.name) {
-      setError("Store username and name are required.");
+      // You can still use handleError for local validation too
+      handleError(new Error("Store username and name are required."));
       return;
     }
     setSaving(true);
-    setError(null);
+    clearError();
     try {
       await createStore({
         username: form.username,
@@ -83,7 +87,7 @@ export default function CreateStore() {
       });
       navigate("/");
     } catch (err: any) {
-      setError(err?.message || "Failed to create store. Please try again.");
+      handleError(err); // ← ApiError with status 409 → "This already exists..."
     } finally {
       setSaving(false);
     }
@@ -136,11 +140,7 @@ export default function CreateStore() {
       </div>
 
       {/* Error Banner */}
-      {error && (
-        <div className="mb-5 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm">
-          {error}
-        </div>
-      )}
+      <ErrorToast error={error} onDismiss={clearError} />
 
       {/* ── Two-column layout ── */}
       <div className="flex flex-col lg:flex-row gap-5">

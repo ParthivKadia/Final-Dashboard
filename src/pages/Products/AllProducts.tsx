@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { createProduct, deleteProduct } from '../../services/productService';
@@ -9,6 +9,7 @@ import { useAuth } from '../../hooks/useAuth';
 import type { Product, CreateProductRequestBody, Store } from '../../types/store';
 import CategorySelector from '../Categories/CategorySelector';
 import CloudinaryUploadWidget from '../../ImageUpload';
+import { generateSlug } from '../../utils/slug';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -37,8 +38,8 @@ const emptyForm = (): CreateProductRequestBody => ({
   inStock: true, stockCount: 0, isFeatured: false, tags: [], slug: '',
 });
 
-const autoSlug = (name: string) =>
-  name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+// const autoSlug = (name: string) =>
+//   name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 const PAGE_SIZE = 10;
 
@@ -171,8 +172,9 @@ export default function AllProducts() {
 
   const handleNameChange = (name: string) =>
     setForm(prev => ({
-      ...prev, name,
-      slug: prev.slug === '' || prev.slug === autoSlug(prev.name) ? autoSlug(name) : prev.slug,
+      ...prev,
+      name,
+      slug: generateSlug(name),
     }));
 
   const handleMainImageUpload = useCallback((url: string) => {
@@ -589,7 +591,7 @@ export default function AllProducts() {
                   </div>
                   <div>
                     <label className={lbl}>Slug <span className="text-red-500">*</span></label>
-                    <input value={form.slug} onChange={e => setForm(f => ({ ...f, slug: e.target.value }))} placeholder="wireless-earbuds-pro" className={`${inp} font-mono text-blue-600 dark:text-blue-400`} />
+                    <input value={form.slug} readOnly onChange={e => setForm(f => ({ ...f, slug: e.target.value }))} placeholder="wireless-earbuds-pro" className={`${inp} font-mono text-blue-600 dark:text-blue-400`} />
                     <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Auto-generated · must be unique</p>
                   </div>
                   <CategorySelector

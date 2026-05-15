@@ -71,10 +71,20 @@ export async function api<T = any>(
         throw new ApiError("Invalid response from server.", response.status);
     }
 
+    // Handle proper HTTP error status codes
     if (!response.ok) {
         throw new ApiError(
-            data?.message || "Something went wrong.",
+            data?.message || data?.error || "Something went wrong.",
             response.status,
+            data
+        );
+    }
+
+    // Handle BE returning 200 but with an error status in the body
+    if (data?.status && typeof data.status === "number" && data.status >= 400) {
+        throw new ApiError(
+            data?.message || data?.error || "Something went wrong.",
+            data.status,
             data
         );
     }

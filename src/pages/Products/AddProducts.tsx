@@ -6,6 +6,7 @@ import { useCategoryStore } from '../../store/useCategoryStore';
 import type { Store } from '../../types/store';
 import CategorySelector from '../Categories/CategorySelector';
 import CloudinaryUploadWidget from '../../ImageUpload';
+import { generateSlug } from '../../utils/slug';
 
 const inp = "w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-blue-500 dark:focus:ring-blue-900/30 dark:placeholder:text-slate-500";
 const lbl  = "block text-sm font-semibold text-slate-700 mb-1.5 dark:text-slate-300";
@@ -87,8 +88,9 @@ export default function AddProduct() {
 
   const handleNameChange = (name: string) => {
     setForm(prev => ({
-      ...prev, name,
-      slug: prev.slug === '' || prev.slug === autoSlug(prev.name) ? autoSlug(name) : prev.slug,
+      ...prev,
+      name,
+      slug: generateSlug(name),
     }));
   };
 
@@ -303,11 +305,12 @@ export default function AddProduct() {
                   <label className={lbl}>Slug <span className="text-red-500">*</span></label>
                   <input
                     value={form.slug}
+                    readOnly
                     onChange={e => update('slug', e.target.value)}
                     placeholder="wireless-bluetooth-earbuds-pro"
                     className={`${inp} font-mono text-blue-600 dark:text-blue-400`}
                   />
-                  <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Auto-generated from name · must be unique</p>
+                  <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Auto-generated · unique ID attached</p>
                 </div>
 
                 <CategorySelector

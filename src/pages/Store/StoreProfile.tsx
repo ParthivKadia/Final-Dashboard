@@ -227,18 +227,24 @@ export default function StoreProfile() {
             {!isEditing ? (
               <>
                 <button onClick={() => navigate("/store/create-store")}
-                  className="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                  // className="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  className="site-btn site-btn-primary site-btn-sm"
+                  >
                   + New store
                 </button>
                 <button onClick={handleEdit}
-                  className="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-md shadow-blue-200 dark:shadow-none">
+                  // className="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-md shadow-blue-200 dark:shadow-none"
+                  className="site-btn site-btn-ghost site-btn-sm"
+                  >
                   Edit profile
                 </button>
               </>
             ) : (
               <>
                 <button onClick={handleCancel}
-                  className="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                  // className="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  className="site-btn site-btn-ghost site-btn-sm"
+                  >
                   Cancel
                 </button>
                 <button onClick={handleSave} disabled={saving}

@@ -123,16 +123,18 @@ export default function CreateStore() {
         <div className="flex gap-2 shrink-0">
           <button
             onClick={() => navigate("/")}
-            className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            // className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            className="site-btn site-btn-ghost site-btn-sm mt-4"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={saving}
-            className={`px-5 py-2.5 rounded-xl text-white text-sm font-semibold transition-all shadow-md shadow-blue-200 flex items-center gap-2 ${
-              saving ? "bg-slate-400 dark:bg-slate-600 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
-            }`}
+            // className={`px-5 py-2.5 rounded-xl text-white text-sm font-semibold transition-all shadow-md shadow-blue-200 flex items-center gap-2 ${
+            //   saving ? "bg-slate-400 dark:bg-slate-600 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+            // }`}
+            className="site-btn site-btn-primary site-btn-sm mt-4"
           >
             {saving ? "Creating..." : "Launch Store"}
           </button>
@@ -201,7 +203,8 @@ export default function CreateStore() {
                     value={form.name}
                     onChange={(e) => update("name", e.target.value)}
                     placeholder="e.g. My Awesome Shop"
-                    className={inp}
+                    // className={inp}
+                    className='site-input'
                   />
                 </div>
 
@@ -215,7 +218,7 @@ export default function CreateStore() {
                     rows={4}
                     minLength={0}
                     maxLength={500}
-                    className={`${inp} resize-y leading-relaxed`}
+                    className={`${inp} site-input resize-y leading-relaxed`}
                   />
                   <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{form.bio.length}/300 characters</p>
                 </div>
@@ -346,7 +349,8 @@ export default function CreateStore() {
                         value={form[field]}
                         onChange={(e) => update(field, e.target.value)}
                         placeholder={placeholder}
-                        className={inp}
+                        // className={inp}
+                        className='site-input'
                         style={{ paddingLeft: `${prefix.length * 7 + 14}px` }}
                       />
                     </div>

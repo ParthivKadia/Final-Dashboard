@@ -201,7 +201,7 @@ export type CreateCategoriesBody = {
   slug: string,
   description: string,
   imageUrl: string,
-  parentId: number | null;  // 0 = top-level parent category, number = child of that id
+  parentId: number;  // 0 = top-level parent category, number = child of that id
   displayOrder: number
 }
 

@@ -63,7 +63,7 @@ export default function ImageUploadButton({
                     </>
                 ) : (
                     <>
-                        <span className="text-2xl leading-none">📁</span>
+                        {/* <span className="text-2xl leading-none">📁</span> */}
                         <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 leading-tight text-center px-1">
                             {label}
                         </span>

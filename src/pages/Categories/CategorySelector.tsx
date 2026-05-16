@@ -1,7 +1,7 @@
 // src/components/categories/CategorySelector.tsx
 //
 // Multi-select category picker. Works with category IDs (number[]).
-// Renders parent categories with their children indented under them.
+// Renders categories recursively — supports unlimited nesting depth.
 // Supports inline creation of new categories.
 //
 // Props:
@@ -16,7 +16,6 @@
 import { useState, useEffect } from 'react';
 import { useCategoryStore } from '../../store/useCategoryStore';
 import type { Category } from '../../store/useCategoryStore';
-// import { createCategories } from '../../services/productService';
 import { useNavigate } from 'react-router-dom';
 
 interface CategorySelectorProps {
@@ -29,21 +28,84 @@ interface CategorySelectorProps {
   className?:    string;
 }
 
+// ─── Recursive row renderer ────────────────────────────────────────────────────
+
+interface CategoryRowProps {
+  cat:         Category;
+  depth:       number;
+  allCats:     Category[];
+  selectedIds: number[];
+  toggle:      (id: number) => void;
+}
+
+function CategoryRow({ cat, depth, allCats, selectedIds, toggle }: CategoryRowProps) {
+  const directChildren = allCats.filter(c => c.parentId === cat.id);
+  const isSelected     = selectedIds.includes(cat.id);
+  const isInactive     = cat.active === false || (cat as any).active === false;
+
+  return (
+    <>
+      {/* This category's row */}
+      <label
+        className={`flex items-center gap-2.5 py-2 rounded-lg cursor-pointer transition-colors ${
+          isSelected
+            ? 'bg-blue-50 dark:bg-blue-900/20'
+            : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'
+        }`}
+        style={{ paddingLeft: `${0.625 + depth * 1.25}rem`, paddingRight: '0.625rem' }}
+      >
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={() => toggle(cat.id)}
+          className="rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 shrink-0"
+          style={{ width: depth === 0 ? '1rem' : '0.875rem', height: depth === 0 ? '1rem' : '0.875rem' }}
+        />
+        <span className={`flex items-center gap-1 ${
+          depth === 0
+            ? 'text-sm font-semibold text-slate-800 dark:text-slate-200'
+            : 'text-xs text-slate-600 dark:text-slate-400'
+        }`}>
+          {depth > 0 && <span className="text-slate-300 dark:text-slate-600">↳</span>}
+          {cat.name}
+        </span>
+        {isInactive && (
+          <span className="text-[10px] text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded ml-auto">
+            Inactive
+          </span>
+        )}
+      </label>
+
+      {/* Recurse into children at next depth */}
+      {directChildren.map(child => (
+        <CategoryRow
+          key={child.id}
+          cat={child}
+          depth={depth + 1}
+          allCats={allCats}
+          selectedIds={selectedIds}
+          toggle={toggle}
+        />
+      ))}
+    </>
+  );
+}
+
+// ─── Main Component ────────────────────────────────────────────────────────────
+
 export default function CategorySelector({
   storeUsername,
   selectedIds,
   onChange,
-  // allowCreate = true,
   required    = false,
   label       = 'Categories',
   className   = '',
 }: CategorySelectorProps) {
   const navigate = useNavigate();
-  const { fetchCategories } = useCategoryStore(); 
+  const { fetchCategories } = useCategoryStore();
 
-  const [categories,  setCategories]  = useState<Category[]>([]);
-  const [fetchState,  setFetchState]  = useState<'idle' | 'loading' | 'error' | 'empty' | 'loaded'>('idle');
-  // const [showNew,     setShowNew]     = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [fetchState, setFetchState] = useState<'idle' | 'loading' | 'error' | 'empty' | 'loaded'>('idle');
 
   useEffect(() => {
     if (!storeUsername) return;
@@ -52,12 +114,12 @@ export default function CategorySelector({
 
     fetchCategories(storeUsername).then(list => {
       if (cancelled) return;
-      if (list === null)      { setFetchState('error'); }
+      if (list === null)          { setFetchState('error'); }
       else if (list.length === 0) { setFetchState('empty'); setCategories([]); }
-      else                    { setFetchState('loaded'); setCategories(list); }
+      else                        { setFetchState('loaded'); setCategories(list); }
     });
     return () => { cancelled = true; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storeUsername]);
 
   const toggle = (id: number) => {
@@ -65,9 +127,8 @@ export default function CategorySelector({
     else                          onChange([...selectedIds, id]);
   };
 
-  // Group into parent → children
-  const parents  = categories.filter(c => !c.parentId || c.parentId === 0);
-  const children = (parentId: number) => categories.filter(c => c.parentId === parentId);
+  // Only true root categories — parentId null, undefined, or 0
+  const roots = categories.filter(c => c.parentId === 0 || c.parentId === null);
 
   const selectedNames = selectedIds
     .map(id => categories.find(c => c.id === id)?.name)
@@ -79,12 +140,6 @@ export default function CategorySelector({
         <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
           {label} {required && <span className="text-red-500">*</span>}
         </label>
-        {/* {allowCreate && fetchState === 'loaded' && !showNew && (
-          <button type="button" onClick={() => setShowNew(true)}
-            className="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline">
-            + New category
-          </button>
-        )} */}
       </div>
 
       {/* ── Loading ── */}
@@ -99,32 +154,46 @@ export default function CategorySelector({
       {fetchState === 'error' && (
         <div className="px-3.5 py-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 text-xs flex items-center justify-between">
           <span>⚠️ Couldn't load categories.</span>
-          <button type="button" onClick={() => { setFetchState('loading'); fetchCategories(storeUsername, true).then(list => { if (list === null) setFetchState('error'); else if (list.length === 0) { setFetchState('empty'); setCategories([]); } else { setFetchState('loaded'); setCategories(list); } }); }} className="text-xs font-semibold underline ml-2">Retry</button>
+          <button
+            type="button"
+            onClick={() => {
+              setFetchState('loading');
+              fetchCategories(storeUsername, true).then(list => {
+                if (list === null)          setFetchState('error');
+                else if (list.length === 0) { setFetchState('empty'); setCategories([]); }
+                else                        { setFetchState('loaded'); setCategories(list); }
+              });
+            }}
+            className="text-xs font-semibold underline ml-2"
+          >
+            Retry
+          </button>
         </div>
       )}
 
-      {/* ── Empty: 200 but no categories ── */}
+      {/* ── Empty ── */}
       {fetchState === 'empty' && (
         <div className="rounded-xl border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/30 px-4 py-3 flex items-center justify-between gap-3">
           <div>
             <p className="text-sm font-medium text-slate-600 dark:text-slate-300">No categories yet</p>
             <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-              Create one here or{' '}
-              <button type="button" onClick={() => navigate('/products/categories')} className="text-blue-600 dark:text-blue-400 underline font-medium">manage categories</button>.
+              <button
+                type="button"
+                onClick={() => navigate('/products/categories')}
+                className="text-blue-600 dark:text-blue-400 underline font-medium"
+              >
+                Manage categories
+              </button>{' '}
+              to create one first.
             </p>
           </div>
-          {/* {allowCreate && (
-            <button type="button" onClick={() => setShowNew(true)}
-              className="shrink-0 px-3 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-colors">
-              + Create
-            </button>
-          )} */}
         </div>
       )}
 
-      {/* ── Loaded: checkbox list ── */}
+      {/* ── Loaded: recursive checkbox list ── */}
       {fetchState === 'loaded' && (
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden">
+
           {/* Selected pills */}
           {selectedNames.length > 0 && (
             <div className="flex flex-wrap gap-1.5 px-3 pt-3">
@@ -132,68 +201,48 @@ export default function CategorySelector({
                 const cat = categories.find(c => c.id === id);
                 if (!cat) return null;
                 return (
-                  <span key={id} className="inline-flex items-center gap-1 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-semibold px-2.5 py-1 rounded-full">
+                  <span
+                    key={id}
+                    className="inline-flex items-center gap-1 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-semibold px-2.5 py-1 rounded-full"
+                  >
                     {cat.name}
-                    <button type="button" onClick={() => toggle(id)} className="text-blue-400 hover:text-blue-700 dark:hover:text-blue-200 ml-0.5 text-sm leading-none">×</button>
+                    <button
+                      type="button"
+                      onClick={() => toggle(id)}
+                      className="text-blue-400 hover:text-blue-700 dark:hover:text-blue-200 ml-0.5 text-sm leading-none"
+                    >
+                      ×
+                    </button>
                   </span>
                 );
               })}
             </div>
           )}
 
-          {/* Scrollable checkbox list */}
+          {/* Scrollable recursive list */}
           <div className="max-h-48 overflow-y-auto p-2 space-y-0.5">
-            {parents.map(parent => (
-              <div key={parent.id}>
-                {/* Parent row */}
-                <label className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer transition-colors ${selectedIds.includes(parent.id) ? 'bg-blue-50 dark:bg-blue-900/20' : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}>
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.includes(parent.id)}
-                    onChange={() => toggle(parent.id)}
-                    className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 shrink-0"
-                  />
-                  <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">{parent.name}</span>
-                  {parent.active === false && <span className="text-[10px] text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded">Inactive</span>}
-                </label>
-
-                {/* Children */}
-                {children(parent.id).map(child => (
-                  <label key={child.id} className={`flex items-center gap-2.5 pl-8 pr-2.5 py-1.5 rounded-lg cursor-pointer transition-colors ${selectedIds.includes(child.id) ? 'bg-blue-50 dark:bg-blue-900/20' : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}>
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(child.id)}
-                      onChange={() => toggle(child.id)}
-                      className="w-3.5 h-3.5 rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 shrink-0"
-                    />
-                    <span className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                      <span className="text-slate-300 dark:text-slate-600">↳</span> {child.name}
-                    </span>
-                    {child.active === false && <span className="text-[10px] text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded">Inactive</span>}
-                  </label>
-                ))}
-              </div>
-            ))}
+            {roots.length === 0 ? (
+              <p className="text-xs text-slate-400 dark:text-slate-500 px-3 py-2">No categories found.</p>
+            ) : (
+              roots.map(root => (
+                <CategoryRow
+                  key={root.id}
+                  cat={root}
+                  depth={0}
+                  allCats={categories}
+                  selectedIds={selectedIds}
+                  toggle={toggle}
+                />
+              ))
+            )}
           </div>
-
-          {parents.length === 0 && (
-            <p className="text-xs text-slate-400 dark:text-slate-500 px-3 py-2">No categories found.</p>
-          )}
         </div>
       )}
 
-      {/* ── Inline create form ── */}
-      {/* {showNew && (
-        <NewCategoryForm
-          storeUsername={storeUsername}
-          parents={categories.filter(c => !c.parentId || c.parentId === 0)}
-          onCreated={handleCreated}
-          onCancel={() => setShowNew(false)}
-        />
-      )} */}
-
       {selectedIds.length === 0 && fetchState === 'loaded' && (
-        <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Select one or more categories above</p>
+        <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
+          Select one or more categories above
+        </p>
       )}
     </div>
   );

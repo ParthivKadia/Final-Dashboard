@@ -123,7 +123,8 @@ export default function UserProfiles() {
               </h3>
               <button
                 onClick={() => navigate("/store/create-store")}
-                className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                // className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                className="site-btn site-btn-primary site-btn-sm"
               >
                 + New store
               </button>

@@ -529,11 +529,13 @@ export default function Inventory() {
         </div>
         <div className="flex gap-2 shrink-0">
           <button onClick={() => fetchInventory(true)}
-            className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+            // className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+            className="site-btn site-btn-ghost site-btn-sm">
             Refresh
           </button>
           <button onClick={() => navigate('/products/add')}
-            className="px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-md shadow-blue-200">
+            // className="px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-md shadow-blue-200">
+            className="site-btn site-btn-primary site-btn-sm">
             + Add Product
           </button>
         </div>
@@ -571,14 +573,17 @@ export default function Inventory() {
       {/* ── Filter Bar ── */}
       <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm p-3 sm:p-4 mb-4 flex flex-col gap-3">
         <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+          <div className="site-search-wrap relative flex-1">
+            {/* <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span> */}
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or slug..."
-              className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50 text-sm text-slate-800 dark:text-slate-200 outline-none focus:border-blue-400 dark:focus:border-blue-500 focus:bg-white dark:focus:bg-slate-700 transition-colors dark:placeholder:text-slate-500" />
+              // className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50 text-sm text-slate-800 dark:text-slate-200 outline-none focus:border-blue-400 dark:focus:border-blue-500 focus:bg-white dark:focus:bg-slate-700 transition-colors dark:placeholder:text-slate-500" 
+              className="site-input"
+              />
           </div>
           <select
             value={filterCatId === 'All' ? '' : String(filterCatId)}
             onChange={e => setFilterCatId(e.target.value === '' ? 'All' : Number(e.target.value))}
+            // className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50 text-sm text-slate-700 dark:text-slate-300 outline-none cursor-pointer">
             className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50 text-sm text-slate-700 dark:text-slate-300 outline-none cursor-pointer">
             <option value="">All Categories</option>
             {activeCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}

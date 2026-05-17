@@ -12,7 +12,7 @@ const LayoutContent: React.FC = () => {
   return (
     <div
       className="min-h-screen xl:flex"
-      style={{ backgroundColor: "var(--features-bg)" }}
+      // style={{ backgroundColor: "var(--features-bg)" }}
     >
       {/* Sidebar — navy dark bg handled inside AppSidebar */}
       <div>
@@ -30,7 +30,9 @@ const LayoutContent: React.FC = () => {
         <AppHeader />
 
         {/* Page content */}
-        <div style={{ backgroundColor: "var(--features-bg)" }}>
+        <div 
+          // style={{ backgroundColor: "var(--features-bg)" }}
+        >
           <Outlet />
         </div>
       </div>

@@ -13,6 +13,7 @@ import type { Product, CreateProductRequestBody, Store } from '../../types/store
 import CategorySelector from '../Categories/CategorySelector';
 import CloudinaryUploadWidget from '../../ImageUpload';
 import { generateSlug } from '../../utils/slug';
+import LayoutToggle from '../../layout/LayoutToggle';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -57,14 +58,6 @@ function buildCatPathMap(cats: FlatCategory[]): Map<number, string> {
   return map;
 }
 
-// function getDepth(id: number, byId: Map<number, FlatCategory>, visited = new Set<number>()): number {
-//   if (visited.has(id)) return 0;
-//   visited.add(id);
-//   const cat = byId.get(id);
-//   if (!cat || isRoot(cat)) return 0;
-//   return 1 + getDepth(cat.parentId as number, byId, visited);
-// }
-
 function flattenAndSort(cats: FlatCategory[]): FlatCategory[] {
   const byId = new Map<number, FlatCategory>(cats.map(c => [c.id, c]));
   const result: FlatCategory[] = [];
@@ -81,6 +74,53 @@ function flattenAndSort(cats: FlatCategory[]): FlatCategory[] {
   return result;
 }
 
+// ─── Slug Cell ────────────────────────────────────────────────────────────────
+
+export function SlugCell({ slug }: { slug: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(slug).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  };
+
+  const display = slug.length > 10 ? slug.slice(0, 10) + '…' : slug;
+
+  return (
+    <div className="flex items-center gap-1.5 group">
+      <span className="site-mono text-xs site-subtext whitespace-nowrap" title={slug}>
+        {display}
+      </span>
+      <button
+        onClick={handleCopy}
+        title={copied ? 'Copied!' : `Copy: ${slug}`}
+        className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center w-5 h-5 rounded"
+        style={{
+          backgroundColor: copied ? 'var(--success-bg)' : 'var(--surface-secondary)',
+          border: '1px solid var(--border-medium)',
+          color: copied ? 'var(--success-text)' : 'var(--text-muted)',
+          flexShrink: 0,
+        }}
+      >
+        {copied ? (
+          <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+            <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5"
+              strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        ) : (
+          <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+            <rect x="4" y="4" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="1.2" />
+            <path d="M2 8V2a1 1 0 011-1h6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+          </svg>
+        )}
+      </button>
+    </div>
+  );
+}
+
 // ─── Main Component ────────────────────────────────────────────────────────────
 
 export default function AllProducts() {
@@ -91,27 +131,26 @@ export default function AllProducts() {
   const { fetchPage, errors: cacheErrors, invalidate } = useProductStore();
   const { fetchCategories, getCategories } = useCategoryStore();
 
-  const storeUsername = activeStore?.username ?? '';
+  const storeUsername    = activeStore?.username ?? '';
   const cachedCategories = getCategories(storeUsername) ?? [];
-  const catPathMap = buildCatPathMap(cachedCategories);
+  const catPathMap       = buildCatPathMap(cachedCategories);
   const resolveCategoryNames = (ids: number[]) =>
     ids.length === 0 ? '—' : ids.map(id => catPathMap.get(id) ?? `#${id}`).join(', ');
   const sortedCategories = flattenAndSort(cachedCategories).filter(c => c.isActive !== false);
 
-  const [products, setProducts]         = useState<Product[]>([]);
-  const [total, setTotal]               = useState(0);
-  const [hasMore, setHasMore]           = useState(false);
-  const [currentPage, setCurrentPage]   = useState(1);
-  const [loading, setLoading]           = useState(false);
-  const [fetchError, setFetchError]     = useState<string | null>(null);
+  const [products, setProducts]           = useState<Product[]>([]);
+  const [total, setTotal]                 = useState(0);
+  const [hasMore, setHasMore]             = useState(false);
+  const [currentPage, setCurrentPage]     = useState(1);
+  const [loading, setLoading]             = useState(false);
+  const [fetchError, setFetchError]       = useState<string | null>(null);
   const [storeDropdown, setStoreDropdown] = useState(false);
 
-  const [search, setSearch]             = useState('');
-  const [filterStatus, setFilterStatus] = useState('All');
-  const [filterCatId, setFilterCatId]   = useState<number | 'All'>('All');
-  const [sortBy, setSortBy]             = useState('name');
-  const [viewMode, setViewMode]         = useState<'table' | 'grid'>('table');
-  const [selectedIds, setSelectedIds]   = useState<string[]>([]);
+  const [search, setSearch]           = useState('');
+  const [filterCatId, setFilterCatId] = useState<number | 'All'>('All');
+  const [sortBy, setSortBy]           = useState('name');
+  const [viewMode, setViewMode]       = useState<'table' | 'grid'>('table');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const [showDialog, setShowDialog] = useState(false);
   const [form, setForm]             = useState<CreateProductRequestBody>(emptyForm());
@@ -150,15 +189,15 @@ export default function AllProducts() {
 
   const switchStore = (store: Store) => {
     setActiveStore(store); setStoreDropdown(false); setCurrentPage(1);
-    setFilterCatId('All'); setFilterStatus('All'); setSearch('');
+    setFilterCatId('All'); setSearch('');
     setSelectedIds([]); setProducts([]); setFetchError(null);
   };
 
+  // ── No status filter on AllProducts — show everything ──
   const filtered = products
     .filter(p => {
       const q = search.toLowerCase();
-      return (!q || p.name.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q))
-        && (filterStatus === 'All' || getStatus(p) === filterStatus);
+      return !q || p.name.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q);
     })
     .sort((a, b) => {
       if (sortBy === 'price-asc')  return a.price - b.price;
@@ -168,10 +207,10 @@ export default function AllProducts() {
     });
 
   const stats = [
-    { label: 'Total',        value: total,                                                           key: 'total'  },
-    { label: 'Active',       value: products.filter(p => getStatus(p) === 'active').length,          key: 'active' },
-    { label: 'Low Stock',    value: products.filter(p => getStatus(p) === 'low').length,             key: 'low'    },
-    { label: 'Out of Stock', value: products.filter(p => getStatus(p) === 'out').length,             key: 'out'    },
+    { label: 'Total',        value: total,                                                  key: 'total'  },
+    { label: 'Active',       value: products.filter(p => getStatus(p) === 'active').length, key: 'active' },
+    { label: 'Low Stock',    value: products.filter(p => getStatus(p) === 'low').length,    key: 'low'    },
+    { label: 'Out of Stock', value: products.filter(p => getStatus(p) === 'out').length,    key: 'out'    },
   ];
 
   const totalPages   = Math.ceil(total / PAGE_SIZE);
@@ -226,7 +265,7 @@ export default function AllProducts() {
   );
 
   return (
-    <div className="site-page site-page-padding">
+    <div className="site-page site-page-padding min-w-0 max-w-full overflow-x-hidden">
 
       {/* ── Page Header ── */}
       <div className="site-page-header">
@@ -320,55 +359,37 @@ export default function AllProducts() {
       {/* ── Filters ── */}
       <div className="site-card site-card-body mb-4 flex flex-col sm:flex-row flex-wrap gap-3">
         <div className="site-search-wrap flex-1 min-w-0 sm:min-w-[200px]">
-          {/* <span className="site-search-icon text-sm">🔍</span> */}
           <input value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Search by name or slug…" className="site-input" />
         </div>
 
         <div className="flex gap-2 flex-wrap items-center">
-          {['All', 'active', 'low', 'out'].map(s => (
-            <button key={s}
-              className={`site-filter-pill ${filterStatus === s ? 'site-filter-pill--active' : ''}`}
-              onClick={() => setFilterStatus(s)}>
-              {s === 'All' ? 'All' : STATUS_LABEL[s]}
-            </button>
-          ))}
+          <select
+            value={filterCatId === 'All' ? '' : String(filterCatId)}
+            onChange={e => {
+              setFilterCatId(e.target.value === '' ? 'All' : Number(e.target.value));
+              setCurrentPage(1); setSelectedIds([]);
+            }}
+            className="site-input" style={{ maxWidth: '200px' }}>
+            <option value="">All Categories</option>
+            {sortedCategories.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
 
-          {(() => {
-            // const byId = new Map(sortedCategories.map(c => [c.id, c]));
-            return (
-              <select
-                value={filterCatId === 'All' ? '' : String(filterCatId)}
-                onChange={e => { setFilterCatId(e.target.value === '' ? 'All' : Number(e.target.value)); setCurrentPage(1); setSelectedIds([]); }}
-                className="site-input" style={{ maxWidth: '200px' }}>
-                <option value="">All Categories</option>
-                {sortedCategories.map(c => {
-                  // const depth  = getDepth(c.id, byId);
-                  // const indent = '\u00A0\u00A0\u00A0\u00A0'.repeat(depth);
-                  // const prefix = depth > 0 ? '↳\u00A0' : '';
-                  // return <option key={c.id} value={c.id}>{indent}{prefix}{c.name}</option>;
-                  return <option key={c.id} value={c.id}>{c.name}</option>;
-                })}
-              </select>
-            );
-          })()}
-
-          <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="site-input" style={{ maxWidth: '100px' }}>
+          <select value={sortBy} onChange={e => setSortBy(e.target.value)}
+            className="site-input" style={{ maxWidth: '100px' }}>
             <option value="name">Name A–Z</option>
             <option value="price-asc">Price ↑</option>
             <option value="price-desc">Price ↓</option>
             <option value="stock">Stock ↓</option>
           </select>
 
-          <div className="flex gap-1 ml-auto sm:ml-0">
-            {(['table', 'grid'] as const).map(mode => (
-              <button key={mode}
-                className={`site-filter-pill ${viewMode === mode ? 'site-filter-pill--active' : ''}`}
-                onClick={() => setViewMode(mode)}>
-                {mode === 'table' ? '☰' : '⊞'}
-              </button>
-            ))}
-          </div>
+          <LayoutToggle
+            value={viewMode}
+            onChange={setViewMode}
+            options={['table', 'grid']}
+          />
         </div>
       </div>
 
@@ -400,8 +421,8 @@ export default function AllProducts() {
 
       {/* ── TABLE VIEW ── */}
       {!loading && !fetchError && viewMode === 'table' && (
-        <div className="site-card overflow-hidden">
-          <div className="overflow-x-auto">
+        <div className="site-card overflow-hidden min-w-0">
+          <div className="overflow-x-auto w-full">
             <table className="site-table min-w-[750px]">
               <thead>
                 <tr>
@@ -440,7 +461,7 @@ export default function AllProducts() {
                           </div>
                         </div>
                       </td>
-                      <td className="site-mono text-xs site-subtext whitespace-nowrap">{p.slug}</td>
+                      <td><SlugCell slug={p.slug} /></td>
                       <td>
                         <span className="text-xs px-2 py-1 rounded-lg site-surface-secondary site-heading block max-w-[180px] site-truncate"
                           title={catNames}>{catNames}</span>
@@ -448,8 +469,8 @@ export default function AllProducts() {
                       <td className="text-sm font-bold site-heading">₹{p.price.toLocaleString()}</td>
                       <td>
                         <span className={`text-sm font-semibold ${
-                          p.stockCount === 0 ? 'text-[var(--status-out-text)]'
-                          : p.stockCount <= 10 ? 'text-[var(--status-low-text)]'
+                          p.stockCount === 0      ? 'text-[var(--status-out-text)]'
+                          : p.stockCount <= 10    ? 'text-[var(--status-low-text)]'
                           : 'site-heading'
                         }`}>
                           {p.stockCount}
@@ -540,7 +561,7 @@ export default function AllProducts() {
                   <p className="text-sm font-bold line-clamp-2 flex-1 site-heading">{p.name}</p>
                   <span className={`site-badge site-badge--${status} ml-2 shrink-0`}>{STATUS_LABEL[status]}</span>
                 </div>
-                <p className="text-xs mb-1 site-mono site-subtext site-truncate">{p.slug}</p>
+                <div className="mb-1"><SlugCell slug={p.slug} /></div>
                 <p className="text-xs mb-2 site-subtext site-truncate" title={catNames}>🏷️ {catNames}</p>
                 {p.isFeatured && <span className="site-featured-badge mb-2 inline-flex">⭐ Featured</span>}
                 <div className="flex items-center justify-between mt-3 mb-4">
@@ -634,9 +655,11 @@ export default function AllProducts() {
                     <div className="flex items-center gap-3 flex-wrap">
                       <CloudinaryUploadWidget onUpload={handleMainImageUpload} />
                       {form.imageUrl && (
-                        <div className="relative w-16 h-16 site-thumb shrink-0" style={{ border: '1px solid var(--border-medium)' }}>
+                        <div className="relative w-16 h-16 site-thumb shrink-0"
+                          style={{ border: '1px solid var(--border-medium)' }}>
                           <img src={form.imageUrl} alt="Main" className="w-full h-full object-cover" />
-                          <button type="button" className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center hover:bg-red-600"
+                          <button type="button"
+                            className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center hover:bg-red-600"
                             onClick={() => setForm(f => ({ ...f, imageUrl: '' }))}>✕</button>
                         </div>
                       )}
@@ -648,9 +671,11 @@ export default function AllProducts() {
                     </label>
                     <div className="flex items-center gap-3 flex-wrap">
                       {(form.images ?? []).map((url, i) => (
-                        <div key={url} className="relative w-16 h-16 site-thumb shrink-0" style={{ border: '1px solid var(--border-medium)' }}>
+                        <div key={url} className="relative w-16 h-16 site-thumb shrink-0"
+                          style={{ border: '1px solid var(--border-medium)' }}>
                           <img src={url} alt={`Extra ${i + 1}`} className="w-full h-full object-cover" />
-                          <button type="button" className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center hover:bg-red-600"
+                          <button type="button"
+                            className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center hover:bg-red-600"
                             onClick={() => removeAdditionalImage(i)}>✕</button>
                         </div>
                       ))}

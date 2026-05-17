@@ -42,7 +42,7 @@ export default function UserProfiles() {
     user.roles?.map((r) => r.name.replace("ROLE_", "")).join(", ") || "User";
 
   return (
-    <div className="p-4">
+    <div className="site-page site-page-padding p-4">
       <PageMeta
         title="User Profile | Storly Dashboard"
         description="View and manage your Storly user profile"

@@ -15,7 +15,7 @@ const AllProducts = lazy(() => import("./pages/Products/AllProducts"));
 const AddProduct = lazy(() => import("./pages/Products/AddProducts"));
 const Inventory = lazy(() => import("./pages/Products/Inventory"));
 const LowStock = lazy(() => import("./pages/Products/LowStock"));
-const Categories = lazy(() => import("./pages/Categories/Categories"));
+const Categories = lazy(() => import("./pages/Products/Categories"));
 
 const AllOrders = lazy(() => import("./pages/Orders/AllOrders"));
 const PendingOrders = lazy(() => import("./pages/Orders/PendingOrders"));

@@ -71,9 +71,9 @@
   --btn-outline-hover:   var(--brand-50);
   --btn-outline-text:    var(--brand-700);
   --btn-outline-border:  var(--brand-700);
-  --btn-danger-bg:       rgba(240, 68, 56, 0.08);
-  --btn-danger-text:     #b42318;
-  --btn-danger-hover:    rgba(240, 68, 56, 0.16);
+  --btn-danger-bg:       rgb(253, 20, 4);
+  --btn-danger-text:     #fbfafa;
+  --btn-danger-hover:    rgb(255, 17, 0);
 
   /* ── Input / form tokens ── */
   --input-bg:            var(--brand-50);
@@ -1247,4 +1247,295 @@ select.site-input {
 .site-cat-card:hover {
   box-shadow: var(--card-shadow-hover);
   transform: translateY(-2px);
+}
+
+
+/* ─── 41. APP HEADER ────────────────────────────────────────────────────────── */
+ 
+/* Icon buttons in the navbar (hamburger, dots menu) */
+.header-icon-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  line-height: 0 !important;
+  color: rgba(255, 255, 255, 0.55);
+  border-color: rgba(255, 255, 255, 0.12);
+  background-color: transparent;
+  transition: background-color 0.15s;
+}
+.header-icon-btn:hover {
+  background-color: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.85);
+}
+.header-icon-btn svg {
+  display: block;
+  flex-shrink: 0;
+}
+ 
+/* Search bar in the navbar */
+.header-search-input {
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+.header-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.40);
+}
+.header-search-input:focus {
+  border-color: var(--brand-400);
+  background-color: rgba(255, 255, 255, 0.09);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.20);
+}
+ 
+/* Search icon inside the navbar input */
+.header-search-icon {
+  color: rgba(255, 255, 255, 0.40);
+}
+ 
+/* ⌘K keyboard shortcut badge */
+.header-search-kbd {
+  border-color: rgba(255, 255, 255, 0.12);
+  background-color: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.40);
+  cursor: default;
+}
+ 
+/* ─── 42. HEADER ICON BUTTONS (theme toggle + bell) — navbar context ────────── */
+ 
+/*
+   All three icon buttons in the navbar (hamburger, theme toggle, bell) must look
+   identical: semi-transparent on the dark navy background.
+   We use !important to beat any Tailwind utility classes the component may carry.
+*/
+ 
+/* ── Theme toggle: base (page context) ── */
+.site-theme-toggle {
+  border-radius:    9999px !important;   /* circular */
+  background-color: var(--surface-secondary) !important;
+  border-color:     var(--border-medium)     !important;
+  color:            var(--text-primary)      !important;
+  transition:       background-color 0.15s, border-color 0.15s, color 0.15s, transform 0.2s !important;
+}
+.site-theme-toggle:hover {
+  background-color: var(--btn-primary-bg) !important;
+  border-color:     var(--btn-primary-bg) !important;
+  color:            #ffffff               !important;
+  transform:        rotate(15deg);
+}
+ 
+/* ── Theme toggle + bell: navbar context ── */
+/* All header icon buttons sit on the dark --surface-navbar bg, so we force
+   transparent + white-ish colours regardless of light/dark mode. */
+.site-navbar .site-theme-toggle,
+.site-navbar .notif-bell {
+  background-color: transparent                !important;
+  border-color:     rgba(255, 255, 255, 0.14)  !important;
+  color:            rgba(255, 255, 255, 0.60)  !important;
+  transform:        none !important;
+}
+.site-navbar .site-theme-toggle:hover,
+.site-navbar .notif-bell:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border-color:     rgba(255, 255, 255, 0.22) !important;
+  color:            rgba(255, 255, 255, 0.90) !important;
+  transform:        none !important;
+}
+ 
+/* ─── 43. NOTIFICATION BELL BUTTON ─────────────────────────────────────────── */
+ 
+/* Page context (outside navbar) */
+.notif-bell {
+  background-color: var(--card-bg);
+  border-color:     var(--border-default);
+  color:            var(--text-secondary);
+  transition:       background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+.notif-bell:hover {
+  background-color: var(--surface-secondary);
+  color:            var(--text-primary);
+}
+ 
+/* ─── 45. NOTIFICATION PANEL (dropdown) ─────────────────────────────────────── */
+ 
+.notif-panel {
+  background-color: var(--card-bg);
+  border:           1px solid var(--border-subtle);
+  box-shadow:       var(--shadow-xl);
+}
+ 
+/* Individual notification row */
+.notif-item {
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background-color 0.15s;
+  cursor: pointer;
+}
+.notif-item:hover {
+  background-color: var(--surface-secondary);
+}
+.notif-item:last-child { border-bottom: none; }
+ 
+/* "View All" link at the bottom */
+.notif-view-all {
+  color:            var(--text-secondary);
+  background-color: var(--card-bg);
+  border:           1px solid var(--border-default);
+}
+.notif-view-all:hover {
+  background-color: var(--surface-secondary);
+  color:            var(--text-primary);
+}
+
+/* ─── 46. CREATE STORE — THEME PICKER CARD ──────────────────────────────────── */
+ 
+.create-store-theme-card {
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
+}
+.create-store-theme-card:hover {
+  box-shadow: var(--card-shadow-hover);
+}
+
+/* ─── 47. SIDEBAR ITEM CLASSES ──────────────────────────────────────────────── */
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  color: rgba(255, 255, 255, 0.55);
+  transition: background-color 0.15s, color 0.15s;
+  text-decoration: none;
+  width: 100%;
+  text-align: left;
+}
+.sidebar-item:hover {
+  background-color: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.90);
+}
+.sidebar-item--active {
+  background-color: rgba(26, 86, 219, 0.22);
+  color: #91caff;
+}
+.sidebar-item--active:hover {
+  background-color: rgba(26, 86, 219, 0.28);
+  color: #91caff;
+}
+
+.sidebar-item-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-subitem {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.45);
+  transition: background-color 0.15s, color 0.15s;
+  text-decoration: none;
+}
+.sidebar-subitem:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.85);
+}
+.sidebar-subitem--active {
+  color: #91caff;
+  font-weight: 500;
+}
+.sidebar-subitem--active:hover {
+  background-color: rgba(26, 86, 219, 0.15);
+}
+
+.sidebar-subitem-dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 9999px;
+  flex-shrink: 0;
+  background-color: rgba(255, 255, 255, 0.20);
+  transition: background-color 0.15s;
+}
+.sidebar-subitem-dot--active {
+  background-color: var(--brand-400);
+}
+
+.sidebar-section-label {
+  display: flex;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.25);
+  padding: 0 0.75rem;
+  margin-bottom: 0.375rem;
+}
+
+/* ─── 48. LAYOUT TOGGLE (view-mode switcher) ────────────────────────────────
+   Used identically on AllProducts, Inventory, and any future list/grid pages.
+   Drop-in replacement for the ad-hoc toggles that existed before.
+ 
+   HTML pattern:
+     <div class="site-layout-toggle">
+       <button class="site-layout-toggle-btn site-layout-toggle-btn--active">…icon…</button>
+       <button class="site-layout-toggle-btn">…icon…</button>
+     </div>
+ 
+   Or use the <LayoutToggle> React component in src/components/common/LayoutToggle.tsx
+   ──────────────────────────────────────────────────────────────────────────── */
+ 
+.site-layout-toggle {
+  display:          inline-flex;
+  align-items:      center;
+  gap:              0.125rem;             /* 2px gap between buttons        */
+  padding:          0.25rem;             /* 4px inset padding around track */
+  border-radius:    0.75rem;             /* 12px — matches pill/card style  */
+  background-color: var(--surface-secondary);
+  border:           1px solid var(--border-medium);
+  flex-shrink:      0;
+}
+ 
+.site-layout-toggle-btn {
+  display:          inline-flex;
+  align-items:      center;
+  justify-content:  center;
+  width:            2rem;               /* 32px — comfortable tap target   */
+  height:           2rem;
+  border-radius:    0.5rem;             /* 8px inner radius                */
+  border:           none;
+  cursor:           pointer;
+  color:            var(--text-muted);
+  background-color: transparent;
+  transition:       background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  flex-shrink:      0;
+}
+ 
+.site-layout-toggle-btn:hover:not(.site-layout-toggle-btn--active) {
+  background-color: var(--surface-primary);
+  color:            var(--text-secondary);
+}
+ 
+.site-layout-toggle-btn--active {
+  background-color: var(--card-bg);
+  color:            var(--btn-primary-bg);
+  box-shadow:       0 1px 3px rgba(26, 86, 219, 0.12), 0 1px 2px rgba(0,0,0,0.06);
+}
+ 
+/* Dark mode — active pill gets a subtle brand glow */
+.dark .site-layout-toggle-btn--active {
+  background-color: var(--surface-elevated);
+  box-shadow:       0 1px 3px rgba(0, 0, 0, 0.35);
 }

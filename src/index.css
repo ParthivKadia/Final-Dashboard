@@ -1,7 +1,6 @@
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap")
-layer(base);
-
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
 @import "tailwindcss";
+@import "./site-theme.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -134,8 +133,42 @@ layer(base);
   --color-warning-950: #4e1d09;
 
   --color-theme-pink-500: #ee46bc;
-
   --color-theme-purple-500: #7a5af8;
+
+  /* Navy — Navbar & Footer backgrounds */
+  --color-navy-50:  #ebedf5;
+  --color-navy-100: #c2c7df;
+  --color-navy-200: #9aa1c9;
+  --color-navy-300: #717bb3;
+  --color-navy-400: #49559d;
+  --color-navy-500: #2f3a6e;
+  --color-navy-600: #252e58;
+  --color-navy-700: #1a2042;
+  --color-navy-800: #14192e;
+  --color-navy-900: #0e1120;
+  --color-navy-950: #080b15;
+
+  /* Site Blue — Hero, CTA banner, buttons, icons */
+  --color-site-blue-50:  #eaf0fd;
+  --color-site-blue-100: #c9d9f9;
+  --color-site-blue-200: #9bb8f4;
+  --color-site-blue-300: #6d97ef;
+  --color-site-blue-400: #4076ea;
+  --color-site-blue-500: #2150d4;
+  --color-site-blue-600: #1a40a9;
+  --color-site-blue-700: #133080;
+  --color-site-blue-800: #0d2057;
+  --color-site-blue-900: #08142f;
+  --color-site-blue-950: #040a18;
+
+  /* Surface Light Blue — "How it works" section bg */
+  --color-surface-blue-50:  #f0f5fd;
+  --color-surface-blue-100: #e4eefb;
+  --color-surface-blue-200: #c9ddf7;
+  --color-surface-blue-300: #aeccf3;
+
+  /* Surface Off-white — Features section bg */
+  --color-surface-offwhite: #f7f8fc;
 
   --shadow-theme-md: 0px 4px 8px -2px rgba(16, 24, 40, 0.1),
     0px 2px 4px -2px rgba(16, 24, 40, 0.06);
@@ -165,14 +198,6 @@ layer(base);
   --z-index-999999: 999999;
 }
 
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
 @layer base {
   *,
   ::after,
@@ -255,14 +280,15 @@ layer(base);
 @utility menu-dropdown-badge-inactive {
   @apply bg-brand-50 group-hover:bg-brand-100 dark:bg-brand-500/15 dark:group-hover:bg-brand-500/20;
 }
+
 @utility no-scrollbar {
-  /* Chrome, Safari and Opera */
   &::-webkit-scrollbar {
     display: none;
   }
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
+
 @utility custom-scrollbar {
   &::-webkit-scrollbar {
     @apply size-1.5;
@@ -276,12 +302,12 @@ layer(base);
     @apply bg-gray-200 rounded-full dark:bg-gray-700;
   }
 }
+
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
   background-color: #344054;
 }
 
 @layer utilities {
-  /* For Remove Date Icon */
   input[type="date"]::-webkit-inner-spin-button,
   input[type="time"]::-webkit-inner-spin-button,
   input[type="date"]::-webkit-calendar-picker-indicator,
@@ -302,15 +328,12 @@ layer(base);
 .apexcharts-legend-text {
   @apply !text-gray-700 dark:!text-gray-400;
 }
-
 .apexcharts-text {
   @apply !fill-gray-700 dark:!fill-gray-400;
 }
-
 .apexcharts-tooltip.apexcharts-theme-light {
   @apply gap-1 !rounded-lg !border-gray-200 p-3 !shadow-theme-sm dark:!border-gray-800 dark:!bg-gray-900;
 }
-
 .apexcharts-tooltip-marker {
   margin-right: 6px;
   height: 6px;
@@ -334,7 +357,6 @@ layer(base);
 .apexcharts-tooltip-text-y-value {
   @apply !font-medium;
 }
-
 .apexcharts-gridline {
   @apply !stroke-gray-100 dark:!stroke-gray-800;
 }
@@ -344,11 +366,9 @@ layer(base);
 #chartTwo .apexcharts-datalabels-group .apexcharts-text {
   @apply !fill-gray-800 !font-semibold dark:!fill-white/90;
 }
-
 #chartDarkStyle .apexcharts-datalabels-group .apexcharts-text {
   @apply !fill-gray-800 !font-semibold dark:!fill-white/90;
 }
-
 #chartSixteen .apexcharts-legend {
   @apply !p-0 !pl-6;
 }
@@ -374,17 +394,14 @@ layer(base);
 .stocks-slider-outer .swiper-button-prev:after {
   @apply hidden;
 }
-
 .stocks-slider-outer .swiper-button-next,
 .stocks-slider-outer .swiper-button-prev {
-  @apply static! mt-0 h-8 w-9 rounded-full border dark:hover:bg-white/[0.05] border-gray-200 !text-gray-700 transition hover:bg-gray-100 dark:border-white/[0.03] dark:bg-gray-800 dark:!text-gray-400  dark:hover:!text-white/90;
+  @apply static! mt-0 h-8 w-9 rounded-full border dark:hover:bg-white/[0.05] border-gray-200 !text-gray-700 transition hover:bg-gray-100 dark:border-white/[0.03] dark:bg-gray-800 dark:!text-gray-400 dark:hover:!text-white/90;
 }
-
 .stocks-slider-outer .swiper-button-next.swiper-button-disabled,
 .stocks-slider-outer .swiper-button-prev.swiper-button-disabled {
   @apply bg-white opacity-50 dark:bg-gray-900;
 }
-
 .stocks-slider-outer .swiper-button-next svg,
 .stocks-slider-outer .swiper-button-prev svg {
   @apply !h-auto !w-auto;
@@ -402,7 +419,6 @@ layer(base);
   box-shadow: 0px 12px 16px -4px rgba(16, 24, 40, 0.08),
     0px 4px 6px -2px rgba(16, 24, 40, 0.03) !important;
 }
-
 .flatpickr-months .flatpickr-prev-month:hover svg,
 .flatpickr-months .flatpickr-next-month:hover svg {
   @apply stroke-brand-500;
@@ -411,7 +427,6 @@ layer(base);
 .flatpickr-calendar.arrowTop:after {
   @apply hidden;
 }
-
 .flatpickr-current-month {
   @apply !p-0;
 }
@@ -419,20 +434,16 @@ layer(base);
 .flatpickr-current-month input.cur-year {
   @apply !h-auto !pt-0 !text-lg !font-medium !text-gray-800 dark:!text-white/90;
 }
-
 .flatpickr-prev-month,
 .flatpickr-next-month {
   @apply !p-0;
 }
-
 .flatpickr-weekdays {
   @apply h-auto mt-6 mb-4 !bg-transparent;
 }
-
 .flatpickr-weekday {
   @apply !text-theme-sm !font-medium !text-gray-500 dark:!text-gray-400 !bg-transparent;
 }
-
 .flatpickr-day {
   @apply !flex !items-center !text-theme-sm !font-medium !text-gray-800 dark:!text-white/90 dark:hover:!border-gray-300 dark:hover:!bg-gray-900;
 }
@@ -440,7 +451,6 @@ layer(base);
 .flatpickr-day.prevMonthDay {
   @apply !text-gray-400;
 }
-
 .flatpickr-months > .flatpickr-month {
   background: none !important;
 }
@@ -450,9 +460,7 @@ layer(base);
   background-image: none !important;
   font-weight: 500;
 }
-.flatpickr-month
-  .flatpickr-current-month
-  .flatpickr-monthDropdown-months:focus {
+.flatpickr-month .flatpickr-current-month .flatpickr-monthDropdown-months:focus {
   outline: none !important;
   border: 0 !important;
 }
@@ -531,7 +539,6 @@ span.flatpickr-weekday,
 .flatpickr-day.endRange.startRange + .endRange:not(:nth-child(7n + 1)) {
   box-shadow: -10px 0 0 #465fff;
 }
-
 .flatpickr-months .flatpickr-prev-month svg,
 .flatpickr-months .flatpickr-next-month svg,
 .flatpickr-months .flatpickr-prev-month,
@@ -542,11 +549,9 @@ span.flatpickr-weekday,
 .flatpickr-months .flatpickr-next-month:hover svg {
   fill: none !important;
 }
-
 .flatpickr-calendar.static {
   @apply right-0;
 }
-
 @media (max-width: 639px) {
   .flatpickr-calendar.static {
     left: auto !important;
@@ -577,7 +582,6 @@ span.flatpickr-weekday,
 .fc-button-group .fc-button {
   @apply flex h-10 w-10 items-center justify-center !rounded-lg border border-gray-200 bg-transparent hover:border-gray-200 hover:bg-gray-50 focus:shadow-none active:!border-gray-200 active:!bg-transparent active:!shadow-none dark:border-gray-800 dark:hover:border-gray-800 dark:hover:bg-gray-900 dark:active:border-gray-800!;
 }
-
 .fc-button-group .fc-button.fc-prev-button:before {
   @apply inline-block mt-1;
   content: url("data:image/svg+xml,%3Csvg width='25' height='24' viewBox='0 0 25 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M16.0068 6L9.75684 12.25L16.0068 18.5' stroke='%23344054' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E%0A");
@@ -607,9 +611,7 @@ span.flatpickr-weekday,
 .fc-header-toolbar.fc-toolbar .fc-toolbar-chunk:last-child .fc-button {
   @apply !h-auto !w-auto rounded-md !border-0 bg-transparent !px-5 !py-2 text-sm font-medium text-gray-500 hover:text-gray-700 focus:!shadow-none dark:text-gray-400;
 }
-.fc-header-toolbar.fc-toolbar
-  .fc-toolbar-chunk:last-child
-  .fc-button.fc-button-active {
+.fc-header-toolbar.fc-toolbar .fc-toolbar-chunk:last-child .fc-button.fc-button-active {
   @apply text-gray-900 bg-white dark:bg-gray-800 dark:text-white;
 }
 .fc-theme-standard th {
@@ -718,27 +720,22 @@ span.flatpickr-weekday,
 .carouselFour .swiper-button-prev {
   @apply h-10 w-10 rounded-full border-[0.5px] border-white/10 bg-white/90 !text-gray-700 shadow-slider-navigation backdrop-blur-[10px];
 }
-
 .carouselTwo .swiper-button-prev,
 .carouselFour .swiper-button-prev {
   @apply !left-3 sm:!left-4;
 }
-
 .carouselTwo .swiper-button-next,
 .carouselFour .swiper-button-next {
   @apply !right-3 sm:!right-4;
 }
-
 .carouselThree .swiper-pagination,
 .carouselFour .swiper-pagination {
   @apply !bottom-3 !left-1/2 inline-flex !w-auto -translate-x-1/2 items-center gap-1.5 rounded-[40px] border-[0.5px] border-white/10 bg-white/60 px-2 py-1.5 shadow-slider-navigation backdrop-blur-[10px] sm:!bottom-5;
 }
-
 .carouselThree .swiper-pagination-bullet,
 .carouselFour .swiper-pagination-bullet {
   @apply !m-0 h-2.5 w-2.5 bg-white opacity-100 shadow-theme-xs duration-200 ease-in-out;
 }
-
 .carouselThree .swiper-pagination-bullet-active,
 .carouselFour .swiper-pagination-bullet-active {
   @apply w-6.5 rounded-xl;
@@ -759,15 +756,12 @@ span.flatpickr-weekday,
 }
 
 .task {
-  transition: all 0.2s ease; /* Smooth transition for visual effects */
-}
-
-.task {
+  transition: all 0.2s ease;
   border-radius: 0.75rem;
   box-shadow: 0px 1px 3px 0px rgba(16, 24, 40, 0.1),
     0px 1px 2px 0px rgba(16, 24, 40, 0.06);
   opacity: 0.8;
-  cursor: grabbing; /* Changes the cursor to indicate dragging */
+  cursor: grabbing;
 }
 
 .custom-calendar .fc-h-event {
@@ -782,11 +776,9 @@ span.flatpickr-weekday,
 .simplebar-scrollbar::before {
   @apply !bg-gray-200 !rounded-full dark:!bg-gray-700 !opacity-100;
 }
-
 .dark .simplebar-scrollbar::before {
   @apply !bg-gray-700;
 }
-
 .simplebar-scrollbar.simplebar-visible:before {
   @apply opacity-100;
 }

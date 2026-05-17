@@ -1,56 +1,60 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import SignIn from "./pages/AuthPages/SignIn";
-import Register from "./pages/AuthPages/Register";
-// import UserProfiles from "./pages/Store/UserProfiles";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
-import Home from "./pages/Dashboard/Home";
 import { SidebarProvider } from "./context/SidebarContext";
 
-import AllProducts from "./pages/Products/AllProducts";
-import AddProduct from "./pages/Products/AddProducts";
-// import Categories from "./pages/Products/Categories";
-import Inventory from "./pages/Products/Inventory";
-import LowStock from "./pages/Products/LowStock";
+// Eager load auth pages (small, needed immediately)
+import SignIn from "./pages/AuthPages/SignIn";
+import Register from "./pages/AuthPages/Register";
 
-import AllOrders from "./pages/Orders/AllOrders";
-import PendingOrders from "./pages/Orders/PendingOrders";
-import ProcessingOrders from "./pages/Orders/ProcessingOrders";
-import ShippedOrders from "./pages/Orders/ShippedOrders";
-import DeliveredOrders from "./pages/Orders/DeliveredOrders";
-import CancelledOrders from "./pages/Orders/CancelledOrders";
-import ReturnedOrders from "./pages/Orders/ReturnedOrders";
+// Lazy load everything else
+const Home = lazy(() => import("./pages/Dashboard/Home"));
 
-import AllCustomers from "./pages/Customers/AllCustomers";
-import CustomerReviews from "./pages/Customers/CustomerReviews";
-import Messages from "./pages/Customers/Messages";
+const AllProducts = lazy(() => import("./pages/Products/AllProducts"));
+const AddProduct = lazy(() => import("./pages/Products/AddProducts"));
+const Inventory = lazy(() => import("./pages/Products/Inventory"));
+const LowStock = lazy(() => import("./pages/Products/LowStock"));
+const Categories = lazy(() => import("./pages/Products/Categories"));
 
-import SalesAnalytics from "./pages/Analytics/SalesAnalytics";
-import TopProducts from "./pages/Analytics/TopProducts";
-import RevenueReport from "./pages/Analytics/RevenueReport";
+const AllOrders = lazy(() => import("./pages/Orders/AllOrders"));
+const PendingOrders = lazy(() => import("./pages/Orders/PendingOrders"));
+const ProcessingOrders = lazy(() => import("./pages/Orders/ProcessingOrders"));
+const ShippedOrders = lazy(() => import("./pages/Orders/ShippedOrders"));
+const DeliveredOrders = lazy(() => import("./pages/Orders/DeliveredOrders"));
+const CancelledOrders = lazy(() => import("./pages/Orders/CancelledOrders"));
+const ReturnedOrders = lazy(() => import("./pages/Orders/ReturnedOrders"));
 
-import Coupons from "./pages/Marketing/Coupons";
-import Campaigns from "./pages/Marketing/Campaigns";
-import Discount from "./pages/Marketing/Discount";
-import EmailMarketing from "./pages/Marketing/EmailMarketing";
+const AllCustomers = lazy(() => import("./pages/Customers/AllCustomers"));
+const CustomerReviews = lazy(() => import("./pages/Customers/CustomerReviews"));
+const Messages = lazy(() => import("./pages/Customers/Messages"));
 
-import StoreProfile from "./pages/Store/StoreProfile";
-import UserProfiles from "./pages/Store/UserProfiles";
-import Shipping from "./pages/Store/Shipping";
-import Payments from "./pages/Store/Payments";
+const SalesAnalytics = lazy(() => import("./pages/Analytics/SalesAnalytics"));
+const TopProducts = lazy(() => import("./pages/Analytics/TopProducts"));
+const RevenueReport = lazy(() => import("./pages/Analytics/RevenueReport"));
 
-import AccountSettings from "./pages/Settings/AccountSettings";
-import Notifications from "./pages/Settings/Notifications";
-import Security from "./pages/Settings/Security";
-import LogoutPage from "./pages/Settings/LogoutPage";
-import CreateStore from "./pages/Store/CreateStore";
-import Categories from "./pages/Categories/Categories";
+const Coupons = lazy(() => import("./pages/Marketing/Coupons"));
+const Campaigns = lazy(() => import("./pages/Marketing/Campaigns"));
+const Discount = lazy(() => import("./pages/Marketing/Discount"));
+const EmailMarketing = lazy(() => import("./pages/Marketing/EmailMarketing"));
+
+const StoreProfile = lazy(() => import("./pages/Store/StoreProfile"));
+const UserProfiles = lazy(() => import("./pages/Store/UserProfiles"));
+const Shipping = lazy(() => import("./pages/Store/Shipping"));
+const Payments = lazy(() => import("./pages/Store/Payments"));
+const CreateStore = lazy(() => import("./pages/Store/CreateStore"));
+
+const AccountSettings = lazy(() => import("./pages/Settings/AccountSettings"));
+const Notifications = lazy(() => import("./pages/Settings/Notifications"));
+const Security = lazy(() => import("./pages/Settings/Security"));
+const LogoutPage = lazy(() => import("./pages/Settings/LogoutPage"));
 
 export default function App() {
   return (
     <SidebarProvider>
       <Router>
         <ScrollToTop />
+        <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
         <Routes>
           <Route element={<AppLayout />}>
             <Route path="/" element={<Home />} />
@@ -105,6 +109,7 @@ export default function App() {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/register" element={<Register />} />
         </Routes>
+        </Suspense>
       </Router>
     </SidebarProvider>
   );

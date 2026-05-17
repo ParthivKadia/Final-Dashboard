@@ -201,6 +201,15 @@ export type CreateCategoriesBody = {
   slug: string,
   description: string,
   imageUrl: string,
-  parentId: number,
+  parentId: number;  // 0 = top-level parent category, number = child of that id
   displayOrder: number
+}
+
+// ─── CLOUDIARY IMAGE ──────────────────────────────────────────────────────────────
+export type CloudiaryResponseBody = {
+  folder: string,
+  apiKey: string,
+  signature: string,
+  cloudName: string,
+  timestamp: number
 }

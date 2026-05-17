@@ -1,359 +1,772 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// src/pages/Products/Categories.tsx
+// All colours/surfaces come from site-theme.css — zero hardcoded hex or Tailwind colour classes.
 
-interface Category {
-  id: number; name: string; slug: string; emoji: string;
-  products: number; active: number; revenue: string; growth: string; color: string; bg: string; textColor: string;
+import { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
+import { useNavigate } from 'react-router-dom';
+import { useAppStore } from '../../store/useAppStore';
+import { useCategoryStore } from '../../store/useCategoryStore';
+import type { Category } from '../../store/useCategoryStore';
+import { useAuth } from '../../hooks/useAuth';
+import {
+  createCategories,
+  updateCategories,
+  activateCategories,
+  deactivateCategories,
+} from '../../services/productService';
+import type { Store } from '../../types/store';
+import CloudinaryUploadWidget from '../../ImageUpload';
+import { generateSlug } from '../../utils/slug';
+import { SlugCell } from './AllProducts';
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const isRootCat = (c: Category) => !c.parentId || c.parentId === 0;
+
+function sortByDisplayOrder<T extends { displayOrder?: number | null }>(list: T[]): T[] {
+  return [...list].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
 }
 
-const categories: Category[] = [
-  { id: 1, name: 'Electronics',    slug: 'electronics',   emoji: '📱', products: 42, active: 38, revenue: '₹8.4L', growth: '+24%', color: 'bg-blue-50',   textColor: 'text-blue-600',   bg: '#eff6ff' },
-  { id: 2, name: 'Clothing',       slug: 'clothing',       emoji: '👕', products: 31, active: 28, revenue: '₹3.2L', growth: '+12%', color: 'bg-violet-50', textColor: 'text-violet-600', bg: '#f5f3ff' },
-  { id: 3, name: 'Home & Kitchen', slug: 'home-kitchen',   emoji: '🏠', products: 24, active: 22, revenue: '₹2.1L', growth: '+18%', color: 'bg-cyan-50',   textColor: 'text-cyan-600',   bg: '#ecfeff' },
-  { id: 4, name: 'Books',          slug: 'books',          emoji: '📚', products: 18, active: 18, revenue: '₹1.8L', growth: '+31%', color: 'bg-green-50',  textColor: 'text-green-600',  bg: '#f0fdf4' },
-  { id: 5, name: 'Beauty',         slug: 'beauty',         emoji: '🧴', products: 8,  active: 7,  revenue: '₹1.1L', growth: '+45%', color: 'bg-pink-50',   textColor: 'text-pink-600',   bg: '#fdf2f8' },
-  { id: 6, name: 'Sports',         slug: 'sports',         emoji: '🏃', products: 5,  active: 5,  revenue: '₹0.9L', growth: '+8%',  color: 'bg-amber-50',  textColor: 'text-amber-600',  bg: '#fffbeb' },
-];
+// ─── Form state ───────────────────────────────────────────────────────────────
 
-export default function Categories() {
-  const navigate = useNavigate();
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [newCat, setNewCat] = useState({ name: '', emoji: '📦', description: '' });
-  const [search, setSearch] = useState('');
+interface CategoryForm {
+  name:         string;
+  slug:         string;
+  description:  string;
+  imageUrl:     string;
+  parentId:     number;
+  displayOrder: number | 'priority';
+}
 
-  const filtered = categories.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
-  const totalProducts = categories.reduce((s, c) => s + c.products, 0);
+// ─── Parent option builder ────────────────────────────────────────────────────
 
-  const inp = "w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all";
+function buildParentOptions(
+  allCategories: Category[],
+  parentId: number,
+  excludeId: number | undefined,
+  depth: number,
+): React.ReactNode[] {
+  const prefix = '\u00a0\u00a0\u00a0\u00a0'.repeat(depth);
+  const arrow  = depth > 0 ? '↳ ' : '';
+  return allCategories
+    .filter(c => (c.parentId === parentId) && c.id !== excludeId)
+    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+    .flatMap(c => [
+      <option key={c.id} value={c.id}>{prefix}{arrow}{c.name}</option>,
+      ...buildParentOptions(allCategories, c.id, excludeId, depth + 1),
+    ]);
+}
+
+// ─── Category Dialog ──────────────────────────────────────────────────────────
+
+interface CategoryDialogProps {
+  mode:             'create' | 'edit';
+  initial?:         Category;
+  defaultParentId?: number;
+  allCategories:    Category[];
+  storeUsername:    string;
+  priorityValue:    number;
+  onSuccess:        () => void;
+  onClose:          () => void;
+}
+
+function CategoryDialog({
+  mode, initial, defaultParentId = 0,
+  allCategories, storeUsername, priorityValue,
+  onSuccess, onClose,
+}: CategoryDialogProps) {
+  const [form, setForm] = useState<CategoryForm>(
+    initial
+      ? {
+          name:         initial.name,
+          slug:         initial.slug,
+          description:  initial.description  ?? '',
+          imageUrl:     initial.imageUrl     ?? '',
+          parentId:     initial.parentId     ?? 0,
+          displayOrder: initial.displayOrder ?? 0,
+        }
+      : { name: '', slug: '', description: '', imageUrl: '', parentId: defaultParentId, displayOrder: 0 }
+  );
+  const [saving, setSaving] = useState(false);
+  const [error,  setError]  = useState<string | null>(null);
+
+  const update = <K extends keyof CategoryForm>(field: K, value: CategoryForm[K]) =>
+    setForm(prev => ({ ...prev, [field]: value }));
+
+  const handleNameChange = (name: string) =>
+    setForm(prev => ({ ...prev, name, slug: generateSlug(name) }));
+
+  const handleImageUpload = useCallback((url: string) =>
+    setForm(prev => ({ ...prev, imageUrl: url })), []);
+
+  const resolvedOrder  = form.displayOrder === 'priority' ? priorityValue : Number(form.displayOrder);
+  const parentLabel    = allCategories.find(p => p.id === form.parentId)?.name;
+
+  const handleSave = async () => {
+    if (!form.name.trim()) { setError('Name is required.'); return; }
+    if (!form.slug.trim()) { setError('Slug is required.'); return; }
+    setSaving(true); setError(null);
+    try {
+      const body = {
+        name:         form.name.trim(),
+        slug:         form.slug.trim(),
+        description:  form.description.trim(),
+        imageUrl:     form.imageUrl.trim(),
+        parentId:     form.parentId,
+        displayOrder: resolvedOrder,
+      };
+      if (mode === 'create') await createCategories(storeUsername, body);
+      else if (initial)      await updateCategories(initial.id, body);
+      onSuccess();
+    } catch (err: any) {
+      setError(err?.message || `Failed to ${mode}.`);
+      setSaving(false);
+    }
+  };
+
+  return createPortal(
+    <div className="site-modal-overlay">
+      <div className="site-modal">
+
+        {/* Header */}
+        <div className="site-modal-header">
+          <div>
+            <h2 className="h3 site-heading">
+              {mode === 'create'
+                ? (form.parentId ? '↳ New Sub-category' : 'New Category')
+                : 'Edit Category'}
+            </h2>
+            <p className="text-xs site-text-muted mt-0.5">
+              {mode === 'create'
+                ? (parentLabel ? `Child of "${parentLabel}"` : `Top-level · @${storeUsername}`)
+                : `Editing "${initial?.name}"`}
+            </p>
+          </div>
+          <button className="site-btn-icon" onClick={onClose}>×</button>
+        </div>
+
+        {/* Body */}
+        <div className="site-modal-body space-y-4">
+          {error && (
+            <div className="site-banner site-banner-error">
+              <span>⚠️ {error}</span>
+              <button className="text-lg leading-none opacity-60 hover:opacity-100 ml-2"
+                onClick={() => setError(null)}>×</button>
+            </div>
+          )}
+
+          <div>
+            <label className="site-label">
+              Parent Category <span className="font-normal text-xs site-text-muted">(none = top-level)</span>
+            </label>
+            <select
+              value={form.parentId === 0 ? '' : form.parentId}
+              onChange={e => update('parentId', e.target.value === '' ? 0 : Number(e.target.value))}
+              className="site-input"
+            >
+              <option value="">Root (top-level category)</option>
+              {buildParentOptions(allCategories, 0, initial?.id, 0)}
+            </select>
+          </div>
+
+          <div>
+            <label className="site-label">Name <span className="text-[var(--danger-solid)]">*</span></label>
+            <input
+              value={form.name}
+              onChange={e => handleNameChange(e.target.value)}
+              placeholder="e.g. Clothing"
+              className="site-input"
+              autoFocus
+            />
+          </div>
+
+          <div>
+            <label className="site-label">Slug <span className="text-[var(--danger-solid)]">*</span></label>
+            <input
+              value={form.slug}
+              readOnly
+              onChange={e => update('slug', e.target.value)}
+              placeholder="clothing"
+              className="site-input site-input-mono"
+            />
+            <p className="text-[11px] site-text-muted mt-1">Auto-generated · unique ID attached</p>
+          </div>
+
+          <div>
+            <label className="site-label">
+              Description <span className="font-normal text-xs site-text-muted">(optional)</span>
+            </label>
+            <textarea
+              value={form.description}
+              onChange={e => update('description', e.target.value)}
+              placeholder="Describe this category…"
+              rows={3}
+              className="site-input"
+            />
+          </div>
+
+          <div>
+            <label className="site-label">
+              Image <span className="font-normal text-xs site-text-muted">(optional)</span>
+            </label>
+            <div className="flex items-center gap-3">
+              <CloudinaryUploadWidget key={initial?.id ?? 'new'} onUpload={handleImageUpload} />
+              {form.imageUrl ? (
+                <div className="relative site-thumb shrink-0"
+                  style={{ width: '4rem', height: '4rem', border: '1px solid var(--border-medium)' }}>
+                  <img src={form.imageUrl} alt="Preview" className="w-full h-full object-cover"
+                    onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                  <button type="button"
+                    className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center hover:bg-red-600 transition-colors"
+                    onClick={() => update('imageUrl', '')}>✕</button>
+                </div>
+              ) : (
+                <div className="site-upload-zone shrink-0 flex items-center justify-center text-2xl"
+                  style={{ width: '4rem', height: '4rem', padding: 0 }}>🖼️</div>
+              )}
+            </div>
+            {form.imageUrl && (
+              <p className="text-[11px] site-text-muted mt-1.5 site-truncate">{form.imageUrl}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="site-label">Display Order</label>
+            <select
+              value={String(form.displayOrder)}
+              onChange={e => update('displayOrder', e.target.value === 'priority' ? 'priority' : Number(e.target.value))}
+              className="site-input"
+            >
+              <option value="0">0 — First (show at top)</option>
+              <option value="1">1 — Second</option>
+              <option value="2">2 — Third</option>
+              <option value="priority">⚡ Priority — auto-assign (end of list · #{priorityValue})</option>
+            </select>
+            <p className="text-[11px] site-text-muted mt-1">
+              {form.displayOrder === 'priority'
+                ? `Will be saved as order ${priorityValue} (after all existing categories)`
+                : 'Lower number = shown first. 0 appears before 1, 1 before 2.'}
+            </p>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="site-modal-footer">
+          <button className="site-btn site-btn-ghost" onClick={onClose}>Cancel</button>
+          <button className="site-btn site-btn-primary flex-1" onClick={handleSave} disabled={saving}>
+            {saving
+              ? <><span className="site-spinner" /> Saving…</>
+              : mode === 'create' ? '🏷️ Create Category' : '✓ Save Changes'
+            }
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+// ─── Toggle Confirm Dialog ────────────────────────────────────────────────────
+
+function ToggleConfirmDialog({ type, category, onConfirm, onCancel, loading }: {
+  type:      'activate' | 'deactivate';
+  category:  Category;
+  onConfirm: () => void;
+  onCancel:  () => void;
+  loading:   boolean;
+}) {
+  const isActivate = type === 'activate';
+  return createPortal(
+    <div className="site-modal-overlay">
+      <div className="site-modal site-modal-sm">
+        <div className="site-modal-body text-center">
+          <div className="text-4xl mb-3">{isActivate ? '✅' : '⏸️'}</div>
+          <h2 className="h3 site-heading mb-2">{isActivate ? 'Activate' : 'Deactivate'} Category?</h2>
+          <p className="text-sm site-subtext mb-1">You are about to {type}:</p>
+          <p className="text-sm font-semibold site-heading mb-4">"{category.name}"</p>
+          {!isActivate && (
+            <div className="site-banner site-banner-info justify-center text-center mb-2">
+              <p className="text-xs">Products remain visible but won't appear in category filters.</p>
+            </div>
+          )}
+        </div>
+        <div className="site-modal-footer">
+          <button className="site-btn site-btn-ghost flex-1" onClick={onCancel}>Cancel</button>
+          <button
+            className="site-btn flex-1 disabled:opacity-50"
+            style={{
+              backgroundColor: isActivate ? 'var(--status-active-dot)' : 'var(--featured-color)',
+              color: '#fff', border: 'none', borderRadius: '0.75rem',
+              padding: '0.625rem 1.25rem', fontWeight: 600,
+              cursor: loading ? 'not-allowed' : 'pointer',
+            }}
+            onClick={onConfirm}
+            disabled={loading}
+          >
+            {loading ? <><span className="site-spinner" /> Working…</> : isActivate ? 'Activate' : 'Deactivate'}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+// ─── Priority badge ───────────────────────────────────────────────────────────
+
+function PriorityBadge({ order }: { order: number }) {
+  if (order === 0) return (
+    <span className="site-badge" style={{ backgroundColor: 'var(--status-featured-bg)', color: 'var(--status-featured-text)' }}>▲ High</span>
+  );
+  if (order === 1) return <span className="site-badge site-badge--brand">● Medium</span>;
+  if (order === 2) return (
+    <span className="site-badge" style={{ backgroundColor: 'var(--surface-secondary)', color: 'var(--text-secondary)' }}>▼ Low</span>
+  );
+  return <span className="text-xs site-text-muted">{order}</span>;
+}
+
+// ─── Category Row ─────────────────────────────────────────────────────────────
+
+type CategoryWithChildren = Category & { _children: CategoryWithChildren[] };
+
+function CategoryRow({ cat, children, onEdit, onToggle, onAddChild, depth = 0 }: {
+  cat:        CategoryWithChildren;
+  children:   CategoryWithChildren[];
+  onEdit:     (c: Category) => void;
+  onToggle:   (c: Category, t: 'activate' | 'deactivate') => void;
+  onAddChild: (parentId: number) => void;
+  depth?:     number;
+}) {
+  const [expanded, setExpanded] = useState(true);
+  const isActive    = cat.active !== false;
+  const hasChildren = children.length > 0;
+  const icon        = depth === 0 ? '🏷️' : depth === 1 ? '📂' : '📄';
 
   return (
-    <div className="min-h-screen bg-slate-50 p-3 sm:p-5 md:p-7">
+    <>
+      <tr
+        className={`transition-colors ${!isActive ? 'opacity-60' : ''}`}
+        style={{ borderBottom: '1px solid var(--border-subtle)' }}
+        onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--surface-secondary)')}
+        onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+      >
+        {/* Name cell */}
+        <td className="py-3 px-4">
+          <div className="flex items-center gap-2.5" style={{ paddingLeft: depth * 20 }}>
+            <button
+              className={`w-5 h-5 rounded flex items-center justify-center text-[10px] shrink-0 transition-colors ${
+                hasChildren ? 'site-surface-secondary site-subtext' : 'invisible'
+              }`}
+              onClick={() => setExpanded(v => !v)}
+            >
+              {hasChildren ? (expanded ? '▾' : '▸') : null}
+            </button>
+
+            {depth > 0 && !hasChildren && (
+              <span className="w-5 h-5 flex items-center justify-center site-text-muted text-[10px] shrink-0">↳</span>
+            )}
+
+            <div className="site-thumb"
+              style={{ width: '2.25rem', height: '2.25rem', borderRadius: '0.75rem', flexShrink: 0 }}>
+              {cat.imageUrl
+                ? <img src={cat.imageUrl} alt={cat.name} className="w-full h-full object-cover"
+                    onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                : <span className="text-sm">{icon}</span>
+              }
+            </div>
+
+            <div>
+              <p className="text-sm font-semibold site-heading">{cat.name}</p>
+              <p className="text-xs site-text-muted">
+                ID {cat.id}
+                {cat.parentId && cat.parentId !== 0 ? ` · child of ${cat.parentId}` : ''}
+                {depth > 1 ? ` · depth ${depth}` : ''}
+              </p>
+            </div>
+          </div>
+        </td>
+
+        <td className="py-3 px-4">
+          {/* <span className="text-xs site-mono site-text-muted whitespace-nowrap">{cat.slug}</span> */}
+          <span className="text-xs site-mono site-text-muted whitespace-nowrap"><SlugCell slug={cat.slug} /></span>
+        </td>
+
+        <td className="py-3 px-4">
+          <p className="text-xs site-subtext max-w-[160px] site-truncate">
+            {cat.description || <span className="site-text-muted">—</span>}
+          </p>
+        </td>
+
+        <td className="py-3 px-4">
+          <PriorityBadge order={cat.displayOrder ?? 0} />
+        </td>
+
+        <td className="py-3 px-4">
+          <span className={`site-badge ${isActive ? 'site-badge--active' : ''}`}
+            style={!isActive ? { backgroundColor: 'var(--surface-secondary)', color: 'var(--text-secondary)' } : undefined}>
+            <span className="site-badge-dot"
+              style={!isActive ? { backgroundColor: 'var(--text-muted)' } : undefined} />
+            {isActive ? 'Active' : 'Inactive'}
+          </span>
+        </td>
+
+        <td className="py-3 px-4">
+          <div className="flex gap-1.5 flex-wrap">
+            <button className="site-btn site-btn-outline site-btn-sm" onClick={() => onEdit(cat)}>Edit</button>
+            <button className="site-btn site-btn-ghost site-btn-sm" onClick={() => onAddChild(cat.id)}>+ Sub</button>
+            {isActive
+              ? <button className="site-btn site-btn-sm"
+                  style={{ backgroundColor: 'var(--status-featured-bg)', color: 'var(--status-featured-text)', border: 'none' }}
+                  onClick={() => onToggle(cat, 'deactivate')}>Disable</button>
+              : <button className="site-btn site-btn-sm"
+                  style={{ backgroundColor: 'var(--status-active-bg)', color: 'var(--status-active-text)', border: 'none' }}
+                  onClick={() => onToggle(cat, 'activate')}>Enable</button>
+            }
+          </div>
+        </td>
+      </tr>
+
+      {expanded && children.map(child => (
+        <CategoryRow
+          key={child.id}
+          cat={child}
+          children={child._children ?? []}
+          onEdit={onEdit}
+          onToggle={onToggle}
+          onAddChild={onAddChild}
+          depth={depth + 1}
+        />
+      ))}
+    </>
+  );
+}
+
+// ─── Store Switcher ───────────────────────────────────────────────────────────
+
+function StoreSwitcher({ stores, activeStore, setActiveStore, onSwitch }: {
+  stores:         Store[];
+  activeStore:    Store | null;
+  setActiveStore: (s: Store) => void;
+  onSwitch:       () => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  if (stores.length <= 1) {
+    return <p className="site-page-subtitle">{activeStore ? `@${activeStore.username}` : 'Loading…'}</p>;
+  }
+
+  return (
+    <div className="relative mt-1.5">
+      <button className="site-store-trigger" onClick={() => setOpen(v => !v)}>
+        {activeStore?.logoUrl && (
+          <img src={activeStore.logoUrl} alt="" className="w-4 h-4 rounded-full object-cover"
+            onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+        )}
+        <span className="site-subtext">@{activeStore?.username}</span>
+        <span className="site-badge site-badge--brand">{stores.length} stores</span>
+        <span className="site-text-muted text-xs">▾</span>
+      </button>
+
+      {open && (
+        <>
+          <div className="fixed inset-0 z-[100]" onClick={() => setOpen(false)} />
+          <div className="site-dropdown">
+            <p className="site-dropdown-label">Switch Store</p>
+            {stores.map(store => (
+              <button key={store.id}
+                className={`site-dropdown-item ${activeStore?.id === store.id ? 'site-dropdown-item--active' : ''}`}
+                onClick={() => { setActiveStore(store); setOpen(false); onSwitch(); }}>
+                <div className="site-thumb site-thumb-sm" style={{ borderRadius: '0.75rem', width: '2rem', height: '2rem' }}>
+                  {store.logoUrl
+                    ? <img src={store.logoUrl} alt={store.name} className="w-full h-full object-cover"
+                        onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                    : <span className="text-base">🏪</span>
+                  }
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className={`text-sm font-semibold truncate ${activeStore?.id === store.id ? 'site-text-brand' : 'site-heading'}`}>
+                    {store.name}
+                  </p>
+                  <p className="text-xs truncate site-subtext">@{store.username}</p>
+                </div>
+                {activeStore?.id === store.id && <span className="text-xs font-bold site-text-brand">✓</span>}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ─── Tree builder ─────────────────────────────────────────────────────────────
+
+function buildTree(all: Category[], parentId = 0): CategoryWithChildren[] {
+  return sortByDisplayOrder(all.filter(c => (c.parentId ?? 0) === parentId))
+    .map(c => ({ ...c, _children: buildTree(all, c.id) }));
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
+
+export default function Categories() {
+  const navigate        = useNavigate();
+  const { isVerifying } = useAuth();
+  const { stores, activeStore, setActiveStore } = useAppStore();
+  const { fetchCategories, invalidate }         = useCategoryStore();
+
+  const storeUsername = activeStore?.username ?? '';
+
+  const [categories, setCategories]   = useState<Category[]>([]);
+  const [loading, setLoading]         = useState(false);
+  const [error, setError]             = useState<string | null>(null);
+  const [search, setSearch]           = useState('');
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [toggling, setToggling]       = useState(false);
+
+  const [dialog, setDialog] = useState<
+    null | { mode: 'create'; defaultParentId: number } | { mode: 'edit'; category: Category }
+  >(null);
+
+  const [toggleTarget, setToggleTarget] = useState<{
+    category: Category; type: 'activate' | 'deactivate';
+  } | null>(null);
+
+  const load = useCallback(async (force = false) => {
+    if (!storeUsername) return;
+    setLoading(true); setError(null);
+    const list = await fetchCategories(storeUsername, force);
+    if (list !== null) setCategories(list);
+    else setError('Failed to load categories.');
+    setLoading(false);
+  }, [storeUsername, fetchCategories]);
+
+  useEffect(() => {
+    if (storeUsername && !isVerifying) load();
+  }, [storeUsername, isVerifying, load]);
+
+  const handleToggle = async () => {
+    if (!toggleTarget) return;
+    setToggling(true); setActionError(null);
+    try {
+      if (toggleTarget.type === 'activate') await activateCategories(toggleTarget.category.id);
+      else                                  await deactivateCategories(toggleTarget.category.id);
+      invalidate(storeUsername);
+      setToggleTarget(null);
+      await load(true);
+    } catch (err: any) {
+      setActionError(err?.message || `Failed to ${toggleTarget.type}.`);
+    } finally { setToggling(false); }
+  };
+
+  const sortedCategories = sortByDisplayOrder(categories);
+  const rootTree         = buildTree(categories);
+  const parentCount      = sortedCategories.filter(isRootCat).length;
+  const childCount       = sortedCategories.filter(c => !isRootCat(c)).length;
+  const maxOrder         = categories.reduce((m, c) => Math.max(m, c.displayOrder ?? 0), -1);
+  const priorityValue    = maxOrder + 1;
+
+  const q            = search.toLowerCase();
+  const isFiltering  = !!q;
+  const displayedRows: CategoryWithChildren[] = isFiltering
+    ? sortByDisplayOrder(sortedCategories.filter(c =>
+        c.name.toLowerCase().includes(q) || c.slug.toLowerCase().includes(q)
+      )).map(c => ({ ...c, _children: [] }))
+    : rootTree;
+
+  if (isVerifying) return (
+    <div className="site-page flex items-center justify-center h-screen">
+      <p className="text-sm site-subtext">Loading…</p>
+    </div>
+  );
+
+  return (
+    <div className="site-page site-page-padding">
 
       {/* ── Header ── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-6">
+      <div className="site-page-header">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Categories</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Organize your products into categories for better discoverability</p>
+          <h1 className="site-page-title">Categories</h1>
+          <StoreSwitcher stores={stores} activeStore={activeStore}
+            setActiveStore={setActiveStore} onSwitch={() => setCategories([])} />
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="shrink-0 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-md shadow-blue-200"
-        >
-          + New Category
-        </button>
+        <div className="flex gap-2 shrink-0">
+          <button className="site-btn site-btn-ghost site-btn-sm" onClick={() => load(true)}>Refresh</button>
+          <button className="site-btn site-btn-primary site-btn-sm" disabled={!storeUsername}
+            onClick={() => setDialog({ mode: 'create', defaultParentId: 0 })}>
+            + Add Category
+          </button>
+        </div>
       </div>
 
-      {/* ── Summary Bar ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-5">
+      {/* ── Banners ── */}
+      {error && (
+        <div className="site-banner site-banner-error mb-5">
+          <span>⚠️ {error}</span>
+          <button className="text-xs font-semibold underline ml-4" onClick={() => load(true)}>Retry</button>
+        </div>
+      )}
+      {actionError && (
+        <div className="site-banner site-banner-error mb-5">
+          <span>⚠️ {actionError}</span>
+          <button className="text-lg leading-none opacity-60 hover:opacity-100 ml-2"
+            onClick={() => setActionError(null)}>×</button>
+        </div>
+      )}
+
+      {/* ── Stats ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
         {[
-          { label: 'Total Categories', value: categories.length,  icon: '📋', color: 'text-blue-600',  bg: 'bg-blue-50'  },
-          { label: 'Total Products',   value: totalProducts,       icon: '📦', color: 'text-green-600', bg: 'bg-green-50' },
-          { label: 'Best Performing',  value: 'Electronics',       icon: '🏆', color: 'text-amber-600', bg: 'bg-amber-50' },
+          { label: 'Total',   value: categories.length },
+          { label: 'Parents', value: parentCount },
+          { label: 'Active',  value: categories.filter(c => c.active !== false).length },
         ].map(s => (
-          <div key={s.label} className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-2xl ${s.bg} flex items-center justify-center text-2xl shrink-0`}>{s.icon}</div>
-            <div>
-              <p className="text-sm text-slate-500">{s.label}</p>
-              <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
+          <div key={s.label} className="site-stat-card">
+            <span className="site-stat-card-label">{s.label}</span>
+            <div className="site-stat-card-value">
+              {loading ? <span className="site-skeleton inline-block w-8 h-6 rounded" /> : s.value}
             </div>
           </div>
         ))}
       </div>
 
       {/* ── Search ── */}
-      <div className="relative mb-5 max-w-sm">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
-        <input
-          value={search} onChange={e => setSearch(e.target.value)}
-          placeholder="Search categories..."
-          className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
-        />
-      </div>
-
-      {/* ── Category Cards Grid ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
-        {filtered.map(cat => {
-          const activePct = Math.round((cat.active / cat.products) * 100);
-          return (
-            <div
-              key={cat.id}
-              onClick={() => navigate(`/products/category/${cat.slug}`)}
-              className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
-            >
-              {/* Top row */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className={`w-13 h-13 w-14 h-14 rounded-2xl ${cat.color} flex items-center justify-center text-2xl`}>{cat.emoji}</div>
-                  <div>
-                    <p className="text-base font-bold text-slate-900">{cat.name}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">{cat.products} products</p>
-                  </div>
-                </div>
-                <span className="text-xs font-bold text-green-700 bg-green-50 px-2.5 py-1 rounded-full shrink-0">{cat.growth}</span>
-              </div>
-
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-2 mb-4">
-                {[
-                  { label: 'Products', value: cat.products },
-                  { label: 'Active',   value: cat.active   },
-                  { label: 'Revenue',  value: cat.revenue  },
-                ].map(({ label, value }) => (
-                  <div key={label} className="bg-slate-50 rounded-xl p-2.5 text-center">
-                    <p className="text-sm font-bold text-slate-900">{value}</p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">{label}</p>
-                  </div>
-                ))}
-              </div>
-
-              {/* Progress */}
-              <div className="mb-4">
-                <div className="flex justify-between text-xs mb-1.5">
-                  <span className="text-slate-500">Active rate</span>
-                  <span className={`font-semibold ${cat.textColor}`}>{activePct}%</span>
-                </div>
-                <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-1.5 rounded-full bg-blue-500 transition-all duration-500"
-                    style={{ width: `${activePct}%`, background: cat.bg === '#eff6ff' ? '#3b82f6' : cat.bg === '#f5f3ff' ? '#7c3aed' : cat.bg === '#ecfeff' ? '#0891b2' : cat.bg === '#f0fdf4' ? '#16a34a' : cat.bg === '#fdf2f8' ? '#db2777' : '#d97706' }}
-                  />
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-2" onClick={e => e.stopPropagation()}>
-                <button
-                  onClick={() => navigate(`/products/category/${cat.slug}`)}
-                  className={`flex-1 py-2 rounded-xl text-sm font-semibold ${cat.color} ${cat.textColor} hover:opacity-80 transition-opacity`}
-                >
-                  View Products →
-                </button>
-                <button className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-500 text-sm hover:bg-slate-50 transition-colors">✏️</button>
-                <button className="px-3 py-2 rounded-xl border border-red-100 bg-white text-red-500 text-sm hover:bg-red-50 transition-colors">🗑️</button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* ── Add Category Modal ── */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
-            <h2 className="text-lg font-bold text-slate-900 mb-5">Create New Category</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Emoji Icon</label>
-                <input value={newCat.emoji} onChange={e => setNewCat(p => ({ ...p, emoji: e.target.value }))}
-                  className="w-20 px-3 py-2.5 rounded-xl border border-slate-200 text-2xl text-center outline-none focus:border-blue-400" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Category Name *</label>
-                <input value={newCat.name} onChange={e => setNewCat(p => ({ ...p, name: e.target.value }))}
-                  placeholder="e.g. Sports & Fitness" className={inp} />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Description</label>
-                <textarea value={newCat.description} onChange={e => setNewCat(p => ({ ...p, description: e.target.value }))}
-                  placeholder="Brief description of this category..." rows={3}
-                  className={`${inp} resize-none`} />
-              </div>
-            </div>
-            <div className="flex gap-3 mt-5">
-              <button onClick={() => setShowAddModal(false)}
-                className="flex-1 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors">
-                Cancel
-              </button>
-              <button className="flex-1 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors">
-                Create Category
-              </button>
-            </div>
-          </div>
+      <div className="site-card site-card-body mb-4">
+        <div className="site-search-wrap">
+          {/* <span className="site-search-icon text-sm">🔍</span> */}
+          <input value={search} onChange={e => setSearch(e.target.value)}
+            placeholder="Search by name or slug…" className="site-input" />
         </div>
+      </div>
+
+      {/* ── Loading Skeleton ── */}
+      {loading && (
+        <div className="site-card overflow-hidden">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="site-skeleton-row">
+              <div className="site-skeleton site-skeleton-block"
+                style={{ width: '2.25rem', height: '2.25rem', borderRadius: '0.75rem', flexShrink: 0 }} />
+              <div className="flex-1 space-y-2">
+                <div className="site-skeleton site-skeleton-block h-3.5 w-40" />
+                <div className="site-skeleton site-skeleton-block h-2.5 w-24" />
+              </div>
+              <div className="site-skeleton site-skeleton-block h-6 w-16 rounded-full" />
+              <div className="site-skeleton site-skeleton-block h-8 w-24 rounded-xl" />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Table ── */}
+      {!loading && (
+        <div className="site-card overflow-hidden">
+
+          {!isFiltering && parentCount > 0 && (
+            <div className="px-4 py-2.5 site-border-bottom site-surface-secondary flex items-center gap-4">
+              <span className="text-xs site-text-muted">
+                {parentCount} parent {parentCount === 1 ? 'category' : 'categories'}
+              </span>
+              {childCount > 0 && (
+                <span className="text-xs site-text-muted">
+                  ↳ {childCount} sub-{childCount === 1 ? 'category' : 'categories'}
+                </span>
+              )}
+              <span className="text-xs site-text-muted ml-1">
+                · Click ▸ to expand / collapse
+              </span>
+            </div>
+          )}
+
+          <div className="overflow-x-auto">
+            <table className="site-table min-w-[720px]">
+              <thead>
+                <tr>
+                  {['Category', 'Slug', 'Description', 'Priority', 'Status', 'Actions'].map(h => (
+                    <th key={h}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {displayedRows.map(cat => (
+                  <CategoryRow
+                    key={cat.id}
+                    cat={cat}
+                    children={isFiltering ? [] : cat._children}
+                    onEdit={c => setDialog({ mode: 'edit', category: c })}
+                    onToggle={(c, t) => setToggleTarget({ category: c, type: t })}
+                    onAddChild={pid => setDialog({ mode: 'create', defaultParentId: pid })}
+                    depth={isFiltering && !isRootCat(cat) ? 1 : 0}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {displayedRows.length === 0 && (
+            <div className="site-empty-state">
+              <div className="site-empty-icon">🏷️</div>
+              <p className="site-empty-title">
+                {search ? 'No categories match your search' : 'No categories yet'}
+              </p>
+              <p className="site-empty-desc">
+                {search ? 'Try a different search term' : 'Create your first category to organise products'}
+              </p>
+              {!search && (
+                <button className="site-btn site-btn-primary site-btn-sm mt-4"
+                  onClick={() => setDialog({ mode: 'create', defaultParentId: 0 })}>
+                  + Add Category
+                </button>
+              )}
+            </div>
+          )}
+
+          {displayedRows.length > 0 && (
+            <div className="px-4 py-3 site-border-top flex items-center justify-between">
+              <span className="text-sm site-subtext">
+                {isFiltering
+                  ? `Showing ${displayedRows.length} of ${categories.length}`
+                  : `${parentCount} parent · ${childCount} sub-categories`}
+              </span>
+              <button className="text-xs site-text-brand font-semibold hover:underline"
+                onClick={() => navigate('/products/add')}>
+                + Add product →
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Dialogs ── */}
+      {dialog?.mode === 'create' && (
+        <CategoryDialog
+          mode="create"
+          defaultParentId={dialog.defaultParentId}
+          allCategories={sortedCategories}
+          storeUsername={storeUsername}
+          priorityValue={priorityValue}
+          onSuccess={() => { setDialog(null); invalidate(storeUsername); load(true); }}
+          onClose={() => setDialog(null)}
+        />
+      )}
+      {dialog?.mode === 'edit' && (
+        <CategoryDialog
+          mode="edit"
+          initial={dialog.category}
+          allCategories={sortedCategories}
+          storeUsername={storeUsername}
+          priorityValue={priorityValue}
+          onSuccess={() => { setDialog(null); invalidate(storeUsername); load(true); }}
+          onClose={() => setDialog(null)}
+        />
+      )}
+      {toggleTarget && (
+        <ToggleConfirmDialog
+          type={toggleTarget.type}
+          category={toggleTarget.category}
+          onConfirm={handleToggle}
+          onCancel={() => setToggleTarget(null)}
+          loading={toggling}
+        />
       )}
     </div>
   );
 }
-// // FILE: src/pages/Products/Categories.tsx
-// // PASTE: Create this new file at src/pages/Products/Categories.tsx
-
-// import { useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
-
-// interface Category {
-//   id: number; name: string; slug: string; emoji: string;
-//   products: number; active: number; revenue: string; growth: string; color: string; bg: string;
-// }
-
-// const categories: Category[] = [
-//   { id: 1, name: 'Electronics', slug: 'electronics', emoji: '📱', products: 42, active: 38, revenue: '₹8.4L', growth: '+24%', color: '#2563eb', bg: '#eff6ff' },
-//   { id: 2, name: 'Clothing', slug: 'clothing', emoji: '👕', products: 31, active: 28, revenue: '₹3.2L', growth: '+12%', color: '#7c3aed', bg: '#f5f3ff' },
-//   { id: 3, name: 'Home & Kitchen', slug: 'home-kitchen', emoji: '🏠', products: 24, active: 22, revenue: '₹2.1L', growth: '+18%', color: '#0891b2', bg: '#ecfeff' },
-//   { id: 4, name: 'Books', slug: 'books', emoji: '📚', products: 18, active: 18, revenue: '₹1.8L', growth: '+31%', color: '#16a34a', bg: '#f0fdf4' },
-//   { id: 5, name: 'Beauty', slug: 'beauty', emoji: '🧴', products: 8, active: 7, revenue: '₹1.1L', growth: '+45%', color: '#db2777', bg: '#fdf2f8' },
-//   { id: 6, name: 'Sports', slug: 'sports', emoji: '🏃', products: 5, active: 5, revenue: '₹0.9L', growth: '+8%', color: '#d97706', bg: '#fffbeb' },
-// ];
-
-// export default function Categories() {
-//   const navigate = useNavigate();
-//   const [showAddModal, setShowAddModal] = useState(false);
-//   const [newCat, setNewCat] = useState({ name: '', emoji: '📦', description: '' });
-//   const [search, setSearch] = useState('');
-
-//   const filtered = categories.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
-//   const totalProducts = categories.reduce((s, c) => s + c.products, 0);
-
-//   return (
-//     <div style={{ padding: '28px', background: '#f8fafc', minHeight: '100vh', fontFamily: "'DM Sans', sans-serif" }}>
-
-//       {/* Header */}
-//       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '28px' }}>
-//         <div>
-//           <h1 style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', margin: 0 }}>Categories</h1>
-//           <p style={{ fontSize: '14px', color: '#64748b', margin: '4px 0 0' }}>Organize your products into categories for better discoverability</p>
-//         </div>
-//         <button onClick={() => setShowAddModal(true)} style={{
-//           padding: '10px 20px', borderRadius: '10px', border: 'none',
-//           background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff',
-//           fontSize: '14px', fontWeight: 600, cursor: 'pointer',
-//           boxShadow: '0 4px 12px rgba(37,99,235,0.35)'
-//         }}>+ New Category</button>
-//       </div>
-
-//       {/* Summary Bar */}
-//       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
-//         {[
-//           { label: 'Total Categories', value: categories.length, icon: '📋', color: '#2563eb', bg: '#eff6ff' },
-//           { label: 'Total Products', value: totalProducts, icon: '📦', color: '#16a34a', bg: '#f0fdf4' },
-//           { label: 'Best Performing', value: 'Electronics', icon: '🏆', color: '#d97706', bg: '#fffbeb' },
-//         ].map(s => (
-//           <div key={s.label} style={{ background: '#fff', borderRadius: '14px', padding: '20px', border: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '16px' }}>
-//             <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px' }}>{s.icon}</div>
-//             <div>
-//               <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '2px' }}>{s.label}</div>
-//               <div style={{ fontSize: '22px', fontWeight: 700, color: s.color }}>{s.value}</div>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-
-//       {/* Search */}
-//       <div style={{ position: 'relative', marginBottom: '20px', maxWidth: '360px' }}>
-//         <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }}>🔍</span>
-//         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search categories..."
-//           style={{
-//             width: '100%', padding: '10px 12px 10px 36px', borderRadius: '10px',
-//             border: '1.5px solid #e2e8f0', fontSize: '13px', background: '#fff',
-//             outline: 'none', boxSizing: 'border-box'
-//           }} />
-//       </div>
-
-//       {/* Category Cards Grid */}
-//       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-//         {filtered.map(cat => (
-//           <div key={cat.id} style={{
-//             background: '#fff', borderRadius: '16px', padding: '24px',
-//             border: '1px solid #f1f5f9', boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-//             cursor: 'pointer', transition: 'all 0.2s',
-//           }}
-//             onClick={() => navigate(`/products/category/${cat.slug}`)}
-//             onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-3px)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 12px 28px rgba(0,0,0,0.1)'; }}
-//             onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = ''; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)'; }}
-//           >
-//             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>
-//               <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-//                 <div style={{ width: '54px', height: '54px', borderRadius: '14px', background: cat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '26px' }}>{cat.emoji}</div>
-//                 <div>
-//                   <div style={{ fontSize: '17px', fontWeight: 700, color: '#0f172a' }}>{cat.name}</div>
-//                   <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '2px' }}>{cat.products} products</div>
-//                 </div>
-//               </div>
-//               <span style={{ fontSize: '12px', fontWeight: 700, color: '#16a34a', background: '#f0fdf4', padding: '4px 10px', borderRadius: '20px' }}>{cat.growth}</span>
-//             </div>
-
-//             {/* Stats Row */}
-//             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '16px' }}>
-//               {[
-//                 { label: 'Products', value: cat.products },
-//                 { label: 'Active', value: cat.active },
-//                 { label: 'Revenue', value: cat.revenue },
-//               ].map(({ label, value }) => (
-//                 <div key={label} style={{ background: '#f8fafc', borderRadius: '10px', padding: '10px', textAlign: 'center' }}>
-//                   <div style={{ fontSize: '15px', fontWeight: 700, color: '#0f172a' }}>{value}</div>
-//                   <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>{label}</div>
-//                 </div>
-//               ))}
-//             </div>
-
-//             {/* Progress Bar */}
-//             <div>
-//               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-//                 <span style={{ fontSize: '12px', color: '#64748b' }}>Active rate</span>
-//                 <span style={{ fontSize: '12px', fontWeight: 600, color: cat.color }}>{Math.round((cat.active / cat.products) * 100)}%</span>
-//               </div>
-//               <div style={{ height: '6px', background: '#f1f5f9', borderRadius: '6px', overflow: 'hidden' }}>
-//                 <div style={{
-//                   height: '100%', width: `${(cat.active / cat.products) * 100}%`,
-//                   background: `linear-gradient(90deg, ${cat.color}aa, ${cat.color})`,
-//                   borderRadius: '6px', transition: 'width 0.6s'
-//                 }} />
-//               </div>
-//             </div>
-
-//             {/* Action buttons */}
-//             <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }} onClick={e => e.stopPropagation()}>
-//               <button onClick={() => navigate(`/products/category/${cat.slug}`)} style={{
-//                 flex: 1, padding: '8px', borderRadius: '8px', border: 'none',
-//                 background: cat.bg, color: cat.color, fontSize: '13px', fontWeight: 600, cursor: 'pointer'
-//               }}>View Products →</button>
-//               <button style={{ padding: '8px 12px', borderRadius: '8px', border: '1.5px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: '13px', cursor: 'pointer' }}>✏️</button>
-//               <button style={{ padding: '8px 12px', borderRadius: '8px', border: '1.5px solid #fee2e2', background: '#fff', color: '#dc2626', fontSize: '13px', cursor: 'pointer' }}>🗑️</button>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-
-//       {/* Add Category Modal */}
-//       {showAddModal && (
-//         <div style={{
-//           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
-//           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px'
-//         }}>
-//           <div style={{ background: '#fff', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '420px' }}>
-//             <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', margin: '0 0 20px' }}>Create New Category</h2>
-//             <div style={{ display: 'grid', gap: '16px' }}>
-//               <div>
-//                 <label style={{ fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '6px', display: 'block' }}>Emoji Icon</label>
-//                 <input value={newCat.emoji} onChange={e => setNewCat(p => ({ ...p, emoji: e.target.value }))}
-//                   style={{ width: '80px', padding: '10px', borderRadius: '10px', border: '1.5px solid #e2e8f0', fontSize: '24px', textAlign: 'center' }} />
-//               </div>
-//               <div>
-//                 <label style={{ fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '6px', display: 'block' }}>Category Name *</label>
-//                 <input value={newCat.name} onChange={e => setNewCat(p => ({ ...p, name: e.target.value }))}
-//                   placeholder="e.g. Sports & Fitness"
-//                   style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', border: '1.5px solid #e2e8f0', fontSize: '14px', boxSizing: 'border-box' }} />
-//               </div>
-//               <div>
-//                 <label style={{ fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '6px', display: 'block' }}>Description</label>
-//                 <textarea value={newCat.description} onChange={e => setNewCat(p => ({ ...p, description: e.target.value }))}
-//                   placeholder="Brief description of this category..."
-//                   rows={3} style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', border: '1.5px solid #e2e8f0', fontSize: '14px', boxSizing: 'border-box', resize: 'none' }} />
-//               </div>
-//             </div>
-//             <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-//               <button onClick={() => setShowAddModal(false)} style={{
-//                 flex: 1, padding: '11px', borderRadius: '10px', border: '1.5px solid #e2e8f0',
-//                 background: '#fff', color: '#374151', fontSize: '14px', fontWeight: 500, cursor: 'pointer'
-//               }}>Cancel</button>
-//               <button style={{
-//                 flex: 1, padding: '11px', borderRadius: '10px', border: 'none',
-//                 background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff',
-//                 fontSize: '14px', fontWeight: 600, cursor: 'pointer'
-//               }}>Create Category</button>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }

@@ -33,7 +33,7 @@ export default function LogoutPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4">
+    <div className="site-page site-page-padding min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl shadow-sm p-6 text-center">
         <div className="flex justify-center items-center">
           <AlertCircle color="red" />
@@ -47,16 +47,28 @@ export default function LogoutPage() {
           </div>
         )}
 
-        <div className="flex gap-3">
-          <button onClick={() => navigate(-1)} disabled={isLoading}
-            className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-md mx-auto">
+          <button
+            onClick={() => navigate(-1)}
+            disabled={isLoading}
+            className="site-btn site-btn-ghost site-btn-lg"
+          >
             Cancel
           </button>
-          <button onClick={handleLogout} disabled={isLoading}
-            className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2">
+
+          <button
+            onClick={handleLogout}
+            disabled={isLoading}
+            className="site-btn site-btn-danger site-btn-lg"
+          >
             {isLoading ? (
-              <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Logging out...</>
-            ) : 'Logout'}
+              <span className="flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Logging out...
+              </span>
+            ) : (
+              "Logout"
+            )}
           </button>
         </div>
 

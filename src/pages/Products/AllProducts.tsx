@@ -494,7 +494,7 @@ export default function AllProducts() {
                       <td>
                         <button className="site-btn site-btn-danger site-btn-sm"
                           onClick={() => setDeleteTarget({ slug: p.slug, name: p.name })}>
-                          🗑
+                          Delete
                         </button>
                       </td>
                     </tr>
@@ -818,7 +818,7 @@ export default function AllProducts() {
         <div className="site-modal-overlay">
           <div className="site-modal site-modal-sm">
             <div className="site-modal-body text-center">
-              <div className="text-4xl mb-3">🗑️</div>
+              {/* <div className="text-4xl mb-3">🗑️</div> */}
               <h2 className="h3 site-heading mb-2">Delete Product?</h2>
               <p className="text-sm site-subtext mb-1">You are about to delete:</p>
               <p className="text-sm font-semibold site-heading mb-4">"{deleteTarget.name}"</p>

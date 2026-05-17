@@ -1484,6 +1484,19 @@ select.site-input {
   margin-bottom: 0.375rem;
 }
 
+/* ─── 47b. SIDEBAR SECTION LABELS — always on navy bg ──────────────────────── */
+
+.site-navbar h2 {
+  color: rgb(255, 255, 255) !important;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  display: flex;
+  font-size: 0.75rem;   /* was 0.6875rem (11px) → now 12px */
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
 /* ─── 48. LAYOUT TOGGLE (view-mode switcher) ────────────────────────────────
    Used identically on AllProducts, Inventory, and any future list/grid pages.
    Drop-in replacement for the ad-hoc toggles that existed before.
@@ -1538,4 +1551,127 @@ select.site-input {
 .dark .site-layout-toggle-btn--active {
   background-color: var(--surface-elevated);
   box-shadow:       0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+/* ─── 49. AUTH LAYOUT ───────────────────────────────────────────────────────── */
+ 
+/* ── Root wrapper ── */
+.auth-layout-root {
+  background-color: var(--page-bg);
+}
+ 
+/* ── Left form side ── */
+.auth-form-side {
+  background-color: var(--surface-primary);
+}
+ 
+/* ── Right brand panel ── */
+.auth-brand-panel {
+  background-color: var(--surface-navbar);   /* deep navy — same as app navbar */
+  position: relative;
+}
+ 
+/* Subtle radial glow behind the logo */
+.auth-brand-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 60% 50% at 50% 45%,
+    rgba(26, 86, 219, 0.25) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+ 
+/* ── Logo mark (desktop) — 56px, proportionate ── */
+.auth-logo-wrap {
+  width:            3.5rem;
+  height:           3.5rem;
+  border-radius:    1rem;
+  overflow:         hidden;
+  display:          flex;
+  align-items:      center;
+  justify-content:  center;
+  background-color: rgba(255, 255, 255, 0.08);
+  border:           1px solid rgba(255, 255, 255, 0.14);
+  padding:          0.5rem;
+  transition:       background-color 0.2s, border-color 0.2s;
+  flex-shrink:      0;
+}
+.auth-logo-wrap:hover,
+a:hover .auth-logo-wrap {
+  background-color: rgba(26, 86, 219, 0.30);
+  border-color:     rgba(26, 86, 219, 0.55);
+}
+ 
+/* ── Logo mark (mobile bar) — 30px ── */
+.auth-logo-wrap-sm {
+  width:            1.875rem;
+  height:           1.875rem;
+  border-radius:    0.5rem;
+  overflow:         hidden;
+  display:          flex;
+  align-items:      center;
+  justify-content:  center;
+  background-color: var(--surface-tertiary);
+  border:           1px solid var(--border-subtle);
+  padding:          0.1875rem;
+  flex-shrink:      0;
+}
+ 
+/* ── Wordmark (desktop) ── */
+.auth-wordmark {
+  font-size:      1.75rem;
+  font-weight:    800;
+  letter-spacing: -0.03em;
+  line-height:    1;
+  background:     linear-gradient(135deg, #ffffff 0%, var(--brand-300) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+ 
+/* ── Wordmark (mobile bar) ── */
+.auth-wordmark-sm {
+  font-size:      1rem;
+  font-weight:    800;
+  letter-spacing: -0.02em;
+  color:          var(--text-brand);
+  line-height:    1;
+}
+ 
+/* ── Tagline ── */
+.auth-tagline {
+  font-size:      1.5rem;
+  font-weight:    700;
+  line-height:    1.3;
+  letter-spacing: -0.02em;
+  color:          #ffffff;
+  margin:         0;
+}
+ 
+/* ── Sub-tagline ── */
+.auth-sub-tagline {
+  font-size:   0.875rem;
+  line-height: 1.65;
+  color:       rgba(255, 255, 255, 0.50);
+  margin:      0;
+}
+ 
+/* ── Decorative dots ── */
+.auth-dot {
+  width:            0.4375rem;
+  height:           0.4375rem;
+  border-radius:    9999px;
+  background-color: var(--brand-400);
+  display:          inline-block;
+  flex-shrink:      0;
+}
+ 
+/* ── Mobile top bar — has its own bg so content shows ── */
+.auth-mobile-bar {
+  background-color: var(--surface-primary);
+  border-bottom:    1px solid var(--border-subtle);
 }

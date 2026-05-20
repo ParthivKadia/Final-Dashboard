@@ -314,9 +314,9 @@ export default function LowStock() {
   const { fetchCategories, getCategories }       = useCategoryStore();
 
   const storeUsername    = activeStore?.username ?? '';
-  const cachedCategories = getCategories(storeUsername) ?? [];
+  // const cachedCategories = getCategories(storeUsername) ?? [];
   // Build category display map for resolved category names
-  const catMap = new Map<number, string>(cachedCategories.map(c => [c.id, c.name]));
+  // const catMap = new Map<number, string>(cachedCategories.map(c => [c.id, c.name]));
 
   // ── State ──────────────────────────────────────────────────────────────────
   const [items, setItems]           = useState<LowStockItem[]>([]);

@@ -1,5 +1,5 @@
 // src/components/common/MobileDrawer.tsx
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 
 interface MobileDrawerRowProps {
   thumb: React.ReactNode;

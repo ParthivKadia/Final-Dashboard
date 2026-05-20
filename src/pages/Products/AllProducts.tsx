@@ -1,7 +1,7 @@
 // src/pages/Products/AllProducts.tsx
 // All colours/surfaces come from site-theme.css — zero inline style={{ color/bg }} needed.
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { createProduct, deleteProduct } from '../../services/productService';

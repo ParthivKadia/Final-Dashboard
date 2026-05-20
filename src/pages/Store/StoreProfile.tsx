@@ -22,7 +22,7 @@ const THEMES = [
 
 const SOCIAL_FIELDS = [
   { field: "instagram" as const, label: "Instagram",   prefix: "instagram.com/", placeholder: "yourhandle"    },
-  { field: "whatsapp"  as const, label: "WhatsApp",    prefix: "+",              placeholder: "911234567890" },
+  { field: "whatsapp"  as const, label: "WhatsApp",    prefix: "",              placeholder: "1234567890" },
   { field: "facebook"  as const, label: "Facebook",    prefix: "facebook.com/",  placeholder: "yourpage"     },
   { field: "twitter"   as const, label: "Twitter / X", prefix: "x.com/",         placeholder: "yourhandle"   },
 ];

@@ -18,7 +18,7 @@ const THEMES = [
 
 const SOCIAL_FIELDS = [
   { field: "instagram" as const, label: "Instagram",   icon: "📸", prefix: "instagram.com/", placeholder: "yourusername" },
-  { field: "whatsapp"  as const, label: "WhatsApp",    icon: "💬", prefix: "+",              placeholder: "911234567890" },
+  { field: "whatsapp"  as const, label: "WhatsApp",    icon: "💬", prefix: "",              placeholder: "1234567890" },
   { field: "facebook"  as const, label: "Facebook",    icon: "📘", prefix: "facebook.com/",  placeholder: "yourpage"     },
   { field: "twitter"   as const, label: "Twitter / X", icon: "🐦", prefix: "x.com/",         placeholder: "yourhandle"   },
 ];
@@ -309,7 +309,7 @@ export default function CreateStore() {
                   <div>
                     <p className="text-sm font-semibold site-text-brand mb-1">💡 Tip</p>
                     <p className="text-xs site-subtext">
-                      For WhatsApp, enter the full number with country code (e.g. 911234567890 for India).
+                      For WhatsApp, enter the full number (e.g. 1234567890).
                       Social links help customers reach you directly from your store.
                     </p>
                   </div>

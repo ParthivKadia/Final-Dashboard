@@ -18,6 +18,7 @@ import type { Store } from '../../types/store';
 import CloudinaryUploadWidget from '../../ImageUpload';
 import { generateSlug } from '../../utils/slug';
 import { SlugCell } from './AllProducts';
+import { MobileDrawerRow, DrawerField } from '../../components/common/MobileDrawer';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -329,19 +330,122 @@ function PriorityBadge({ order }: { order: number }) {
 
 type CategoryWithChildren = Category & { _children: CategoryWithChildren[] };
 
-function CategoryRow({ cat, children, onEdit, onToggle, onAddChild, depth = 0 }: {
+function CategoryRow({ cat, children, onEdit, onToggle, onAddChild, depth = 0, mobile = false }: {
   cat:        CategoryWithChildren;
   children:   CategoryWithChildren[];
   onEdit:     (c: Category) => void;
   onToggle:   (c: Category, t: 'activate' | 'deactivate') => void;
   onAddChild: (parentId: number) => void;
   depth?:     number;
+  mobile?:    boolean;
 }) {
   const [expanded, setExpanded] = useState(true);
   const isActive    = cat.active !== false;
   const hasChildren = children.length > 0;
   const icon        = depth === 0 ? '🏷️' : depth === 1 ? '📂' : '📄';
 
+  // ── Mobile card rendering ──────────────────────────────────────────────────
+  if (mobile) {
+    return (
+      <>
+        <div className={!isActive ? 'opacity-60' : ''}>
+          <MobileDrawerRow
+            thumb={
+              <div className="site-thumb shrink-0"
+                style={{ width: '2.5rem', height: '2.5rem', borderRadius: '0.625rem' }}>
+                {cat.imageUrl
+                  ? <img src={cat.imageUrl} alt={cat.name} className="w-full h-full object-cover"
+                      onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                  : <span className="text-lg">{icon}</span>
+                }
+              </div>
+            }
+            primary={
+              <span className="flex items-center gap-1.5">
+                {depth > 0 && (
+                  <span className="site-text-muted text-xs" style={{ letterSpacing: '-0.05em' }}>
+                    {'↳'.repeat(depth)}
+                  </span>
+                )}
+                {cat.name}
+              </span>
+            }
+            secondary={`ID ${cat.id}${cat.parentId && cat.parentId !== 0 ? ` · child of ${cat.parentId}` : ''}${depth > 1 ? ` · depth ${depth}` : ''}`}
+            badge={
+              <span className={`site-badge ${isActive ? 'site-badge--active' : ''}`}
+                style={!isActive ? { backgroundColor: 'var(--surface-secondary)', color: 'var(--text-secondary)' } : undefined}>
+                <span className="site-badge-dot"
+                  style={!isActive ? { backgroundColor: 'var(--text-muted)' } : undefined} />
+                {isActive ? 'Active' : 'Inactive'}
+              </span>
+            }
+            drawer={
+              <>
+                <div className="flex gap-2 flex-wrap">
+                  <DrawerField label="Slug">
+                    <span className="site-mono text-[11px]">{cat.slug}</span>
+                  </DrawerField>
+                  <DrawerField label="Priority">
+                    <PriorityBadge order={cat.displayOrder ?? 0} />
+                  </DrawerField>
+                </div>
+
+                {cat.description && (
+                  <DrawerField label="Description">
+                    {cat.description}
+                  </DrawerField>
+                )}
+
+                {hasChildren && (
+                  <DrawerField label="Sub-categories">
+                    <span className="flex items-center gap-2">
+                      {children.length} sub-{children.length === 1 ? 'category' : 'categories'}
+                      <button
+                        className="text-[11px] site-text-brand font-semibold"
+                        onClick={() => setExpanded(v => !v)}
+                      >
+                        {expanded ? 'Collapse ▾' : 'Expand ▸'}
+                      </button>
+                    </span>
+                  </DrawerField>
+                )}
+
+                <div className="flex gap-2 pt-1 flex-wrap">
+                  <button className="site-btn site-btn-outline site-btn-sm flex-1"
+                    onClick={() => onEdit(cat)}>Edit</button>
+                  <button className="site-btn site-btn-ghost site-btn-sm"
+                    onClick={() => onAddChild(cat.id)}>+ Sub</button>
+                  {isActive
+                    ? <button className="site-btn site-btn-sm"
+                        style={{ backgroundColor: 'var(--status-featured-bg)', color: 'var(--status-featured-text)', border: 'none' }}
+                        onClick={() => onToggle(cat, 'deactivate')}>Disable</button>
+                    : <button className="site-btn site-btn-sm"
+                        style={{ backgroundColor: 'var(--status-active-bg)', color: 'var(--status-active-text)', border: 'none' }}
+                        onClick={() => onToggle(cat, 'activate')}>Enable</button>
+                  }
+                </div>
+              </>
+            }
+          />
+        </div>
+
+        {expanded && children.map(child => (
+          <CategoryRow
+            key={child.id}
+            cat={child}
+            children={child._children ?? []}
+            onEdit={onEdit}
+            onToggle={onToggle}
+            onAddChild={onAddChild}
+            depth={depth + 1}
+            mobile
+          />
+        ))}
+      </>
+    );
+  }
+
+  // ── Desktop table row rendering ────────────────────────────────────────────
   return (
     <>
       <tr
@@ -350,7 +454,6 @@ function CategoryRow({ cat, children, onEdit, onToggle, onAddChild, depth = 0 }:
         onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--surface-secondary)')}
         onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
       >
-        {/* Name cell */}
         <td className="py-3 px-4">
           <div className="flex items-center gap-2.5" style={{ paddingLeft: depth * 20 }}>
             <button
@@ -387,8 +490,9 @@ function CategoryRow({ cat, children, onEdit, onToggle, onAddChild, depth = 0 }:
         </td>
 
         <td className="py-3 px-4">
-          {/* <span className="text-xs site-mono site-text-muted whitespace-nowrap">{cat.slug}</span> */}
-          <span className="text-xs site-mono site-text-muted whitespace-nowrap"><SlugCell slug={cat.slug} /></span>
+          <span className="text-xs site-mono site-text-muted whitespace-nowrap">
+            <SlugCell slug={cat.slug} />
+          </span>
         </td>
 
         <td className="py-3 px-4">
@@ -670,13 +774,14 @@ export default function Categories() {
                   ↳ {childCount} sub-{childCount === 1 ? 'category' : 'categories'}
                 </span>
               )}
-              <span className="text-xs site-text-muted ml-1">
+              <span className="text-xs site-text-muted ml-1 hidden sm:inline">
                 · Click ▸ to expand / collapse
               </span>
             </div>
           )}
 
-          <div className="overflow-x-auto">
+          {/* ── Desktop table (hidden on mobile) ── */}
+          <div className="hidden sm:block overflow-x-auto">
             <table className="site-table min-w-[720px]">
               <thead>
                 <tr>
@@ -700,6 +805,23 @@ export default function Categories() {
               </tbody>
             </table>
           </div>
+
+          {/* ── Mobile card list (hidden on desktop) ── */}
+          <div className="sm:hidden">
+            {displayedRows.map(cat => (
+              <CategoryRow
+                key={cat.id}
+                cat={cat}
+                children={isFiltering ? [] : cat._children}
+                onEdit={c => setDialog({ mode: 'edit', category: c })}
+                onToggle={(c, t) => setToggleTarget({ category: c, type: t })}
+                onAddChild={pid => setDialog({ mode: 'create', defaultParentId: pid })}
+                depth={isFiltering && !isRootCat(cat) ? 1 : 0}
+                mobile
+              />
+            ))}
+          </div>
+
 
           {displayedRows.length === 0 && (
             <div className="site-empty-state">

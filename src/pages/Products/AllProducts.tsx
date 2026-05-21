@@ -14,6 +14,8 @@ import CategorySelector from '../Categories/CategorySelector';
 import CloudinaryUploadWidget from '../../ImageUpload';
 import { generateSlug } from '../../utils/slug';
 import LayoutToggle from '../../layout/LayoutToggle';
+import { MobileDrawerRow, DrawerField } from '../../components/common/MobileDrawer';
+import { CardImageSlider } from './Inventory';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -421,88 +423,89 @@ export default function AllProducts() {
 
       {/* ── TABLE VIEW ── */}
       {!loading && !fetchError && viewMode === 'table' && (
-        <div className="site-card overflow-hidden min-w-0">
-          <div className="overflow-x-auto w-full">
-            <table className="site-table min-w-[750px]">
-              <thead>
-                <tr>
-                  <th className="py-3 pl-4 w-10">
-                    <input type="checkbox" className="rounded"
-                      onChange={e => setSelectedIds(e.target.checked ? filtered.map(p => p.id) : [])} />
-                  </th>
-                  {['Product', 'Slug', 'Categories', 'Price', 'Stock', 'Featured', 'Status', 'Actions'].map(h => (
-                    <th key={h}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(p => {
-                  const status   = getStatus(p);
-                  const catNames = resolveCategoryNames(p.categoryIds ?? []);
-                  return (
-                    <tr key={p.id}
-                      style={{ backgroundColor: selectedIds.includes(p.id) ? 'rgba(26,86,219,0.06)' : undefined }}>
-                      <td className="py-3 pl-4">
-                        <input type="checkbox" className="rounded"
-                          checked={selectedIds.includes(p.id)} onChange={() => toggleSelect(p.id)} />
-                      </td>
-                      <td>
-                        <div className="flex items-center gap-3">
-                          <div className="site-thumb site-thumb-md">
-                            {p.imageUrl
-                              ? <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover"
-                                  onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-                              : <span className="text-lg">📦</span>
-                            }
-                          </div>
-                          <div>
-                            <p className="text-sm font-semibold site-heading whitespace-nowrap">{p.name}</p>
-                            <p className="text-xs site-subtext">₹{p.compareAtPrice?.toLocaleString()} MRP</p>
-                          </div>
+      <div className="site-card min-w-0">
+
+        {/* ── Desktop table (hidden on mobile) ── */}
+        <div className="hidden sm:block overflow-x-auto w-full" style={{ overflowY: 'hidden' }}>
+          <table className="site-table min-w-[750px]">
+            <thead>
+              <tr>
+                <th className="py-3 pl-4 w-10">
+                  <input type="checkbox" className="rounded"
+                    onChange={e => setSelectedIds(e.target.checked ? filtered.map(p => p.id) : [])} />
+                </th>
+                {['Product', 'Slug', 'Categories', 'Price', 'Stock', 'Featured', 'Status', 'Actions'].map(h => (
+                  <th key={h}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(p => {
+                const status   = getStatus(p);
+                const catNames = resolveCategoryNames(p.categoryIds ?? []);
+                return (
+                  <tr key={p.id}
+                    style={{ backgroundColor: selectedIds.includes(p.id) ? 'rgba(26,86,219,0.06)' : undefined }}>
+                    <td className="py-3 pl-4">
+                      <input type="checkbox" className="rounded"
+                        checked={selectedIds.includes(p.id)} onChange={() => toggleSelect(p.id)} />
+                    </td>
+                    <td>
+                      <div className="flex items-center gap-3">
+                        <div className="site-thumb site-thumb-md">
+                          {p.imageUrl
+                            ? <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover"
+                                onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                            : <span className="text-lg">📦</span>
+                          }
                         </div>
-                      </td>
-                      <td><SlugCell slug={p.slug} /></td>
-                      <td>
-                        <span className="text-xs px-2 py-1 rounded-lg site-surface-secondary site-heading block max-w-[180px] site-truncate"
-                          title={catNames}>{catNames}</span>
-                      </td>
-                      <td className="text-sm font-bold site-heading">₹{p.price.toLocaleString()}</td>
-                      <td>
-                        <span className={`text-sm font-semibold ${
-                          p.stockCount === 0      ? 'text-[var(--status-out-text)]'
-                          : p.stockCount <= 10    ? 'text-[var(--status-low-text)]'
-                          : 'site-heading'
-                        }`}>
-                          {p.stockCount}
-                          {p.stockCount > 0 && p.stockCount <= 10 && (
-                            <span className="text-[10px] ml-1 font-bold text-[var(--status-out-text)]">LOW</span>
-                          )}
-                        </span>
-                      </td>
-                      <td>
-                        {p.isFeatured
-                          ? <span className="site-featured-badge">⭐ Featured</span>
-                          : <span className="site-text-muted">—</span>
-                        }
-                      </td>
-                      <td>
-                        <span className={`site-badge site-badge--${status}`}>
-                          <span className="site-badge-dot" />
-                          {STATUS_LABEL[status]}
-                        </span>
-                      </td>
-                      <td>
-                        <button className="site-btn site-btn-danger site-btn-sm"
-                          onClick={() => setDeleteTarget({ slug: p.slug, name: p.name })}>
-                          🗑
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                        <div>
+                          <p className="text-sm font-semibold site-heading whitespace-nowrap">{p.name}</p>
+                          <p className="text-xs site-subtext">₹{p.compareAtPrice?.toLocaleString()} MRP</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td><SlugCell slug={p.slug} /></td>
+                    <td>
+                      <span className="text-xs px-2 py-1 rounded-lg site-surface-secondary site-heading block max-w-[180px] site-truncate"
+                        title={catNames}>{catNames}</span>
+                    </td>
+                    <td className="text-sm font-bold site-heading">₹{p.price.toLocaleString()}</td>
+                    <td>
+                      <span className={`text-sm font-semibold ${
+                        p.stockCount === 0      ? 'text-[var(--status-out-text)]'
+                        : p.stockCount <= 10    ? 'text-[var(--status-low-text)]'
+                        : 'site-heading'
+                      }`}>
+                        {p.stockCount}
+                        {p.stockCount > 0 && p.stockCount <= 10 && (
+                          <span className="text-[10px] ml-1 font-bold text-[var(--status-out-text)]">LOW</span>
+                        )}
+                      </span>
+                    </td>
+                    <td>
+                      {p.isFeatured
+                        ? <span className="site-featured-badge">⭐ Featured</span>
+                        : <span className="site-text-muted">—</span>
+                      }
+                    </td>
+                    <td>
+                      <span className={`site-badge site-badge--${status}`}>
+                        <span className="site-badge-dot" />
+                        {STATUS_LABEL[status]}
+                      </span>
+                    </td>
+                    <td>
+                      <button className="site-btn site-btn-danger site-btn-sm"
+                        onClick={() => setDeleteTarget({ slug: p.slug, name: p.name })}>
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
 
           {filtered.length === 0 && (
             <div className="site-empty-state">
@@ -514,82 +517,187 @@ export default function AllProducts() {
               </button>
             </div>
           )}
-
-          {/* Pagination */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 site-border-top">
-            <span className="text-sm site-subtext">
-              Showing {filtered.length} of {total} products
-            </span>
-            <div className="site-pagination">
-              <button className="site-page-btn" disabled={currentPage === 1}
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}>←</button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter(n => n === 1 || n === totalPages || Math.abs(n - currentPage) <= 1)
-                .reduce<(number | '...')[]>((acc, n, i, arr) => {
-                  if (i > 0 && n - (arr[i - 1] as number) > 1) acc.push('...');
-                  acc.push(n); return acc;
-                }, [])
-                .map((n, i) => n === '...'
-                  ? <span key={`e${i}`} className="w-8 text-center site-text-muted">…</span>
-                  : <button key={n}
-                      className={`site-page-btn ${currentPage === n ? 'site-page-btn--active' : ''}`}
-                      onClick={() => setCurrentPage(n as number)}>{n}</button>
-                )}
-              <button className="site-page-btn" disabled={!hasMore}
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}>→</button>
-            </div>
-          </div>
         </div>
-      )}
 
-      {/* ── GRID VIEW ── */}
-      {!loading && !fetchError && viewMode === 'grid' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+        {/* ── Mobile card list (shown only on mobile) ── */}
+        <div className="sm:hidden">
           {filtered.map(p => {
             const status   = getStatus(p);
             const catNames = resolveCategoryNames(p.categoryIds ?? []);
             return (
-              <div key={p.id} className="site-cat-card">
-                <div className="site-thumb w-full h-32 mb-4">
-                  {p.imageUrl
-                    ? <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover"
-                        onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-                    : <span className="text-4xl">📦</span>
-                  }
-                </div>
-                <div className="flex items-start justify-between mb-2">
-                  <p className="text-sm font-bold line-clamp-2 flex-1 site-heading">{p.name}</p>
-                  <span className={`site-badge site-badge--${status} ml-2 shrink-0`}>{STATUS_LABEL[status]}</span>
-                </div>
-                <div className="mb-1"><SlugCell slug={p.slug} /></div>
-                <p className="text-xs mb-2 site-subtext site-truncate" title={catNames}>🏷️ {catNames}</p>
-                {p.isFeatured && <span className="site-featured-badge mb-2 inline-flex">⭐ Featured</span>}
-                <div className="flex items-center justify-between mt-3 mb-4">
-                  <div>
-                    <span className="text-lg font-bold site-text-brand">₹{p.price.toLocaleString()}</span>
-                    {p.compareAtPrice > p.price && (
-                      <span className="site-price-strike ml-1.5">₹{p.compareAtPrice.toLocaleString()}</span>
-                    )}
+              <MobileDrawerRow
+                key={p.id}
+                isSelected={selectedIds.includes(p.id)}
+                onSelect={() => toggleSelect(p.id)}
+                thumb={
+                  <div className="site-thumb" style={{ width: '2.5rem', height: '2.5rem', borderRadius: '0.625rem' }}>
+                    {p.imageUrl
+                      ? <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover"
+                          onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                      : <span className="text-xl">📦</span>
+                    }
                   </div>
-                  <span className="text-xs site-subtext">
-                    Stock: <span className={`font-semibold ${p.stockCount <= 10 ? 'text-[var(--status-out-text)]' : 'site-heading'}`}>
-                      {p.stockCount}
-                    </span>
+                }
+                primary={p.name}
+                secondary={
+                  <>
+                    ₹{p.price.toLocaleString()}
+                    {p.compareAtPrice > p.price && (
+                      <span className="site-price-strike ml-1">₹{p.compareAtPrice.toLocaleString()}</span>
+                    )}
+                  </>
+                }
+                badge={
+                  <span className={`site-badge site-badge--${status}`}>
+                    <span className="site-badge-dot" />
+                    {STATUS_LABEL[status]}
                   </span>
-                </div>
-                <button className="site-btn site-btn-danger w-full"
-                  onClick={() => setDeleteTarget({ slug: p.slug, name: p.name })}>
-                  Delete
-                </button>
-              </div>
+                }
+                drawer={
+                  <>
+                    <div className="flex gap-2 flex-wrap">
+                      <DrawerField label="Slug">
+                        <span className="site-mono text-[11px]">{p.slug}</span>
+                      </DrawerField>
+                      <DrawerField label="Stock">
+                        <span className={
+                          p.stockCount === 0 ? 'text-[var(--status-out-text)]'
+                          : p.stockCount <= 10 ? 'text-[var(--status-low-text)]' : ''
+                        }>
+                          {p.stockCount}
+                          {p.stockCount > 0 && p.stockCount <= 10 && (
+                            <span className="text-[10px] ml-1">LOW</span>
+                          )}
+                        </span>
+                      </DrawerField>
+                    </div>
+                    <div className="flex gap-2 flex-wrap">
+                      <DrawerField label="Categories">{catNames}</DrawerField>
+                      <DrawerField label="Featured">{p.isFeatured ? '⭐ Yes' : '—'}</DrawerField>
+                    </div>
+                    <div className="flex gap-2 pt-1">
+                      <button className="site-btn site-btn-danger site-btn-sm flex-1"
+                        onClick={() => setDeleteTarget({ slug: p.slug, name: p.name })}>
+                        Delete
+                      </button>
+                    </div>
+                  </>
+                }
+              />
             );
           })}
           {filtered.length === 0 && (
-            <div className="col-span-full site-empty-state">
+            <div className="site-empty-state">
+              <div className="site-empty-icon">📦</div>
+              <p className="site-empty-title">No products found</p>
+              <p className="site-empty-desc">Try adjusting filters or add your first product</p>
+              <button className="site-btn site-btn-primary site-btn-sm mt-4" onClick={openDialog}>
+                + Add Product
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* ── Pagination ── */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 site-border-top">
+          <span className="text-sm site-subtext">
+            Showing {filtered.length} of {total} products
+          </span>
+          <div className="site-pagination">
+            <button className="site-page-btn" disabled={currentPage === 1}
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}>←</button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(n => n === 1 || n === totalPages || Math.abs(n - currentPage) <= 1)
+              .reduce<(number | '...')[]>((acc, n, i, arr) => {
+                if (i > 0 && n - (arr[i - 1] as number) > 1) acc.push('...');
+                acc.push(n); return acc;
+              }, [])
+              .map((n, i) => n === '...'
+                ? <span key={`e${i}`} className="w-8 text-center site-text-muted">…</span>
+                : <button key={n}
+                    className={`site-page-btn ${currentPage === n ? 'site-page-btn--active' : ''}`}
+                    onClick={() => setCurrentPage(n as number)}>{n}</button>
+              )}
+            <button className="site-page-btn" disabled={!hasMore}
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}>→</button>
+          </div>
+        </div>
+      </div>
+    )}
+
+      {/* ── GRID VIEW ── */}
+      {!loading && !fetchError && viewMode === 'grid' && (
+        <div className="p-4">
+          {filtered.length === 0 ? (
+            <div className="site-empty-state">
               <div className="site-empty-icon">📦</div>
               <p className="site-empty-title">No products found</p>
               <p className="site-empty-desc">Try adjusting filters or add your first product</p>
               <button className="site-btn site-btn-primary site-btn-sm mt-4" onClick={openDialog}>+ Add Product</button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              {filtered.map(p => {
+                const status   = getStatus(p);
+                const catNames = resolveCategoryNames(p.categoryIds ?? []);
+                const allImgs  = [p.imageUrl, ...(p.images ?? [])].filter(u => typeof u === 'string' && u.trim() !== '');
+                return (
+                  <div key={p.id}
+                    className="group site-card overflow-hidden hover:shadow-md transition-all flex flex-col"
+                    style={{ borderRadius: '1rem' }}>
+
+                    <div className="relative">
+                      <CardImageSlider mainUrl={p.imageUrl ?? ''} extras={p.images ?? []} />
+                      <div className="absolute top-2 left-2 flex flex-col gap-1 z-10 pointer-events-none">
+                        <span className={`site-badge site-badge--${status}`}>
+                          <span className="site-badge-dot" />
+                          {STATUS_LABEL[status]}
+                        </span>
+                        {p.isFeatured && (
+                          <span className="site-featured-badge">⭐ Featured</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="p-3 flex flex-col gap-1.5 flex-1">
+                      <p className="text-sm font-semibold site-heading leading-snug line-clamp-2">{p.name}</p>
+                      <p className="text-[10px] site-mono site-text-muted site-truncate">{p.slug}</p>
+                      {catNames !== '—' && (
+                        <span className="text-[10px] site-surface-secondary site-subtext px-1.5 py-0.5 rounded-md site-truncate block"
+                          title={catNames}>{catNames}</span>
+                      )}
+
+                      <div className="flex items-baseline gap-1.5 mt-auto pt-1">
+                        <span className="text-sm font-bold site-heading">₹{p.price.toLocaleString()}</span>
+                        {p.compareAtPrice > p.price && (
+                          <span className="site-price-strike">₹{p.compareAtPrice.toLocaleString()}</span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs site-subtext">
+                        <span className={`font-semibold ${
+                          p.stockCount === 0   ? 'text-[var(--status-out-text)]'
+                          : p.stockCount <= 9  ? 'text-[var(--status-low-text)]'
+                          : 'site-heading'
+                        }`}>
+                          Qty: {p.stockCount}
+                          {p.stockCount > 0 && p.stockCount <= 9 && (
+                            <span className="text-[var(--status-out-text)] ml-1">LOW</span>
+                          )}
+                        </span>
+                        {allImgs.length > 1 && (
+                          <span className="text-[10px] site-text-muted">{allImgs.length} photos</span>
+                        )}
+                      </div>
+
+                      <button className="site-btn site-btn-danger site-btn-sm w-full mt-1"
+                        onClick={() => setDeleteTarget({ slug: p.slug, name: p.name })}>
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
@@ -818,7 +926,7 @@ export default function AllProducts() {
         <div className="site-modal-overlay">
           <div className="site-modal site-modal-sm">
             <div className="site-modal-body text-center">
-              <div className="text-4xl mb-3">🗑️</div>
+              {/* <div className="text-4xl mb-3">🗑️</div> */}
               <h2 className="h3 site-heading mb-2">Delete Product?</h2>
               <p className="text-sm site-subtext mb-1">You are about to delete:</p>
               <p className="text-sm font-semibold site-heading mb-4">"{deleteTarget.name}"</p>

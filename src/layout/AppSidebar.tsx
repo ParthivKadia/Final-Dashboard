@@ -133,7 +133,7 @@ const AppSidebar: React.FC = () => {
         ${isSidebarOpen ? "w-[290px]" : "w-[90px]"}
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0`}
-      style={{ borderColor: "rgba(255,255,255,0.08)" }}
+      // style={{ borderColor: "rgba(255,255,255,0.08)" }}
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -152,16 +152,14 @@ const AppSidebar: React.FC = () => {
         <nav className="mb-6">
           {dashboardItem && (
             <div className="mb-6">
-              <h2 className={`mb-3 flex text-xs font-semibold uppercase tracking-[0.16em] ${!isSidebarOpen ? "lg:justify-center" : "justify-start"}`}
-                style={{ color: "rgba(255,255,255,0.25)" }}>
+              <h2 className={`sidebar-section-label mb-3 flex ${!isSidebarOpen ? "lg:justify-center" : "justify-start"}`}>
                 {isSidebarOpen ? "Home" : <HorizontaLDots className="size-5" />}
               </h2>
               <ul className="flex flex-col gap-2">{renderMenuItem(dashboardItem)}</ul>
             </div>
           )}
           <div>
-            <h2 className={`mb-3 flex text-xs font-semibold uppercase tracking-[0.16em] ${!isSidebarOpen ? "lg:justify-center" : "justify-start"}`}
-              style={{ color: "rgba(255,255,255,0.25)" }}>
+            <h2 className={`sidebar-section-label mb-3 flex ${!isSidebarOpen ? "lg:justify-center" : "justify-start"}`}>
               {isSidebarOpen ? "Menu" : <HorizontaLDots className="size-5" />}
             </h2>
             <ul className="flex flex-col gap-2">{otherMenuItems.map(renderMenuItem)}</ul>

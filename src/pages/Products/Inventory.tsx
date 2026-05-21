@@ -13,6 +13,7 @@ import CloudinaryUploadWidget from '../../ImageUpload';
 import type { Product, Store, UpdateProductRequestBody } from '../../types/store';
 import LayoutToggle from '../../layout/LayoutToggle';
 import { SlugCell } from './AllProducts';
+import { MobileDrawerRow, DrawerField } from '../../components/common/MobileDrawer';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -41,7 +42,7 @@ type EditForm = Omit<UpdateProductRequestBody, 'images' | 'tags'> & {
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
-const REORDER_POINT         = 10;
+const REORDER_POINT         = 9;
 const PAGE_SIZE             = 50;
 const MAX_ADDITIONAL_IMAGES = 2;
 
@@ -84,9 +85,9 @@ const itemToForm = (item: InventoryItem): EditForm => ({
 type StockStatus = 'out' | 'low' | 'active';
 
 const getStockStatus = (stock: number, inStock: boolean, reorder: number): StockStatus => {
-  if (!inStock || stock === 0) return 'out';
-  if (stock <= reorder)        return 'low';
-  return 'active';
+  if (!inStock || stock === 0) return 'out';   // stock = 0 → Out of Stock
+  if (stock <= reorder)        return 'low';   // stock 1–9 → Low Stock
+  return 'active';                             // stock ≥ 10 → In Stock
 };
 
 const STATUS_LABEL: Record<StockStatus, string> = {
@@ -188,7 +189,7 @@ function ImageGallery({ mainUrl, extras }: { mainUrl: string; extras: string[] }
 
 // ─── Card Image Slider (grid view) ────────────────────────────────────────────
 
-function CardImageSlider({ mainUrl, extras }: { mainUrl: string; extras: string[] }) {
+export function CardImageSlider({ mainUrl, extras }: { mainUrl: string; extras: string[] }) {
   const all           = [mainUrl, ...extras].filter(u => typeof u === 'string' && u.trim() !== '');
   const [idx, setIdx] = useState(0);
   const touchStartX   = useRef<number | null>(null);
@@ -621,79 +622,185 @@ export default function Inventory() {
 
         {/* ── LIST VIEW ── */}
         {!loading && !fetchError && layout === 'list' && (
-          <div className="overflow-x-auto">
-            <table className="site-table min-w-[680px]">
-              <thead>
-                <tr>
-                  {['Product', 'Slug', 'Categories', 'Price', 'Stock', 'Status', 'Actions'].map(h => (
-                    <th key={h}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(item => {
-                  const status   = getStockStatus(item.stock, item.inStock, item.reorderPoint);
-                  const catNames = resolveNames(item.categoryIds);
-                  const thumbUrl = item.imageUrl || item.images[0] || '';
-                  const imgCount = (item.imageUrl ? 1 : 0) + item.images.length;
-                  return (
-                    <tr key={item.id}>
-                      <td>
-                        <div className="flex items-center gap-2.5">
-                          <div className="relative site-thumb shrink-0"
-                            style={{ width: '2.25rem', height: '2.25rem', borderRadius: '0.75rem' }}>
-                            {thumbUrl
-                              ? <img src={thumbUrl} alt={item.name} className="w-full h-full object-cover"
-                                  onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-                              : <span className="text-lg">📦</span>
-                            }
-                            {imgCount > 1 && (
-                              <span className="absolute bottom-0 right-0 bg-black/60 text-white text-[8px] font-bold px-1 leading-4 rounded-tl">
-                                {imgCount}
-                              </span>
-                            )}
+          <div>
+            {/* ── Desktop table (hidden on mobile) ── */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="site-table min-w-[680px]">
+                <thead>
+                  <tr>
+                    {['Product', 'Slug', 'Categories', 'Price', 'Stock', 'Status', 'Actions'].map(h => (
+                      <th key={h}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map(item => {
+                    const status   = getStockStatus(item.stock, item.inStock, item.reorderPoint);
+                    const catNames = resolveNames(item.categoryIds);
+                    const thumbUrl = item.imageUrl || item.images[0] || '';
+                    const imgCount = (item.imageUrl ? 1 : 0) + item.images.length;
+                    return (
+                      <tr key={item.id}>
+                        <td>
+                          <div className="flex items-center gap-2.5">
+                            <div className="relative site-thumb shrink-0"
+                              style={{ width: '2.25rem', height: '2.25rem', borderRadius: '0.75rem' }}>
+                              {thumbUrl
+                                ? <img src={thumbUrl} alt={item.name} className="w-full h-full object-cover"
+                                    onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                                : <span className="text-lg">📦</span>
+                              }
+                              {imgCount > 1 && (
+                                <span className="absolute bottom-0 right-0 bg-black/60 text-white text-[8px] font-bold px-1 leading-4 rounded-tl">
+                                  {imgCount}
+                                </span>
+                              )}
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold site-heading whitespace-nowrap">{item.name}</p>
+                              {item.isFeatured && (
+                                <span className="text-[10px] font-bold text-[var(--featured-color)]">⭐ Featured</span>
+                              )}
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-sm font-semibold site-heading whitespace-nowrap">{item.name}</p>
-                            {item.isFeatured && (
-                              <span className="text-[10px] font-bold text-[var(--featured-color)]">⭐ Featured</span>
+                        </td>
+                        <td className="site-mono text-xs site-text-muted whitespace-nowrap">
+                          <SlugCell slug={item.slug} />
+                        </td>
+                        <td>
+                          <span className="text-xs site-surface-secondary site-subtext px-2 py-1 rounded-lg max-w-[160px] site-truncate block"
+                            title={catNames}>{catNames}</span>
+                        </td>
+                        <td className="text-sm font-semibold site-heading">
+                          ₹{item.price.toLocaleString()}
+                          {item.compareAtPrice > item.price && (
+                            <span className="site-price-strike ml-1.5">₹{item.compareAtPrice.toLocaleString()}</span>
+                          )}
+                        </td>
+                        <td>
+                          <span className={`text-sm font-bold ${
+                            item.stock === 0                  ? 'text-[var(--status-out-text)]'
+                            : item.stock <= item.reorderPoint ? 'text-[var(--status-low-text)]'
+                            : 'site-heading'
+                          }`}>
+                            {item.stock}
+                            {item.stock > 0 && item.stock <= item.reorderPoint && (
+                              <span className="text-[10px] text-[var(--status-out-text)] ml-1 font-bold">LOW</span>
                             )}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`site-badge site-badge--${status}`}>
+                            <span className="site-badge-dot" />
+                            {STATUS_LABEL[status]}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="flex gap-1.5">
+                            <button className="site-btn site-btn-outline site-btn-sm"
+                              onClick={() => openEdit(item)}>Edit</button> 
+                              {/** TODO Add Delete product button use delete product functionalty from all products tsx */}
+                            {/* {item.stock <= item.reorderPoint && (
+                              <button className="site-btn site-btn-sm"
+                                style={{ backgroundColor: 'var(--status-featured-bg)', color: 'var(--status-featured-text)', border: 'none' }}
+                                onClick={() => navigate('/products/add')}>Reorder</button>
+                            )} */}
                           </div>
-                        </div>
-                      </td>
-                      {/* <td className="site-mono text-xs site-text-muted whitespace-nowrap">{item.slug}</td> */}
-                      <td className="site-mono text-xs site-text-muted whitespace-nowrap"><SlugCell slug={item.slug} /></td>
-                      <td>
-                        <span className="text-xs site-surface-secondary site-subtext px-2 py-1 rounded-lg max-w-[160px] site-truncate block"
-                          title={catNames}>{catNames}</span>
-                      </td>
-                      <td className="text-sm font-semibold site-heading">
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+
+              {filtered.length === 0 && (
+                <div className="site-empty-state">
+                  <div className="site-empty-icon">📦</div>
+                  <p className="site-empty-title">No products found</p>
+                  <p className="site-empty-desc">Try adjusting filters or add your first product</p>
+                </div>
+              )}
+            </div>
+
+            {/* ── Mobile card list (shown only on mobile) ── */}
+            <div className="sm:hidden">
+              {filtered.map(item => {
+                const status   = getStockStatus(item.stock, item.inStock, item.reorderPoint);
+                const catNames = resolveNames(item.categoryIds);
+                const thumbUrl = item.imageUrl || item.images[0] || '';
+                const imgCount = (item.imageUrl ? 1 : 0) + item.images.length;
+                return (
+                  <MobileDrawerRow
+                    key={item.id}
+                    thumb={
+                      <div className="relative site-thumb shrink-0"
+                        style={{ width: '2.5rem', height: '2.5rem', borderRadius: '0.625rem' }}>
+                        {thumbUrl
+                          ? <img src={thumbUrl} alt={item.name} className="w-full h-full object-cover"
+                              onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                          : <span className="text-xl">📦</span>
+                        }
+                        {imgCount > 1 && (
+                          <span className="absolute bottom-0 right-0 bg-black/60 text-white text-[8px] font-bold px-1 leading-4 rounded-tl">
+                            {imgCount}
+                          </span>
+                        )}
+                      </div>
+                    }
+                    primary={
+                      <>
+                        {item.name}
+                        {item.isFeatured && (
+                          <span className="text-[10px] font-bold text-[var(--featured-color)] ml-1.5">⭐</span>
+                        )}
+                      </>
+                    }
+                    secondary={
+                      <>
                         ₹{item.price.toLocaleString()}
                         {item.compareAtPrice > item.price && (
-                          <span className="site-price-strike ml-1.5">₹{item.compareAtPrice.toLocaleString()}</span>
+                          <span className="site-price-strike ml-1">₹{item.compareAtPrice.toLocaleString()}</span>
                         )}
-                      </td>
-                      <td>
-                        <span className={`text-sm font-bold ${
-                          item.stock === 0                  ? 'text-[var(--status-out-text)]'
-                          : item.stock <= item.reorderPoint ? 'text-[var(--status-low-text)]'
-                          : 'site-heading'
-                        }`}>
-                          {item.stock}
-                          {item.stock > 0 && item.stock <= item.reorderPoint && (
-                            <span className="text-[10px] text-[var(--status-out-text)] ml-1 font-bold">LOW</span>
-                          )}
-                        </span>
-                      </td>
-                      <td>
-                        <span className={`site-badge site-badge--${status}`}>
-                          <span className="site-badge-dot" />
-                          {STATUS_LABEL[status]}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="flex gap-1.5">
-                          <button className="site-btn site-btn-outline site-btn-sm"
+                      </>
+                    }
+                    badge={
+                      <span className={`site-badge site-badge--${status}`}>
+                        <span className="site-badge-dot" />
+                        {STATUS_LABEL[status]}
+                      </span>
+                    }
+                    drawer={
+                      <>
+                        <div className="flex gap-2 flex-wrap">
+                          <DrawerField label="Slug">
+                            <span className="site-mono text-[11px]">{item.slug}</span>
+                          </DrawerField>
+                          <DrawerField label="Stock">
+                            <span className={
+                              item.stock === 0 ? 'text-[var(--status-out-text)]'
+                              : item.stock <= item.reorderPoint ? 'text-[var(--status-low-text)]' : ''
+                            }>
+                              {item.stock}
+                              {item.stock > 0 && item.stock <= item.reorderPoint && (
+                                <span className="text-[10px] ml-1">LOW</span>
+                              )}
+                            </span>
+                          </DrawerField>
+                        </div>
+                        <div className="flex gap-2 flex-wrap">
+                          <DrawerField label="Categories">{catNames}</DrawerField>
+                          <DrawerField label="Featured">{item.isFeatured ? '⭐ Yes' : '—'}</DrawerField>
+                        </div>
+                        {item.compareAtPrice > item.price && (
+                          <div className="flex gap-2 flex-wrap">
+                            <DrawerField label="MRP">₹{item.compareAtPrice.toLocaleString()}</DrawerField>
+                            <DrawerField label="Discount">
+                              {Math.round((1 - item.price / item.compareAtPrice) * 100)}% off
+                            </DrawerField>
+                          </div>
+                        )}
+                        <div className="flex gap-2 pt-1">
+                          <button className="site-btn site-btn-outline site-btn-sm flex-1"
                             onClick={() => openEdit(item)}>Edit</button>
                           {item.stock <= item.reorderPoint && (
                             <button className="site-btn site-btn-sm"
@@ -701,20 +808,19 @@ export default function Inventory() {
                               onClick={() => navigate('/products/add')}>Reorder</button>
                           )}
                         </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-
-            {filtered.length === 0 && (
-              <div className="site-empty-state">
-                <div className="site-empty-icon">📦</div>
-                <p className="site-empty-title">No products found</p>
-                <p className="site-empty-desc">Try adjusting filters or add your first product</p>
-              </div>
-            )}
+                      </>
+                    }
+                  />
+                );
+              })}
+              {filtered.length === 0 && (
+                <div className="site-empty-state">
+                  <div className="site-empty-icon">📦</div>
+                  <p className="site-empty-title">No products found</p>
+                  <p className="site-empty-desc">Try adjusting filters or add your first product</p>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -810,11 +916,12 @@ export default function Inventory() {
               {outCount > 0 && lowCount > 0 && ' · '}
               {lowCount > 0 && `${lowCount} item${lowCount > 1 ? 's' : ''} running low`}. Consider restocking soon.
             </span>
+            {/* Route to whichever bucket is more urgent and actually has items */}
             <button
               className="sm:ml-auto shrink-0 site-btn site-btn-sm"
               style={{ backgroundColor: 'var(--featured-color)', color: '#fff', border: 'none' }}
-              onClick={() => setFilterStatus('low')}>
-              View Low Stock →
+              onClick={() => setFilterStatus(outCount > 0 ? 'out' : 'low')}>
+              View {outCount > 0 ? 'Out of Stock' : 'Low Stock'} →
             </button>
           </div>
         )}

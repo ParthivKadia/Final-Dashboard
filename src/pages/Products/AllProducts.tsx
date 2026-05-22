@@ -99,7 +99,7 @@ export function SlugCell({ slug }: { slug: string }) {
       <button
         onClick={handleCopy}
         title={copied ? 'Copied!' : `Copy: ${slug}`}
-        className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center w-5 h-5 rounded"
+        className="opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity flex items-center justify-center w-5 h-5 rounded"
         style={{
           backgroundColor: copied ? 'var(--success-bg)' : 'var(--surface-secondary)',
           border: '1px solid var(--border-medium)',
@@ -365,14 +365,14 @@ export default function AllProducts() {
             placeholder="Search by name or slug…" className="site-input" />
         </div>
 
-        <div className="flex gap-2 flex-wrap items-center">
+        <div className="flex gap-2 items-center flex-nowrap">
           <select
             value={filterCatId === 'All' ? '' : String(filterCatId)}
             onChange={e => {
               setFilterCatId(e.target.value === '' ? 'All' : Number(e.target.value));
               setCurrentPage(1); setSelectedIds([]);
             }}
-            className="site-input" style={{ maxWidth: '200px' }}>
+            className="site-input" style={{ maxWidth: '160px', minWidth: '120px' }}>
             <option value="">All Categories</option>
             {sortedCategories.map(c => (
               <option key={c.id} value={c.id}>{c.name}</option>
@@ -380,18 +380,20 @@ export default function AllProducts() {
           </select>
 
           <select value={sortBy} onChange={e => setSortBy(e.target.value)}
-            className="site-input" style={{ maxWidth: '100px' }}>
+            className="site-input" style={{ maxWidth: '100px', minWidth: '80px' }}>
             <option value="name">Name A–Z</option>
             <option value="price-asc">Price ↑</option>
             <option value="price-desc">Price ↓</option>
             <option value="stock">Stock ↓</option>
           </select>
 
-          <LayoutToggle
-            value={viewMode}
-            onChange={setViewMode}
-            options={['table', 'grid']}
-          />
+          <div className="flex-shrink-0">
+            <LayoutToggle
+              value={viewMode}
+              onChange={setViewMode}
+              options={['table', 'grid']}
+            />
+          </div>
         </div>
       </div>
 
@@ -450,17 +452,17 @@ export default function AllProducts() {
                       <input type="checkbox" className="rounded"
                         checked={selectedIds.includes(p.id)} onChange={() => toggleSelect(p.id)} />
                     </td>
-                    <td>
-                      <div className="flex items-center gap-3">
-                        <div className="site-thumb site-thumb-md">
+                    <td className="max-w-[180px]">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="site-thumb site-thumb-md flex-shrink-0">
                           {p.imageUrl
                             ? <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover"
                                 onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                             : <span className="text-lg">📦</span>
                           }
                         </div>
-                        <div>
-                          <p className="text-sm font-semibold site-heading whitespace-nowrap">{p.name}</p>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold site-heading truncate" title={p.name}>{p.name}</p>
                           <p className="text-xs site-subtext">₹{p.compareAtPrice?.toLocaleString()} MRP</p>
                         </div>
                       </div>
@@ -557,7 +559,7 @@ export default function AllProducts() {
                   <>
                     <div className="flex gap-2 flex-wrap">
                       <DrawerField label="Slug">
-                        <span className="site-mono text-[11px]">{p.slug}</span>
+                        <SlugCell slug={p.slug} />
                       </DrawerField>
                       <DrawerField label="Stock">
                         <span className={
@@ -661,7 +663,10 @@ export default function AllProducts() {
 
                     <div className="p-3 flex flex-col gap-1.5 flex-1">
                       <p className="text-sm font-semibold site-heading leading-snug line-clamp-2">{p.name}</p>
-                      <p className="text-[10px] site-mono site-text-muted site-truncate">{p.slug}</p>
+                      {/* <p className="text-[10px] site-mono site-text-muted site-truncate">{p.slug}</p> */}
+                      <div className="text-[10px]">
+                        <SlugCell slug={p.slug} />
+                      </div>
                       {catNames !== '—' && (
                         <span className="text-[10px] site-surface-secondary site-subtext px-1.5 py-0.5 rounded-md site-truncate block"
                           title={catNames}>{catNames}</span>
@@ -829,14 +834,6 @@ export default function AllProducts() {
                       </div>
                     </div>
                   )}
-                  <div>
-                    <label className="site-label">Currency</label>
-                    <select value={form.currency}
-                      onChange={e => setForm(f => ({ ...f, currency: e.target.value }))} className="site-input">
-                      <option value="INR">INR (₹) — Indian Rupee</option>
-                      <option value="USD">USD ($) — US Dollar</option>
-                    </select>
-                  </div>
                 </div>
               )}
 
@@ -845,19 +842,35 @@ export default function AllProducts() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="site-label">Stock Count <span className="text-[var(--danger-solid)]">*</span></label>
-                      <input type="number" min="0" value={form.stockCount || ''}
-                        onChange={e => setForm(f => ({ ...f, stockCount: Number(e.target.value) }))}
-                        placeholder="0" className="site-input" />
-                    </div>
-                    <div>
                       <label className="site-label">Availability</label>
                       <select value={form.inStock ? 'true' : 'false'}
-                        onChange={e => setForm(f => ({ ...f, inStock: e.target.value === 'true' }))}
+                        onChange={e => {
+                          const inStock = e.target.value === 'true';
+                          setForm(f => ({ ...f, inStock, stockCount: inStock ? f.stockCount : 0 }));
+                        }}
                         className="site-input">
-                        <option value="true">✅ In Stock</option>
-                        <option value="false">❌ Out of Stock</option>
+                        <option value="true">In Stock</option>
+                        <option value="false">Out of Stock</option>
                       </select>
+                    </div>
+                    <div>
+                      <label className="site-label">
+                        Stock Count <span className="text-[var(--danger-solid)]">*</span>
+                      </label>
+                      <input
+                        type="number" min="0"
+                        value={form.inStock ? (form.stockCount || '') : 0}
+                        onChange={e => {
+                          if (form.inStock) setForm(f => ({ ...f, stockCount: Number(e.target.value) }));
+                        }}
+                        disabled={!form.inStock}
+                        placeholder="0"
+                        className="site-input"
+                        style={!form.inStock ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
+                      />
+                      {!form.inStock && (
+                        <p className="text-[11px] mt-1 site-text-muted">Set availability to In Stock to edit</p>
+                      )}
                     </div>
                   </div>
 
@@ -886,7 +899,7 @@ export default function AllProducts() {
                     : undefined}>
                     <p className="font-semibold text-sm">Status Preview</p>
                     <p className="text-sm">
-                      {!form.inStock || form.stockCount === 0 ? '❌ Out of Stock' : form.stockCount <= 10 ? '⚠️ Low Stock' : '✅ Active'}
+                      {!form.inStock || form.stockCount === 0 ? 'Out of Stock' : form.stockCount <= 10 ? 'Low Stock' : 'Active'}
                     </p>
                   </div>
                 </div>

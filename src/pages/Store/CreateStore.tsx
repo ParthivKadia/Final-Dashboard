@@ -17,10 +17,10 @@ const THEMES = [
 ];
 
 const SOCIAL_FIELDS = [
-  { field: "instagram" as const, label: "Instagram",   icon: "📸", prefix: "instagram.com/", placeholder: "yourusername" },
-  { field: "whatsapp"  as const, label: "WhatsApp",    icon: "💬", prefix: "",              placeholder: "1234567890" },
-  { field: "facebook"  as const, label: "Facebook",    icon: "📘", prefix: "facebook.com/",  placeholder: "yourpage"     },
-  { field: "twitter"   as const, label: "Twitter / X", icon: "🐦", prefix: "x.com/",         placeholder: "yourhandle"   },
+  { field: "instagram" as const, label: "Instagram",    prefix: "instagram.com/", placeholder: "yourusername" },
+  { field: "whatsapp"  as const, label: "WhatsApp",     prefix: "",              placeholder: "1234567890" },
+  { field: "facebook"  as const, label: "Facebook",     prefix: "facebook.com/",  placeholder: "yourpage"     },
+  { field: "twitter"   as const, label: "Twitter / X",  prefix: "x.com/",         placeholder: "yourhandle"   },
 ];
 
 interface FormData {
@@ -283,10 +283,10 @@ export default function CreateStore() {
               <p className="site-subtext text-sm mb-5">Connect your social profiles to build trust with customers.</p>
 
               <div className="space-y-4">
-                {SOCIAL_FIELDS.map(({ field, label, icon, prefix, placeholder }) => (
+                {SOCIAL_FIELDS.map(({ field, label, prefix, placeholder }) => (
                   <div key={field}>
                     <label className="site-label">
-                      <span className="mr-1.5">{icon}</span>{label}
+                      {label}
                     </label>
                     <div className="site-input-prefix">
                       <span className="site-input-prefix-icon"
@@ -364,25 +364,25 @@ export default function CreateStore() {
                   {form.instagram && (
                     <span className="text-[10px] px-2 py-0.5 rounded-full font-medium"
                       style={{ backgroundColor: "rgba(219,39,119,0.1)", color: "#db2777" }}>
-                      📸 IG
+                      IG
                     </span>
                   )}
                   {form.whatsapp && (
                     <span className="text-[10px] px-2 py-0.5 rounded-full font-medium"
                       style={{ backgroundColor: "var(--status-active-bg)", color: "var(--status-active-text)" }}>
-                      💬 WA
+                      WA
                     </span>
                   )}
                   {form.facebook && (
                     <span className="text-[10px] px-2 py-0.5 rounded-full font-medium"
                       style={{ backgroundColor: "var(--surface-tertiary)", color: "var(--text-brand)" }}>
-                      📘 FB
+                      FB
                     </span>
                   )}
                   {form.twitter && (
                     <span className="text-[10px] px-2 py-0.5 rounded-full font-medium"
                       style={{ backgroundColor: "var(--surface-secondary)", color: "var(--text-secondary)" }}>
-                      🐦 X
+                      X
                     </span>
                   )}
                 </div>

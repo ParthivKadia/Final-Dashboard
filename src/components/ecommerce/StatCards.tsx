@@ -13,7 +13,8 @@ interface StatCardProps {
 
 const CartIcon = () => (
   <svg
-    className="h-6 w-6 text-white"
+    className="h-6 w-6"
+    style={{ color: "#ffffff" }}
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -36,88 +37,79 @@ const CartIcon = () => (
   </svg>
 );
 
+const badgeColors: Record<NonNullable<StatCardProps["badgeType"]>, string> = {
+  positive: "bg-green-100 text-green-700",
+  negative: "bg-red-100 text-red-700",
+  warning:  "bg-yellow-100 text-yellow-700",
+};
+
 const StatCard: React.FC<StatCardProps> = ({
-  icon,
-  label,
-  subLabel,
-  value,
-  badge,
-  badgeType,
-  bgColor,
-  iconBg,
-}) => {
-  const badgeColors: Record<NonNullable<StatCardProps["badgeType"]>, string> = {
-    positive: "bg-green-100 text-green-700",
-    negative: "bg-red-100 text-red-700",
-    warning: "bg-yellow-100 text-yellow-700",
-  };
-
-  return (
-    <div
-      className={`${bgColor} rounded-2xl p-5 sm:p-6 text-white flex flex-col justify-between min-h-[180px] sm:min-h-[200px] shadow-sm`}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div
-          className={`${iconBg} w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0`}
-        >
-          {icon}
-        </div>
-
-        {badge && badgeType && (
-          <span
-            className={`text-xs font-semibold px-3 py-1 rounded-full ${badgeColors[badgeType]}`}
-          >
-            {badge}
-          </span>
-        )}
+  icon, label, subLabel, value, badge, badgeType, bgColor, iconBg,
+}) => (
+  <div
+    className={`${bgColor} rounded-2xl p-5 sm:p-6 flex flex-col justify-between min-h-[180px] sm:min-h-[200px] shadow-sm`}
+    style={{ color: "#ffffff" }}
+  >
+    <div className="flex items-start justify-between gap-3">
+      <div className={`${iconBg} w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0`}
+        style={{ color: "#ffffff" }}>
+        {icon}
       </div>
 
-      <div className="mt-6">
-        <p className="text-[2rem] font-bold leading-none">{value}</p>
-        <p className="text-lg font-semibold mt-4">{label}</p>
-        <p className="text-sm text-white/80 mt-1">{subLabel}</p>
-      </div>
+      {badge && badgeType && (
+        <span className={`text-xs font-semibold px-3 py-1 rounded-full ${badgeColors[badgeType]}`}>
+          {badge}
+        </span>
+      )}
     </div>
-  );
-};
 
-const StatCards: React.FC = () => {
-  return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-      <StatCard
-        icon="₹"
-        label="Total Revenue"
-        subLabel="This month"
-        value="₹4.2L"
-        badge="+18%"
-        badgeType="positive"
-        bgColor="bg-blue-500"
-        iconBg="bg-white/10"
-      />
-
-      <StatCard
-        icon={<CartIcon />}
-        label="Total Orders"
-        subLabel="This month"
-        value="1,284"
-        badge="+11%"
-        badgeType="positive"
-        bgColor="bg-emerald-500"
-        iconBg="bg-white/10"
-      />
-
-      <StatCard
-        icon="⚠️"
-        label="Low Stock"
-        subLabel="Needs restock"
-        value="9"
-        badge="-3 SKUs"
-        badgeType="warning"
-        bgColor="bg-amber-500"
-        iconBg="bg-white/10"
-      />
+    <div className="mt-6">
+      <p style={{ color: "#ffffff", fontSize: "2rem", fontWeight: 700, lineHeight: 1, margin: 0 }}>
+        {value}
+      </p>
+      <p style={{ color: "#ffffff", fontSize: "1.125rem", fontWeight: 600, marginTop: "1rem", marginBottom: 0 }}>
+        {label}
+      </p>
+      <p style={{ color: "rgba(255,255,255,0.80)", fontSize: "0.875rem", marginTop: "0.25rem", marginBottom: 0 }}>
+        {subLabel}
+      </p>
     </div>
-  );
-};
+  </div>
+);
+
+const StatCards: React.FC = () => (
+  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+    <StatCard
+      icon="₹"
+      label="Total Revenue"
+      subLabel="This month"
+      value="₹4.2L"
+      badge="+18%"
+      badgeType="positive"
+      bgColor="bg-blue-500"
+      iconBg="bg-white/10"
+    />
+    <StatCard
+      icon={<CartIcon />}
+      label="Total Orders"
+      subLabel="This month"
+      value="1,284"
+      badge="+11%"
+      badgeType="positive"
+      bgColor="bg-emerald-500"
+      iconBg="bg-white/10"
+    />
+    <StatCard
+      icon="⚠️"
+      label="Low Stock"
+      subLabel="Needs restock"
+      value="9"
+      badge="-3 SKUs"
+      badgeType="warning"
+      bgColor="bg-amber-500"
+      iconBg="bg-white/10"
+    />
+  </div>
+);
 
 export default StatCards;

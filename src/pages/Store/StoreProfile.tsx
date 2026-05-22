@@ -474,19 +474,19 @@ export default function StoreProfile() {
                   <div className="mt-2 flex gap-1 flex-wrap">
                     {cur.instagram && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
-                        style={{ backgroundColor: "rgba(219,39,119,0.1)", color: "#db2777" }}>📸 IG</span>
+                        style={{ backgroundColor: "rgba(219,39,119,0.1)", color: "#db2777" }}>IG</span>
                     )}
                     {cur.whatsapp && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
-                        style={{ backgroundColor: "var(--status-active-bg)", color: "var(--status-active-text)" }}>💬 WA</span>
+                        style={{ backgroundColor: "var(--status-active-bg)", color: "var(--status-active-text)" }}>WA</span>
                     )}
                     {cur.facebook && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
-                        style={{ backgroundColor: "var(--surface-tertiary)", color: "var(--text-brand)" }}>📘 FB</span>
+                        style={{ backgroundColor: "var(--surface-tertiary)", color: "var(--text-brand)" }}>FB</span>
                     )}
                     {cur.twitter && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
-                        style={{ backgroundColor: "var(--surface-secondary)", color: "var(--text-secondary)" }}>🐦 X</span>
+                        style={{ backgroundColor: "var(--surface-secondary)", color: "var(--text-secondary)" }}>X</span>
                     )}
                   </div>
                 </div>

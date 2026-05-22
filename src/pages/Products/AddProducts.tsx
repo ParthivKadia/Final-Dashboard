@@ -89,7 +89,7 @@ export default function AddProduct() {
     if (!form.slug.trim())                      { setActiveTab('basic');     return 'Slug is required.'; }
     if (form.categoryIds.length === 0)          { setActiveTab('basic');     return 'At least one category is required.'; }
     if (!form.price || Number(form.price) <= 0) { setActiveTab('pricing');   return 'Selling price must be greater than 0.'; }
-    if (!form.stockCount)                       { setActiveTab('inventory'); return 'Stock count is required.'; }
+    if (form.inStock && !form.stockCount)       { setActiveTab('inventory'); return 'Stock count is required.'; }
     return null;
   };
 
@@ -381,17 +381,33 @@ export default function AddProduct() {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="site-label">Available Stock <span className="text-[var(--danger-solid)]">*</span></label>
-                    <input value={form.stockCount} onChange={e => update('stockCount', e.target.value)}
-                      placeholder="0" type="number" min="0" className="site-input" />
-                  </div>
-                  <div>
                     <label className="site-label">Availability</label>
-                    <select value={form.inStock ? 'true' : 'false'}
-                      onChange={e => update('inStock', e.target.value === 'true')} className="site-input">
+                    <select
+                      value={form.inStock ? 'true' : 'false'}
+                      onChange={e => {
+                        const inStock = e.target.value === 'true';
+                        setForm(prev => ({ ...prev, inStock, stockCount: inStock ? prev.stockCount : '0' }));
+                      }}
+                      className="site-input">
                       <option value="true">In Stock</option>
                       <option value="false">Out of Stock</option>
                     </select>
+                  </div>
+                  <div>
+                    <label className="site-label">Available Stock <span className="text-[var(--danger-solid)]">*</span></label>
+                    <input
+                      value={form.inStock ? form.stockCount : '0'}
+                      onChange={e => { if (form.inStock) update('stockCount', e.target.value); }}
+                      disabled={!form.inStock}
+                      placeholder="0"
+                      type="number"
+                      min="0"
+                      className="site-input"
+                      style={!form.inStock ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
+                    />
+                    {!form.inStock && (
+                      <p className="text-[11px] mt-1 site-text-muted">Set availability to In Stock to edit</p>
+                    )}
                   </div>
                 </div>
 

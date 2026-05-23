@@ -85,9 +85,9 @@ const itemToForm = (item: InventoryItem): EditForm => ({
 type StockStatus = 'out' | 'low' | 'active';
 
 const getStockStatus = (stock: number, inStock: boolean, reorder: number): StockStatus => {
-  if (!inStock || stock === 0) return 'out';   // stock = 0 → Out of Stock
-  if (stock <= reorder)        return 'low';   // stock 1–9 → Low Stock
-  return 'active';                             // stock ≥ 10 → In Stock
+  if (!inStock || stock === 0) return 'out';
+  if (stock <= reorder)        return 'low';
+  return 'active';
 };
 
 const STATUS_LABEL: Record<StockStatus, string> = {
@@ -95,9 +95,6 @@ const STATUS_LABEL: Record<StockStatus, string> = {
   low:    'Low Stock',
   active: 'In Stock',
 };
-
-// ─── Status filter pills config ───────────────────────────────────────────────
-// value: '' = All, otherwise matches StockStatus keys
 
 type StatusFilter = '' | StockStatus;
 
@@ -347,23 +344,20 @@ export default function Inventory() {
     ids.length === 0 ? '—' : ids.map(id => catMap.get(id) ?? `#${id}`).join(', ');
   const activeCategories = cachedCategories.filter(c => c.active !== false);
 
-  // ── State ──────────────────────────────────────────────────────────────────
   const [items, setItems]           = useState<InventoryItem[]>([]);
   const [loading, setLoading]       = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
-  const [search, setSearch]               = useState('');
-  const [filterCatId, setFilterCatId]     = useState<number | 'All'>('All');
-  const [filterStatus, setFilterStatus]   = useState<StatusFilter>('');   // '' = All
-  const [layout, setLayout]               = useState<'list' | 'grid'>('list');
+  const [search, setSearch]             = useState('');
+  const [filterCatId, setFilterCatId]   = useState<number | 'All'>('All');
+  const [filterStatus, setFilterStatus] = useState<StatusFilter>('');
+  const [layout, setLayout]             = useState<'list' | 'grid'>('list');
 
   const [editItem, setEditItem]   = useState<InventoryItem | null>(null);
   const [editForm, setEditForm]   = useState<EditForm | null>(null);
   const [editTab, setEditTab]     = useState<'basic' | 'pricing' | 'inventory'>('basic');
   const [saving, setSaving]       = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
-
-  // ── Data ───────────────────────────────────────────────────────────────────
 
   useEffect(() => {
     if (storeUsername) fetchCategories(storeUsername);
@@ -388,8 +382,6 @@ export default function Inventory() {
     if (storeUsername && !isVerifying) fetchInventory();
   }, [storeUsername, isVerifying, fetchInventory]);
 
-  // ── Filtering ──────────────────────────────────────────────────────────────
-
   const filtered = items.filter(item => {
     const q           = search.toLowerCase();
     const matchSearch = item.name.toLowerCase().includes(q) || item.slug.toLowerCase().includes(q);
@@ -404,16 +396,12 @@ export default function Inventory() {
   const outCount    = items.filter(i => getStockStatus(i.stock, i.inStock, i.reorderPoint) === 'out').length;
   const activeCount = items.filter(i => getStockStatus(i.stock, i.inStock, i.reorderPoint) === 'active').length;
 
-  // ── Store switch ───────────────────────────────────────────────────────────
-
   const switchStore = (store: Store) => {
     setActiveStore(store);
     setFilterCatId('All'); setFilterStatus(''); setSearch('');
     setItems([]); setFetchError(null);
     setEditItem(null); setEditForm(null);
   };
-
-  // ── Edit handlers ──────────────────────────────────────────────────────────
 
   const openEdit = (item: InventoryItem) => {
     setEditItem(item); setEditForm(itemToForm(item));
@@ -479,15 +467,11 @@ export default function Inventory() {
     } finally { setSaving(false); }
   };
 
-  // ── Guard ──────────────────────────────────────────────────────────────────
-
   if (isVerifying) return (
     <div className="site-page flex items-center justify-center h-screen">
       <p className="text-sm site-subtext">Loading…</p>
     </div>
   );
-
-  // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
     <div className="site-page site-page-padding">
@@ -541,30 +525,34 @@ export default function Inventory() {
 
       {/* ── Filter Bar ── */}
       <div className="site-card site-card-body mb-4 flex flex-col gap-3">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="site-search-wrap flex-1">
-            <input value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="Search by name or slug…" className="site-input" />
-          </div>
+
+        {/* Row 1: Search — full width on all screens */}
+        <div className="site-search-wrap w-full">
+          <input value={search} onChange={e => setSearch(e.target.value)}
+            placeholder="Search by name or slug…" className="site-input" />
+        </div>
+
+        {/* Row 2 — desktop: category + status pills + layout toggle all on one line */}
+        <div className="hidden sm:flex flex-row items-center gap-2 flex-nowrap">
+          {/* Category select */}
           <select
             value={filterCatId === 'All' ? '' : String(filterCatId)}
             onChange={e => setFilterCatId(e.target.value === '' ? 'All' : Number(e.target.value))}
-            className="site-input" style={{ maxWidth: '200px' }}>
+            className="site-input shrink-0"
+            style={{ width: '160px' }}>
             <option value="">All Categories</option>
             {activeCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
-        </div>
 
-        {/* ── Status pills + layout toggle on the same row ── */}
-        <div className="flex items-center gap-2">
-          <div className="flex gap-1.5 overflow-x-auto site-no-scrollbar flex-1">
+          {/* Status filter pills — scrollable if needed, never wraps */}
+          <div className="flex gap-1.5 flex-nowrap overflow-x-auto site-no-scrollbar">
             {STATUS_FILTERS.map(f => {
               const isActive = filterStatus === f.value;
               return (
                 <button
                   key={f.value}
                   onClick={() => setFilterStatus(f.value)}
-                  className="site-filter-pill"
+                  className="site-filter-pill shrink-0"
                   style={isActive ? {
                     backgroundColor: 'var(--btn-primary-bg)',
                     borderColor:     'var(--btn-primary-bg)',
@@ -583,12 +571,39 @@ export default function Inventory() {
             })}
           </div>
 
-          <LayoutToggle
-            value={layout}
-            onChange={setLayout}
-            options={['list', 'grid']}
-          />
+          {/* Layout toggle — pushed to the far right */}
+          <div className="ml-auto shrink-0">
+            <LayoutToggle value={layout} onChange={setLayout} options={['list', 'grid']} />
+          </div>
         </div>
+
+        {/* Row 2 — mobile: status select + layout toggle side by side */}
+        <div className="flex items-center gap-2 sm:hidden">
+          <select
+            value={filterStatus}
+            onChange={e => setFilterStatus(e.target.value as StatusFilter)}
+            className="site-input flex-1"
+          >
+            {STATUS_FILTERS.map(f => (
+              <option key={f.value} value={f.value}>{f.label}</option>
+            ))}
+          </select>
+          <div className="shrink-0">
+            <LayoutToggle value={layout} onChange={setLayout} options={['list', 'grid']} />
+          </div>
+        </div>
+
+        {/* Row 3 — mobile only: category select */}
+        <div className="sm:hidden">
+          <select
+            value={filterCatId === 'All' ? '' : String(filterCatId)}
+            onChange={e => setFilterCatId(e.target.value === '' ? 'All' : Number(e.target.value))}
+            className="site-input w-full">
+            <option value="">All Categories</option>
+            {activeCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+        </div>
+
       </div>
 
       {/* ── Table / Grid ── */}
@@ -623,7 +638,7 @@ export default function Inventory() {
         {/* ── LIST VIEW ── */}
         {!loading && !fetchError && layout === 'list' && (
           <div>
-            {/* ── Desktop table (hidden on mobile) ── */}
+            {/* Desktop table */}
             <div className="hidden sm:block overflow-x-auto">
               <table className="site-table min-w-[680px]">
                 <thead>
@@ -641,8 +656,8 @@ export default function Inventory() {
                     const imgCount = (item.imageUrl ? 1 : 0) + item.images.length;
                     return (
                       <tr key={item.id}>
-                        <td>
-                          <div className="flex items-center gap-2.5">
+                        <td className="max-w-[180px]">
+                          <div className="flex items-center gap-2.5 min-w-0">
                             <div className="relative site-thumb shrink-0"
                               style={{ width: '2.25rem', height: '2.25rem', borderRadius: '0.75rem' }}>
                               {thumbUrl
@@ -656,17 +671,15 @@ export default function Inventory() {
                                 </span>
                               )}
                             </div>
-                            <div>
-                              <p className="text-sm font-semibold site-heading whitespace-nowrap">{item.name}</p>
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold site-heading truncate" title={item.name}>{item.name}</p>
                               {item.isFeatured && (
                                 <span className="text-[10px] font-bold text-[var(--featured-color)]">⭐ Featured</span>
                               )}
                             </div>
                           </div>
                         </td>
-                        <td className="site-mono text-xs site-text-muted whitespace-nowrap">
-                          <SlugCell slug={item.slug} />
-                        </td>
+                        <td><SlugCell slug={item.slug} /></td>
                         <td>
                           <span className="text-xs site-surface-secondary site-subtext px-2 py-1 rounded-lg max-w-[160px] site-truncate block"
                             title={catNames}>{catNames}</span>
@@ -696,23 +709,14 @@ export default function Inventory() {
                           </span>
                         </td>
                         <td>
-                          <div className="flex gap-1.5">
-                            <button className="site-btn site-btn-outline site-btn-sm"
-                              onClick={() => openEdit(item)}>Edit</button> 
-                              {/** TODO Add Delete product button use delete product functionalty from all products tsx */}
-                            {/* {item.stock <= item.reorderPoint && (
-                              <button className="site-btn site-btn-sm"
-                                style={{ backgroundColor: 'var(--status-featured-bg)', color: 'var(--status-featured-text)', border: 'none' }}
-                                onClick={() => navigate('/products/add')}>Reorder</button>
-                            )} */}
-                          </div>
+                          <button className="site-btn site-btn-outline site-btn-sm"
+                            onClick={() => openEdit(item)}>Edit</button>
                         </td>
                       </tr>
                     );
                   })}
                 </tbody>
               </table>
-
               {filtered.length === 0 && (
                 <div className="site-empty-state">
                   <div className="site-empty-icon">📦</div>
@@ -722,7 +726,7 @@ export default function Inventory() {
               )}
             </div>
 
-            {/* ── Mobile card list (shown only on mobile) ── */}
+            {/* Mobile card list */}
             <div className="sm:hidden">
               {filtered.map(item => {
                 const status   = getStockStatus(item.stock, item.inStock, item.reorderPoint);
@@ -773,7 +777,7 @@ export default function Inventory() {
                       <>
                         <div className="flex gap-2 flex-wrap">
                           <DrawerField label="Slug">
-                            <span className="site-mono text-[11px]">{item.slug}</span>
+                            <SlugCell slug={item.slug} />
                           </DrawerField>
                           <DrawerField label="Stock">
                             <span className={
@@ -859,7 +863,9 @@ export default function Inventory() {
 
                       <div className="p-3 flex flex-col gap-1.5 flex-1">
                         <p className="text-sm font-semibold site-heading leading-snug line-clamp-2">{item.name}</p>
-                        <p className="text-[10px] site-mono site-text-muted site-truncate">{item.slug}</p>
+                        <div className="text-[10px]">
+                          <SlugCell slug={item.slug} />
+                        </div>
                         {catNames !== '—' && (
                           <span className="text-[10px] site-surface-secondary site-subtext px-1.5 py-0.5 rounded-md site-truncate block"
                             title={catNames}>{catNames}</span>
@@ -916,7 +922,6 @@ export default function Inventory() {
               {outCount > 0 && lowCount > 0 && ' · '}
               {lowCount > 0 && `${lowCount} item${lowCount > 1 ? 's' : ''} running low`}. Consider restocking soon.
             </span>
-            {/* Route to whichever bucket is more urgent and actually has items */}
             <button
               className="sm:ml-auto shrink-0 site-btn site-btn-sm"
               style={{ backgroundColor: 'var(--featured-color)', color: '#fff', border: 'none' }}
@@ -943,7 +948,7 @@ export default function Inventory() {
             <div className="site-tabs-underline shrink-0">
               {([
                 { id: 'basic',     label: '📝 Basic',     desc: 'Name, images, categories' },
-                { id: 'pricing',   label: '💰 Pricing',   desc: 'Price, MRP, currency'     },
+                { id: 'pricing',   label: '💰 Pricing',   desc: 'Price, MRP'               },
                 { id: 'inventory', label: '📦 Inventory', desc: 'Stock, featured'          },
               ] as const).map(tab => (
                 <button key={tab.id}
@@ -1063,13 +1068,6 @@ export default function Inventory() {
                       </div>
                     </div>
                   )}
-                  <div>
-                    <label className="site-label">Currency</label>
-                    <select value={editForm.currency} onChange={e => updateField('currency', e.target.value)} className="site-input">
-                      <option value="INR">INR (₹) — Indian Rupee</option>
-                      <option value="USD">USD ($) — US Dollar</option>
-                    </select>
-                  </div>
                 </div>
               )}
 
@@ -1077,18 +1075,37 @@ export default function Inventory() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="site-label">Stock Count <span className="text-[var(--danger-solid)]">*</span></label>
-                      <input type="number" min="0" value={editForm.stockCount || ''}
-                        onChange={e => updateField('stockCount', Number(e.target.value))}
-                        placeholder="0" className="site-input" />
+                      <label className="site-label">Availability</label>
+                      <select
+                        value={editForm.inStock ? 'true' : 'false'}
+                        onChange={e => {
+                          const inStock = e.target.value === 'true';
+                          updateField('inStock', inStock);
+                          if (!inStock) updateField('stockCount', 0);
+                        }}
+                        className="site-input">
+                        <option value="true">In Stock</option>
+                        <option value="false">Out of Stock</option>
+                      </select>
                     </div>
                     <div>
-                      <label className="site-label">Availability</label>
-                      <select value={editForm.inStock ? 'true' : 'false'}
-                        onChange={e => updateField('inStock', e.target.value === 'true')} className="site-input">
-                        <option value="true">✅ In Stock</option>
-                        <option value="false">❌ Out of Stock</option>
-                      </select>
+                      <label className="site-label">
+                        Stock Count <span className="text-[var(--danger-solid)]">*</span>
+                      </label>
+                      <input
+                        type="number" min="0"
+                        value={editForm.inStock ? (editForm.stockCount || '') : 0}
+                        onChange={e => {
+                          if (editForm.inStock) updateField('stockCount', Number(e.target.value));
+                        }}
+                        disabled={!editForm.inStock}
+                        placeholder="0"
+                        className="site-input"
+                        style={!editForm.inStock ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
+                      />
+                      {!editForm.inStock && (
+                        <p className="text-[11px] mt-1 site-text-muted">Set availability to In Stock to edit</p>
+                      )}
                     </div>
                   </div>
 
@@ -1149,7 +1166,7 @@ export default function Inventory() {
               </div>
               <button className="site-btn site-btn-ghost site-btn-sm" onClick={closeEdit}>Cancel</button>
               <button className="site-btn site-btn-primary site-btn-sm" onClick={handleSave} disabled={saving}>
-                {saving ? <><span className="site-spinner" /> Saving…</> : '💾 Save Changes'}
+                {saving ? <><span className="site-spinner" /> Saving…</> : 'Save Changes'}
               </button>
             </div>
           </div>

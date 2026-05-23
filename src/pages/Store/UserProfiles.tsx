@@ -65,17 +65,17 @@ function StoreCard({ store, onManage }: { store: Store; onManage: () => void }) 
         )}
       </div>
 
-      {/* Name + URL */}
+      {/* Name + URL — takes all remaining space, truncates cleanly */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-bold site-heading site-truncate">{store.name}</p>
-        <p className="text-xs site-text-muted site-truncate">storly.co.in/{store.username}</p>
+        <p className="text-sm font-bold site-heading truncate">{store.name}</p>
+        <p className="text-xs site-text-muted truncate">storly.co.in/{store.username}</p>
       </div>
 
-      {/* Theme chip */}
-      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 hidden sm:block site-badge"
+      {/* Theme chip — desktop only, never competes on mobile */}
+      {/* <span className="hidden sm:inline-flex text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 site-badge"
         style={{ backgroundColor: "var(--surface-tertiary)", color: "var(--text-brand)" }}>
         {store.theme?.replace(/_/g, " ") ?? "—"}
-      </span>
+      </span> */}
 
       {/* Manage button */}
       <button className="site-btn site-btn-ghost site-btn-sm shrink-0" onClick={onManage}>

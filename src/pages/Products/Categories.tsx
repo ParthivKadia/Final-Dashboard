@@ -238,16 +238,16 @@ function CategoryDialog({
               onChange={e => update('displayOrder', e.target.value === 'priority' ? 'priority' : Number(e.target.value))}
               className="site-input"
             >
-              <option value="0">0 — First (show at top)</option>
-              <option value="1">1 — Second</option>
-              <option value="2">2 — Third</option>
-              <option value="priority">⚡ Priority — auto-assign (end of list · #{priorityValue})</option>
+              <option value="0">High Priority</option>
+              <option value="1">Medium Priority</option>
+              <option value="2">Low Priority</option>
+              {/* <option value="priority">⚡ Priority — auto-assign (end of list · #{priorityValue})</option> */}
             </select>
-            <p className="text-[11px] site-text-muted mt-1">
+            {/* <p className="text-[11px] site-text-muted mt-1">
               {form.displayOrder === 'priority'
                 ? `Will be saved as order ${priorityValue} (after all existing categories)`
                 : 'Lower number = shown first. 0 appears before 1, 1 before 2.'}
-            </p>
+            </p> */}
           </div>
         </div>
 
@@ -383,7 +383,8 @@ function CategoryRow({ cat, children, onEdit, onToggle, onAddChild, depth = 0, m
               <>
                 <div className="flex gap-2 flex-wrap">
                   <DrawerField label="Slug">
-                    <span className="site-mono text-[11px]">{cat.slug}</span>
+                    {/* <span className="site-mono text-[11px]">{cat.slug}</span> */}
+                    <SlugCell slug={cat.slug} />
                   </DrawerField>
                   <DrawerField label="Priority">
                     <PriorityBadge order={cat.displayOrder ?? 0} />
@@ -411,7 +412,7 @@ function CategoryRow({ cat, children, onEdit, onToggle, onAddChild, depth = 0, m
                 )}
 
                 <div className="flex gap-2 pt-1 flex-wrap">
-                  <button className="site-btn site-btn-outline site-btn-sm flex-1"
+                  <button className="site-btn site-btn-outline site-btn-sm"
                     onClick={() => onEdit(cat)}>Edit</button>
                   <button className="site-btn site-btn-ghost site-btn-sm"
                     onClick={() => onAddChild(cat.id)}>+ Sub</button>

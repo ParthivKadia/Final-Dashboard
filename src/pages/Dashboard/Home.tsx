@@ -27,11 +27,11 @@ const Home: React.FC = () => {
     <div className="site-page flex flex-col gap-5 p-4">
 
       {/* Row 1 — Welcome + Stat Cards */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 items-stretch rounded-2xl p-4 site-surface-how">
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 items-stretch rounded-2xl p-4 site-surface-how">
         <div className="xl:col-span-2">
           <WelcomeCard />
         </div>
-        <div className="xl:col-span-1">
+        <div className="xl:col-span-2">
           <StatCards />
         </div>
       </div>

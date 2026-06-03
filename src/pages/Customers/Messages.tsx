@@ -6,24 +6,57 @@ const messages = [
 
 export default function Messages() {
   return (
-    <div style={{ padding: 28, background: "#f8fafc", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif" }}>
-      <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700, color: "#0f172a" }}>Messages</h1>
-      <p style={{ margin: "4px 0 24px", fontSize: 14, color: "#64748b" }}>Customer conversations and support requests</p>
+    <div className="site-page site-page-padding">
+      <div style={{ maxWidth: 800, margin: "0 auto" }}>
 
-      <div style={{ display: "grid", gap: 14 }}>
-        {messages.map((message) => (
-          <div key={message.id} style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 14, padding: 18 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: "#0f172a" }}>{message.customer}</div>
-              <div style={{ fontSize: 12, color: "#94a3b8" }}>{message.time}</div>
-            </div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "#2563eb", marginBottom: 6 }}>{message.subject}</div>
-            <div style={{ fontSize: 14, color: "#475569" }}>{message.preview}</div>
-            {message.unread && (
-              <div style={{ marginTop: 10, fontSize: 11, fontWeight: 700, color: "#dc2626" }}>Unread</div>
-            )}
+        <div className="site-page-header">
+          <div>
+            <h1 className="site-page-title">Messages</h1>
+            <p className="site-page-subtitle">Customer conversations and support requests</p>
           </div>
-        ))}
+        </div>
+
+        <div style={{ display: "grid", gap: 14 }}>
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`site-card site-card-hover ${message.unread ? "messages-card--unread" : ""}`}
+              style={{ padding: "18px 24px" }}
+            >
+
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span className="site-heading" style={{ fontSize: 15, fontWeight: 700 }}>
+                    {message.customer}
+                  </span>
+                  {message.unread && (
+                    <span className="site-badge" style={{
+                      backgroundColor: "var(--status-out-bg)",
+                      color: "var(--status-out-text)",
+                      fontSize: 10,
+                      padding: "2px 8px",
+                    }}>
+                      Unread
+                    </span>
+                  )}
+                </div>
+                <span className="site-text-muted" style={{ fontSize: 12, flexShrink: 0, marginLeft: 12 }}>
+                  {message.time}
+                </span>
+              </div>
+
+              <div className="site-text-brand" style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+                {message.subject}
+              </div>
+
+              <div className="site-subtext" style={{ fontSize: 14, lineHeight: 1.6 }}>
+                {message.preview}
+              </div>
+
+            </div>
+          ))}
+        </div>
+
       </div>
     </div>
   );

@@ -6,22 +6,45 @@ const reviews = [
 
 export default function CustomerReviews() {
   return (
-    <div style={{ padding: 28, background: "#f8fafc", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif" }}>
-      <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700, color: "#0f172a" }}>Customer Reviews</h1>
-      <p style={{ margin: "4px 0 24px", fontSize: 14, color: "#64748b" }}>Recent product feedback from customers</p>
+    <div className="site-page site-page-padding">
+      <div style={{ maxWidth: 800, margin: "0 auto" }}>
 
-      <div style={{ display: "grid", gap: 16 }}>
-        {reviews.map((review) => (
-          <div key={review.id} style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 14, padding: 20 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: "#0f172a" }}>{review.customer}</div>
-              <div style={{ fontSize: 12, color: "#94a3b8" }}>{review.date}</div>
-            </div>
-            <div style={{ fontSize: 13, color: "#2563eb", marginBottom: 6 }}>{review.product}</div>
-            <div style={{ fontSize: 13, color: "#f59e0b", marginBottom: 8 }}>{"★".repeat(review.rating)}</div>
-            <div style={{ fontSize: 14, color: "#475569" }}>{review.comment}</div>
+        <div className="site-page-header">
+          <div>
+            <h1 className="site-page-title">Customer Reviews</h1>
+            <p className="site-page-subtitle">Recent product feedback from customers</p>
           </div>
-        ))}
+        </div>
+
+        <div style={{ display: "grid", gap: 16 }}>
+          {reviews.map((review) => (
+            <div key={review.id} className="site-card" style={{ padding: "20px 24px" }}>
+
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+                <span className="site-heading" style={{ fontSize: 15, fontWeight: 700 }}>
+                  {review.customer}
+                </span>
+                <span className="site-text-muted" style={{ fontSize: 12 }}>
+                  {review.date}
+                </span>
+              </div>
+
+              <div className="site-text-brand" style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+                {review.product}
+              </div>
+
+              <div style={{ fontSize: 14, color: "var(--featured-color)", marginBottom: 8, letterSpacing: 1 }}>
+                {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
+              </div>
+
+              <div className="site-subtext" style={{ fontSize: 14, lineHeight: 1.6 }}>
+                {review.comment}
+              </div>
+
+            </div>
+          ))}
+        </div>
+
       </div>
     </div>
   );

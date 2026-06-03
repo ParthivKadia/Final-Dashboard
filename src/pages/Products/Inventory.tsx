@@ -7,7 +7,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { useProductStore } from '../../store/useProductStore';
 import { useCategoryStore } from '../../store/useCategoryStore';
 import { useAuth } from '../../hooks/useAuth';
-import { updateProduct } from '../../services/productService';
+import { updateProduct, deleteProduct } from '../../services/productService';
 import CategorySelector from '../Categories/CategorySelector';
 import CloudinaryUploadWidget from '../../ImageUpload';
 import type { Product, Store, UpdateProductRequestBody } from '../../types/store';
@@ -359,6 +359,9 @@ export default function Inventory() {
   const [saving, setSaving]       = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
 
+  const [deleteTarget, setDeleteTarget] = useState<{ slug: string; name: string } | null>(null);
+  const [deleting, setDeleting]         = useState(false);
+
   useEffect(() => {
     if (storeUsername) fetchCategories(storeUsername);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -467,6 +470,19 @@ export default function Inventory() {
     } finally { setSaving(false); }
   };
 
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await deleteProduct(storeUsername, deleteTarget.slug);
+      invalidate(storeUsername);
+      setDeleteTarget(null);
+      fetchInventory(true);
+    } catch (err: any) {
+      setFetchError(err?.message || 'Failed to delete product.');
+    } finally { setDeleting(false); }
+  };
+
   if (isVerifying) return (
     <div className="site-page flex items-center justify-center h-screen">
       <p className="text-sm site-subtext">Loading…</p>
@@ -534,7 +550,6 @@ export default function Inventory() {
 
         {/* Row 2 — desktop: category + status pills + layout toggle all on one line */}
         <div className="hidden sm:flex flex-row items-center gap-2 flex-nowrap">
-          {/* Category select */}
           <select
             value={filterCatId === 'All' ? '' : String(filterCatId)}
             onChange={e => setFilterCatId(e.target.value === '' ? 'All' : Number(e.target.value))}
@@ -544,7 +559,6 @@ export default function Inventory() {
             {activeCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
 
-          {/* Status filter pills — scrollable if needed, never wraps */}
           <div className="flex gap-1.5 flex-nowrap overflow-x-auto site-no-scrollbar">
             {STATUS_FILTERS.map(f => {
               const isActive = filterStatus === f.value;
@@ -571,7 +585,6 @@ export default function Inventory() {
             })}
           </div>
 
-          {/* Layout toggle — pushed to the far right */}
           <div className="ml-auto shrink-0">
             <LayoutToggle value={layout} onChange={setLayout} options={['list', 'grid']} />
           </div>
@@ -709,8 +722,12 @@ export default function Inventory() {
                           </span>
                         </td>
                         <td>
-                          <button className="site-btn site-btn-outline site-btn-sm"
-                            onClick={() => openEdit(item)}>Edit</button>
+                          <div className="flex gap-1.5">
+                            <button className="site-btn site-btn-outline site-btn-sm"
+                              onClick={() => openEdit(item)}>Edit</button>
+                            <button className="site-btn site-btn-danger site-btn-sm"
+                              onClick={() => setDeleteTarget({ slug: item.slug, name: item.name })}>Delete</button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -806,6 +823,8 @@ export default function Inventory() {
                         <div className="flex gap-2 pt-1">
                           <button className="site-btn site-btn-outline site-btn-sm flex-1"
                             onClick={() => openEdit(item)}>Edit</button>
+                          <button className="site-btn site-btn-danger site-btn-sm flex-1"
+                            onClick={() => setDeleteTarget({ slug: item.slug, name: item.name })}>Delete</button>
                           {item.stock <= item.reorderPoint && (
                             <button className="site-btn site-btn-sm"
                               style={{ backgroundColor: 'var(--status-featured-bg)', color: 'var(--status-featured-text)', border: 'none' }}
@@ -897,6 +916,8 @@ export default function Inventory() {
                         <div className="flex gap-1.5 pt-1">
                           <button className="site-btn site-btn-outline site-btn-sm flex-1"
                             onClick={() => openEdit(item)}>Edit</button>
+                          <button className="site-btn site-btn-danger site-btn-sm"
+                            onClick={() => setDeleteTarget({ slug: item.slug, name: item.name })}>Delete</button>
                           {item.stock <= item.reorderPoint && (
                             <button className="site-btn site-btn-sm"
                               style={{ backgroundColor: 'var(--status-featured-bg)', color: 'var(--status-featured-text)', border: 'none' }}
@@ -1167,6 +1188,34 @@ export default function Inventory() {
               <button className="site-btn site-btn-ghost site-btn-sm" onClick={closeEdit}>Cancel</button>
               <button className="site-btn site-btn-primary site-btn-sm" onClick={handleSave} disabled={saving}>
                 {saving ? <><span className="site-spinner" /> Saving…</> : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* ── Delete Confirm Dialog ── */}
+      {deleteTarget && createPortal(
+        <div className="site-modal-overlay">
+          <div className="site-modal site-modal-sm">
+            <div className="site-modal-body text-center">
+              <h2 className="h3 site-heading mb-2">Delete Product?</h2>
+              <p className="text-sm site-subtext mb-1">You are about to delete:</p>
+              <p className="text-sm font-semibold site-heading mb-4">"{deleteTarget.name}"</p>
+              <p className="text-xs text-[var(--danger-solid)] mb-2">This action cannot be undone.</p>
+            </div>
+            <div className="site-modal-footer">
+              <button className="site-btn site-btn-ghost flex-1"
+                onClick={() => setDeleteTarget(null)}>Cancel</button>
+              <button className="site-btn flex-1 disabled:opacity-50"
+                style={{
+                  backgroundColor: 'var(--danger-solid)', color: '#fff', border: 'none',
+                  borderRadius: '0.75rem', padding: '0.625rem 1.25rem', fontWeight: 600,
+                  cursor: deleting ? 'not-allowed' : 'pointer',
+                }}
+                onClick={confirmDelete} disabled={deleting}>
+                {deleting ? <><span className="site-spinner" /> Deleting…</> : 'Delete'}
               </button>
             </div>
           </div>

@@ -637,7 +637,7 @@ export default function OrdersListPage({
             </div>
 
             <div className="orders-actions">
-              <button className="secondary-btn">Export</button>
+              <button className="site-btn site-btn-primary">Export</button>
               {/* <button className="primary-btn">+ Create Order</button> */}
             </div>
           </div>

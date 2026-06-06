@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 const unitData = [
   { month: "Sep", units: 950 },
@@ -19,21 +12,26 @@ const unitData = [
 ];
 
 const topCategories = [
-  { name: "Electronics", units: 243, color: "bg-blue-500", width: "75%" },
-  { name: "Clothing", units: 189, color: "bg-blue-400", width: "60%" },
-  { name: "Home & Kitchen", units: 148, color: "bg-blue-300", width: "47%" },
+  { name: "Electronics",   units: 243, barColor: "var(--brand-500)", width: "75%" },
+  { name: "Clothing",      units: 189, barColor: "var(--brand-400)", width: "60%" },
+  { name: "Home & Kitchen",units: 148, barColor: "var(--brand-300)", width: "47%" },
 ];
 
 const ProductSalesChart: React.FC = () => {
   return (
-    <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col gap-4">
+    <div className="site-card" style={{ padding: 20, display: "flex", flexDirection: "column", gap: 20 }}>
+
+      {/* ── Units Sold chart ── */}
       <div>
-        <div className="flex items-center justify-between mb-1">
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 4 }}>
           <div>
-            <h3 className="text-base font-semibold text-gray-800">Units Sold</h3>
-            <p className="text-xs text-gray-400">Monthly trend · all categories</p>
+            <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>Units Sold</h3>
+            <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2, marginBottom: 0 }}>Monthly trend · all categories</p>
           </div>
-          <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
+          <span style={{
+            fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 999,
+            backgroundColor: "var(--status-growth-bg)", color: "var(--status-growth-text)",
+          }}>
             +27.8% MoM
           </span>
         </div>
@@ -41,53 +39,49 @@ const ProductSalesChart: React.FC = () => {
         <div style={{ height: 130 }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={unitData}>
-              <XAxis
-                dataKey="month"
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 11, fill: "#9ca3af" }}
-              />
+              <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "var(--text-muted)" }} />
               <YAxis hide />
               <Tooltip
-                contentStyle={{ borderRadius: 8, fontSize: 12 }}
-              formatter={(value) => [`${value} units`, "Units"]}
+                contentStyle={{
+                  borderRadius: 8, fontSize: 12,
+                  backgroundColor: "var(--card-bg)",
+                  border: "1px solid var(--border-subtle)",
+                  color: "var(--text-primary)",
+                }}
+                formatter={(value) => [`${value} units`, "Units"]}
               />
               <Line
-                type="monotone"
-                dataKey="units"
-                stroke="#3b82f6"
-                strokeWidth={2.5}
-                dot={false}
-                activeDot={{ r: 5, fill: "#3b82f6" }}
+                type="monotone" dataKey="units"
+                stroke="var(--brand-500)" strokeWidth={2.5}
+                dot={false} activeDot={{ r: 5, fill: "var(--brand-500)" }}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
       </div>
 
+      {/* ── Top Categories ── */}
       <div>
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-blue-500 text-sm">🏆</span>
-          <p className="text-sm font-semibold text-gray-700">Top Categories · March</p>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+          <span style={{ color: "var(--text-brand)", fontSize: 14 }}>🏆</span>
+          <p style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>Top Categories · March</p>
         </div>
 
-        <div className="flex flex-col gap-3">
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {topCategories.map((cat) => (
             <div key={cat.name}>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-700">{cat.name}</span>
-                <span className="text-gray-500 text-xs">{cat.units} units</span>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+                <span style={{ fontSize: 13, color: "var(--text-primary)" }}>{cat.name}</span>
+                <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>{cat.units} units</span>
               </div>
-              <div className="w-full bg-gray-100 rounded-full h-1.5">
-                <div
-                  className={`${cat.color} h-1.5 rounded-full`}
-                  style={{ width: cat.width }}
-                />
+              <div className="site-progress-track" style={{ height: 6, backgroundColor: "var(--surface-secondary)" }}>
+                <div style={{ height: "100%", borderRadius: 999, backgroundColor: cat.barColor, width: cat.width }} />
               </div>
             </div>
           ))}
         </div>
       </div>
+
     </div>
   );
 };

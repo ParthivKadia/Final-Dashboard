@@ -2609,3 +2609,43 @@ a:hover .auth-logo-wrap {
     text-align: left;
   }
 }
+
+/* ─── 55. DASHBOARD COMPONENTS ──────────────────────────────────────────────── */
+ 
+/* ── Recharts tooltip override — respects dark/light bg ── */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 8px !important;
+  color: var(--text-primary) !important;
+  font-size: 12px !important;
+}
+.recharts-tooltip-item { color: var(--text-primary) !important; }
+.recharts-tooltip-label { color: var(--text-secondary) !important; }
+ 
+/* ── Recharts axis ticks ── */
+.recharts-cartesian-axis-tick text {
+  fill: var(--text-muted) !important;
+}
+ 
+/* ── RecentOrdersCard filter tab active state ── */
+.dash-tab--active {
+  background-color: var(--brand-50);
+  color: var(--text-brand);
+}
+.dark .dash-tab--active {
+  background-color: rgba(26, 86, 219, 0.18);
+  color: var(--brand-300);
+}
+ 
+/* ── StatCards responsive ── */
+@media (max-width: 768px) {
+  .dash-stat-cards-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+ 
+/* ── LowStockAlerts restock button dark mode ── */
+.dark .dash-restock-btn {
+  opacity: 0.92;
+}

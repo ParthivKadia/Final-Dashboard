@@ -10,43 +10,11 @@ interface StockItem {
 }
 
 const stockItems: StockItem[] = [
-  {
-    name: "Wireless Earbuds Pro",
-    category: "Electronics",
-    left: 3,
-    min: 10,
-    barPercent: 30,
-  },
-  {
-    name: "Cotton Kurta — Blue XL",
-    category: "Clothing",
-    left: null,
-    min: 15,
-    outOfStock: true,
-    barPercent: 0,
-  },
-  {
-    name: "Steel Bottle 1L",
-    category: "Home & Kitchen",
-    left: 7,
-    min: 20,
-    barPercent: 35,
-  },
-  {
-    name: "Yoga Mat Premium",
-    category: "Sports",
-    left: 2,
-    min: 10,
-    barPercent: 20,
-  },
-  {
-    name: "Phone Stand Foldable",
-    category: "Accessories",
-    left: null,
-    min: 25,
-    outOfStock: true,
-    barPercent: 0,
-  },
+  { name: "Wireless Earbuds Pro",    category: "Electronics",   left: 3,    min: 10, barPercent: 30 },
+  { name: "Cotton Kurta — Blue XL",  category: "Clothing",      left: null, min: 15, outOfStock: true, barPercent: 0 },
+  { name: "Steel Bottle 1L",         category: "Home & Kitchen", left: 7,   min: 20, barPercent: 35 },
+  { name: "Yoga Mat Premium",        category: "Sports",         left: 2,   min: 10, barPercent: 20 },
+  { name: "Phone Stand Foldable",    category: "Accessories",    left: null, min: 25, outOfStock: true, barPercent: 0 },
 ];
 
 const LowStockAlerts: React.FC = () => {
@@ -54,64 +22,81 @@ const LowStockAlerts: React.FC = () => {
   const lowCount = stockItems.filter((i) => !i.outOfStock && i.left !== null).length;
 
   return (
-    <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <span className="text-amber-500">⚠️</span>
-          <h3 className="text-base font-semibold text-gray-800">Low Stock Alerts</h3>
-          <span className="text-xs bg-red-100 text-red-600 font-semibold px-2 py-0.5 rounded-full">
+    <div className="site-card" style={{ padding: 20 }}>
+
+      {/* ── Header ── */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, flexWrap: "wrap", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <span style={{ color: "var(--featured-color)" }}>⚠️</span>
+          <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>Low Stock Alerts</h3>
+          <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 999, backgroundColor: "var(--status-out-bg)", color: "var(--status-out-text)" }}>
             {outCount} out
           </span>
-          <span className="text-xs bg-amber-100 text-amber-600 font-semibold px-2 py-0.5 rounded-full">
+          <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 999, backgroundColor: "var(--status-low-bg)", color: "var(--status-low-text)" }}>
             {lowCount} low
           </span>
         </div>
-        <button className="text-blue-600 text-sm font-medium hover:underline">
+        <button style={{ color: "var(--text-brand)", fontSize: 13, fontWeight: 500, background: "none", border: "none", cursor: "pointer" }}>
           Manage →
         </button>
       </div>
 
-      <div className="flex flex-col gap-4">
+      {/* ── Stock items ── */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {stockItems.map((item) => (
           <div key={item.name}>
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center gap-2">
-                <span
-                  className={`w-2 h-2 rounded-full ${
-                    item.outOfStock ? "bg-red-500" : "bg-amber-400"
-                  }`}
-                />
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{
+                  width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
+                  backgroundColor: item.outOfStock ? "var(--status-out-dot)" : "var(--status-low-dot)",
+                  display: "inline-block",
+                }} />
                 <div>
-                  <p className="text-sm font-medium text-gray-700">{item.name}</p>
-                  <p className="text-xs text-gray-400">{item.category}</p>
+                  <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", margin: 0 }}>{item.name}</p>
+                  <p style={{ fontSize: 11, color: "var(--text-muted)", margin: "1px 0 0" }}>{item.category}</p>
                 </div>
               </div>
               {item.outOfStock ? (
-                <span className="text-xs bg-red-100 text-red-600 font-semibold px-2 py-0.5 rounded-full">
+                <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 999, backgroundColor: "var(--status-out-bg)", color: "var(--status-out-text)" }}>
                   Out of stock
                 </span>
               ) : (
-                <span className="text-xs font-semibold text-amber-600">
+                <span style={{ fontSize: 11, fontWeight: 600, color: "var(--status-low-text)" }}>
                   {item.left} left
                 </span>
               )}
             </div>
-            <div className="w-full bg-gray-100 rounded-full h-1.5">
-              <div
-                className={`h-1.5 rounded-full ${
-                  item.outOfStock ? "bg-red-400" : "bg-amber-400"
-                }`}
-                style={{ width: `${item.barPercent}%` }}
-              />
+
+            {/* Progress bar */}
+            <div className="site-progress-track" style={{ height: 6 }}>
+              <div style={{
+                height: "100%", borderRadius: 999,
+                backgroundColor: item.outOfStock ? "var(--status-out-dot)" : "var(--status-low-dot)",
+                width: `${item.barPercent}%`,
+              }} />
             </div>
-            <p className="text-xs text-gray-400 text-right mt-0.5">min {item.min}</p>
+            <p style={{ fontSize: 11, color: "var(--text-muted)", textAlign: "right", margin: "3px 0 0" }}>min {item.min}</p>
           </div>
         ))}
       </div>
 
-      <button className="mt-5 w-full bg-amber-500 hover:bg-amber-600 transition-colors text-white text-sm font-semibold py-2.5 rounded-xl">
+      {/* ── CTA button ── */}
+      <button
+        style={{
+          marginTop: 20, width: "100%",
+          backgroundColor: "var(--featured-color)",
+          color: "#ffffff",
+          fontSize: 13, fontWeight: 600,
+          padding: "10px 0", borderRadius: 12, border: "none", cursor: "pointer",
+          transition: "opacity 0.15s",
+        }}
+        onMouseEnter={e => (e.currentTarget.style.opacity = "0.88")}
+        onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+      >
         Restock All Low Items →
       </button>
+
     </div>
   );
 };

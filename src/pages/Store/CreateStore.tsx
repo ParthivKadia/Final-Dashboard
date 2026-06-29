@@ -97,7 +97,7 @@ export default function CreateStore() {
       {/* ── Header ── */}
       <div className="site-page-header">
         <div className="flex items-center gap-3">
-          <button className="site-back-btn" onClick={() => navigate("/")}>←</button>
+          <button className="site-back-btn" onClick={() => navigate("/store")}>←</button>
           <div>
             <h1 className="site-page-title">Create Your Store</h1>
             <p className="site-page-subtitle">Set up your online storefront in minutes</p>

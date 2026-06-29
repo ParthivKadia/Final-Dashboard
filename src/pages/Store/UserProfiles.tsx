@@ -199,7 +199,7 @@ export default function UserProfiles() {
               </h3>
               <button className="site-btn site-btn-primary site-btn-sm"
                 onClick={() => navigate("/store/create-store")}>
-                + New store
+                + New Store
               </button>
             </div>
 

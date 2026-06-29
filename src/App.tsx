@@ -7,6 +7,8 @@ import { SidebarProvider } from "./context/SidebarContext";
 // Eager load auth pages (small, needed immediately)
 import SignIn from "./pages/AuthPages/SignIn";
 import Register from "./pages/AuthPages/Register";
+import CreateStore from "./pages/Store/CreateStore";
+import StoreProfile from "./pages/Store/StoreProfile";
 
 // Lazy load everything else
 const Home = lazy(() => import("./pages/Dashboard/Home"));
@@ -38,15 +40,15 @@ const Campaigns = lazy(() => import("./pages/Marketing/Campaigns"));
 const Discount = lazy(() => import("./pages/Marketing/Discount"));
 const EmailMarketing = lazy(() => import("./pages/Marketing/EmailMarketing"));
 
-const StoreProfile = lazy(() => import("./pages/Store/StoreProfile"));
+// const StoreProfile = lazy(() => import("./pages/Store/StoreProfile"));
 const UserProfiles = lazy(() => import("./pages/Store/UserProfiles"));
-const Shipping = lazy(() => import("./pages/Store/Shipping"));
-const Payments = lazy(() => import("./pages/Store/Payments"));
-const CreateStore = lazy(() => import("./pages/Store/CreateStore"));
+// const Shipping = lazy(() => import("./pages/Store/Shipping"));
+// const Payments = lazy(() => import("./pages/Store/Payments"));
+// const CreateStore = lazy(() => import("./pages/Store/CreateStore"));
 
-const AccountSettings = lazy(() => import("./pages/Settings/AccountSettings"));
-const Notifications = lazy(() => import("./pages/Settings/Notifications"));
-const Security = lazy(() => import("./pages/Settings/Security"));
+// const AccountSettings = lazy(() => import("./pages/Settings/AccountSettings"));
+// const Notifications = lazy(() => import("./pages/Settings/Notifications"));
+// const Security = lazy(() => import("./pages/Settings/Security"));
 const LogoutPage = lazy(() => import("./pages/Settings/LogoutPage"));
 
 export default function App() {
@@ -96,6 +98,8 @@ export default function App() {
 
             {/* Store */}
             <Route path="/store" element={<UserProfiles />} />
+            <Route path="/store/create-store" element={<CreateStore />} />
+            <Route path="/store/store-profile" element={<StoreProfile />} />
             {/* <Route path="/store/create-store" element={<CreateStore />} />
             <Route path="/store/store-profile" element={<StoreProfile />} />
             <Route path="/store/shipping" element={<Shipping />} />

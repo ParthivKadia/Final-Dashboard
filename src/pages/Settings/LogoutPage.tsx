@@ -49,7 +49,7 @@ export default function LogoutPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-md mx-auto">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/")}
             disabled={isLoading}
             className="site-btn site-btn-ghost site-btn-lg"
           >

@@ -431,7 +431,7 @@ export default function AllProducts() {
 
         <div className="flex gap-2">
           <button className="site-btn site-btn-ghost site-btn-sm"
-            onClick={() => navigate('/products/categories')}>
+            onClick={() => navigate('/categories')}>
             Categories
           </button>
           <button className="site-btn site-btn-primary site-btn-sm"

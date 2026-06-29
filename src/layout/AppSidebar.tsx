@@ -52,10 +52,14 @@ const menuItems: MenuItem[] = [
 const dashboardItem = menuItems.find(i => i.name === "Dashboard");
 const otherMenuItems = menuItems.filter(i => i.name !== "Dashboard");
 
-// Sidebar-specific active/hover styles (navy bg surface, not page surface)
-const sidebarActive = { backgroundColor: "rgba(26,86,219,0.18)", color: "var(--brand-300, #91caff)" };
-const sidebarDefault = { color: "rgba(255,255,255,0.55)" };
-const sidebarHoverOn = { backgroundColor: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.9)" };
+// ── Sidebar colour helpers — use CSS variables so light/dark mode both work ──
+// These resolve to different values depending on whether .dark is on <html>
+const sidebarStyles = {
+  default:    { color: "var(--navbar-text)" },
+  active:     { backgroundColor: "var(--navbar-item-active-bg)", color: "var(--navbar-text-active)" },
+  hoverOn:    { backgroundColor: "var(--navbar-item-hover-bg)", color: "var(--navbar-text-hover)" },
+  hoverOff:   { backgroundColor: "transparent" },
+};
 
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered, closeMobileSidebar } = useSidebar();
@@ -77,9 +81,19 @@ const AppSidebar: React.FC = () => {
           <button
             onClick={() => setOpenMenu(openMenu === item.name ? null : item.name)}
             className={`menu-item group w-full cursor-pointer ${!isSidebarOpen ? "lg:justify-center" : "lg:justify-start"}`}
-            style={openMenu === item.name ? sidebarActive : sidebarDefault}
-            onMouseEnter={e => { if (openMenu !== item.name) { e.currentTarget.style.backgroundColor = sidebarHoverOn.backgroundColor; e.currentTarget.style.color = sidebarHoverOn.color; }}}
-            onMouseLeave={e => { if (openMenu !== item.name) { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = sidebarDefault.color; }}}
+            style={openMenu === item.name ? sidebarStyles.active : sidebarStyles.default}
+            onMouseEnter={e => {
+              if (openMenu !== item.name) {
+                e.currentTarget.style.backgroundColor = "var(--navbar-item-hover-bg)";
+                e.currentTarget.style.color = "var(--navbar-text-hover)";
+              }
+            }}
+            onMouseLeave={e => {
+              if (openMenu !== item.name) {
+                e.currentTarget.style.backgroundColor = "transparent";
+                e.currentTarget.style.color = "var(--navbar-text)";
+              }
+            }}
           >
             <span className="menu-item-icon-size">{item.icon}</span>
             {isSidebarOpen && (
@@ -95,14 +109,31 @@ const AppSidebar: React.FC = () => {
               {item.subItems.map(subItem => (
                 <li key={subItem.name}>
                   <Link
-                    to={subItem.path} onClick={closeMobileSidebar}
+                    to={subItem.path}
+                    onClick={closeMobileSidebar}
                     className="menu-dropdown-item flex items-center gap-3 transition-colors"
-                    style={isActive(subItem.path) ? sidebarActive : sidebarDefault}
-                    onMouseEnter={e => { if (!isActive(subItem.path)) { e.currentTarget.style.backgroundColor = sidebarHoverOn.backgroundColor; e.currentTarget.style.color = sidebarHoverOn.color; }}}
-                    onMouseLeave={e => { if (!isActive(subItem.path)) { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = sidebarDefault.color; }}}
+                    style={isActive(subItem.path) ? sidebarStyles.active : sidebarStyles.default}
+                    onMouseEnter={e => {
+                      if (!isActive(subItem.path)) {
+                        e.currentTarget.style.backgroundColor = "var(--navbar-item-hover-bg)";
+                        e.currentTarget.style.color = "var(--navbar-text-hover)";
+                      }
+                    }}
+                    onMouseLeave={e => {
+                      if (!isActive(subItem.path)) {
+                        e.currentTarget.style.backgroundColor = "transparent";
+                        e.currentTarget.style.color = "var(--navbar-text)";
+                      }
+                    }}
                   >
-                    <span className="h-2 w-2 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: isActive(subItem.path) ? "var(--btn-primary-bg)" : "rgba(255,255,255,0.2)" }} />
+                    <span
+                      className="h-2 w-2 rounded-full flex-shrink-0"
+                      style={{
+                        backgroundColor: isActive(subItem.path)
+                          ? "var(--brand-400)"
+                          : "var(--navbar-subitem-dot)",
+                      }}
+                    />
                     <span>{subItem.name}</span>
                   </Link>
                 </li>
@@ -113,11 +144,22 @@ const AppSidebar: React.FC = () => {
       ) : (
         item.path && (
           <Link
-            to={item.path} onClick={closeMobileSidebar}
+            to={item.path}
+            onClick={closeMobileSidebar}
             className={`menu-item group transition-colors ${!isSidebarOpen ? "lg:justify-center" : "lg:justify-start"}`}
-            style={isActive(item.path) ? sidebarActive : sidebarDefault}
-            onMouseEnter={e => { if (!isActive(item.path!)) { e.currentTarget.style.backgroundColor = sidebarHoverOn.backgroundColor; e.currentTarget.style.color = sidebarHoverOn.color; }}}
-            onMouseLeave={e => { if (!isActive(item.path!)) { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = sidebarDefault.color; }}}
+            style={isActive(item.path) ? sidebarStyles.active : sidebarStyles.default}
+            onMouseEnter={e => {
+              if (!isActive(item.path!)) {
+                e.currentTarget.style.backgroundColor = "var(--navbar-item-hover-bg)";
+                e.currentTarget.style.color = "var(--navbar-text-hover)";
+              }
+            }}
+            onMouseLeave={e => {
+              if (!isActive(item.path!)) {
+                e.currentTarget.style.backgroundColor = "transparent";
+                e.currentTarget.style.color = "var(--navbar-text)";
+              }
+            }}
           >
             <span className="menu-item-icon-size">{item.icon}</span>
             {isSidebarOpen && <span className="menu-item-text">{item.name}</span>}
@@ -133,7 +175,6 @@ const AppSidebar: React.FC = () => {
         ${isSidebarOpen ? "w-[290px]" : "w-[90px]"}
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0`}
-      // style={{ borderColor: "rgba(255,255,255,0.08)" }}
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -142,7 +183,9 @@ const AppSidebar: React.FC = () => {
         <Link to="/" onClick={closeMobileSidebar} className="flex items-center gap-3">
           <img src="/images/logo/Storly-Trasn.png" alt="Logo" width={32} height={32} className="rounded-xl" />
           {isSidebarOpen && (
-            <span className="text-2xl font-semibold" style={{ color: "white" }}>Seller Hub</span>
+            <span className="text-2xl font-semibold" style={{ color: "var(--navbar-text-hover)" }}>
+              Seller Hub
+            </span>
           )}
         </Link>
       </div>

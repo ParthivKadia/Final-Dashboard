@@ -1,5 +1,5 @@
 // src/layout/AppHeader.tsx
-// All colours come from site-theme.css tokens — zero inline style={{ color/bg }} needed.
+// All colours come from site-theme.css --navbar-* tokens — zero hardcoded rgba whites.
 
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
@@ -30,16 +30,15 @@ const AppHeader: React.FC = () => {
   }, []);
 
   return (
-    <header className="site-navbar sticky top-0 flex w-full z-99999 lg:border-b"
-      // style={{ borderColor: "rgba(255,255,255,0.08)" }}
-      >
+    <header className="site-navbar sticky top-0 flex w-full z-99999 lg:border-b">
       <div className="flex flex-col items-center justify-between grow lg:flex-row lg:px-6">
 
         {/* ── Top bar ── */}
-        <div className="flex items-center justify-between w-full gap-2 px-3 py-3 border-b sm:gap-4
-                        lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4"
-          style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-
+        <div
+          className="flex items-center justify-between w-full gap-2 px-3 py-3 border-b sm:gap-4
+                     lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4"
+          style={{ borderColor: "var(--border-default)" }}
+        >
           {/* Sidebar toggle */}
           <button
             className="header-icon-btn items-center justify-center w-10 h-10 rounded-lg border
@@ -84,26 +83,25 @@ const AppHeader: React.FC = () => {
             />
           </Link>
 
-          {/* Mobile dots menu  */}
-          {/* Fix this i am getting this button in desktop view as well  */}
+          {/* Mobile dots menu */}
           <div className="lg:hidden">
             <button
               onClick={() => setApplicationMenuOpen(v => !v)}
               className="header-icon-btn flex items-center justify-center w-10 h-10 rounded-lg transition-colors"
               aria-label="Open menu"
             >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path fillRule="evenodd" clipRule="evenodd"
-                d="M5.99902 10.4951C6.82745 10.4951 7.49902 11.1667 7.49902 11.9951V12.0051C7.49902
-                   12.8335 6.82745 13.5051 5.99902 13.5051C5.1706 13.5051 4.49902 12.8335 4.49902
-                   12.0051V11.9951C4.49902 11.1667 5.1706 10.4951 5.99902 10.4951ZM17.999 10.4951C18.8275
-                   10.4951 19.499 11.1667 19.499 11.9951V12.0051C19.499 12.8335 18.8275 13.5051 17.999
-                   13.5051C17.1706 13.5051 16.499 12.8335 16.499 12.0051V11.9951C16.499 11.1667 17.1706
-                   10.4951 17.999 10.4951ZM13.499 11.9951C13.499 11.1667 12.8275 10.4951 11.999
-                   10.4951C11.1706 10.4951 10.499 11.1667 10.499 11.9951V12.0051C10.499 12.8335 11.1706
-                   13.5051 11.999 13.5051C12.8275 13.5051 13.499 12.8335 13.499 12.0051V11.9951Z"
-                fill="currentColor" />
-            </svg>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path fillRule="evenodd" clipRule="evenodd"
+                  d="M5.99902 10.4951C6.82745 10.4951 7.49902 11.1667 7.49902 11.9951V12.0051C7.49902
+                     12.8335 6.82745 13.5051 5.99902 13.5051C5.1706 13.5051 4.49902 12.8335 4.49902
+                     12.0051V11.9951C4.49902 11.1667 5.1706 10.4951 5.99902 10.4951ZM17.999 10.4951C18.8275
+                     10.4951 19.499 11.1667 19.499 11.9951V12.0051C19.499 12.8335 18.8275 13.5051 17.999
+                     13.5051C17.1706 13.5051 16.499 12.8335 16.499 12.0051V11.9951C16.499 11.1667 17.1706
+                     10.4951 17.999 10.4951ZM13.499 11.9951C13.499 11.1667 12.8275 10.4951 11.999
+                     10.4951C11.1706 10.4951 10.499 11.1667 10.499 11.9951V12.0051C10.499 12.8335 11.1706
+                     13.5051 11.999 13.5051C12.8275 13.5051 13.499 12.8335 13.499 12.0051V11.9951Z"
+                  fill="currentColor" />
+              </svg>
             </button>
           </div>
 
@@ -144,10 +142,12 @@ const AppHeader: React.FC = () => {
         </div>
 
         {/* ── Right side: theme + notifications + user ── */}
-        <div className={`${isApplicationMenuOpen ? "flex" : "hidden"} items-center justify-between
-                        w-full gap-4 px-5 py-4 border-t
-                        lg:flex lg:justify-end lg:px-0 lg:shadow-none lg:border-t-0`}
-          style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+        <div
+          className={`${isApplicationMenuOpen ? "flex" : "hidden"} items-center justify-between
+                      w-full gap-4 px-5 py-4 border-t
+                      lg:flex lg:justify-end lg:px-0 lg:shadow-none lg:border-t-0`}
+          style={{ borderColor: "var(--border-default)" }}
+        >
           <div className="flex items-center gap-2 2xsm:gap-3">
             <ThemeToggleButton />
             <NotificationDropdown />

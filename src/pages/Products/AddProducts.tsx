@@ -100,12 +100,19 @@ export default function AddProduct() {
     setSaving(true); setError(null);
     try {
       await createProduct(storeUsername, {
-        name: form.name.trim(), slug: form.slug.trim(), description: form.description.trim(),
-        categoryIds: form.categoryIds, price: Number(form.price),
-        compareAtPrice: Number(form.compareAtPrice) || 0, currency: form.currency,
-        imageUrl: form.imageUrl.trim(), images: form.images,
+        name: form.name.trim(), 
+        description: form.description.trim(),
+        price: Number(form.price),
+        compareAtPrice: Number(form.compareAtPrice) || 0, 
+        currency: form.currency,
+        imageUrl: form.imageUrl.trim(), 
+        images: form.images,
+        categoryIds: form.categoryIds, 
+        inStock: form.inStock, 
+        stockCount: Number(form.stockCount) || 0, 
+        isFeatured: form.isFeatured,
         tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
-        inStock: form.inStock, stockCount: Number(form.stockCount) || 0, isFeatured: form.isFeatured,
+        slug: form.slug.trim(), 
       });
       navigate('/products');
     } catch (e: any) {
@@ -357,7 +364,7 @@ export default function AddProduct() {
                   <label className="site-label">Currency</label>
                   <select value={form.currency} onChange={e => update('currency', e.target.value)} className="site-input">
                     <option value="INR">INR (₹) — Indian Rupee</option>
-                    <option value="USD">USD ($) — US Dollar</option>
+                    {/* <option value="USD">USD ($) — US Dollar</option> */}
                   </select>
                 </div>
 
@@ -487,7 +494,7 @@ export default function AddProduct() {
                 <label className="site-label">Currency</label>
                 <select value={form.currency} onChange={e => update('currency', e.target.value)} className="site-input">
                   <option value="INR">INR (₹)</option>
-                  <option value="USD">USD ($)</option>
+                  {/* <option value="USD">USD ($)</option> */}
                 </select>
               </div>
             </div>

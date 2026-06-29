@@ -12,17 +12,17 @@ import { MobileDrawerRow, DrawerField } from '../../components/common/MobileDraw
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
-const PAGE_SIZE    = 50;
-const LOW_STOCK_MAX = 9;
+export const PAGE_SIZE    = 50;
+export const LOW_STOCK_MAX = 9;
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
-type Urgency    = 'out' | 'warning';
+export type Urgency    = 'out' | 'warning';
 type FilterType = 'all' | Urgency;
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
-function getUrgency(stock: number, inStock: boolean): Urgency {
+export function getUrgency(stock: number, inStock: boolean): Urgency {
   if (!inStock || stock === 0) return 'out';
   return 'warning';
 }
@@ -36,7 +36,7 @@ function suggestedReorderQty(): number {
   return 50;
 }
 
-function resolveCategory(categoryIds: number[], catMap: Map<number, string>): string {
+export function resolveCategory(categoryIds: number[], catMap: Map<number, string>): string {
   return (categoryIds ?? [])
     .map(id => catMap.get(id) ?? '')
     .filter(Boolean)

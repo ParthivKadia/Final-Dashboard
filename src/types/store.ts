@@ -36,6 +36,14 @@ export type User = {
 
 // ─── Store ─────────────────────────────────────────────────────────────────────
 
+export enum StoreTheme {
+  MINIMAL_LIGHT = "MINIMAL_LIGHT",
+  MINIMAL_DARK = "MINIMAL_DARK",
+  BOLD_LIGHT = "BOLD_LIGHT",
+  BOLD_DARK = "BOLD_DARK",
+  CLASSIC = "CLASSIC",
+}
+
 export type Store = {
   id: string;
   username: string;
@@ -43,7 +51,7 @@ export type Store = {
   bio: string;
   logoUrl: string;
   bannerUrl: string;
-  theme: string;
+  theme: StoreTheme;
   socialLinks: {
     instagram: string;
     whatsapp: string;

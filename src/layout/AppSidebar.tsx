@@ -1,11 +1,9 @@
 // src/layout/AppSidebar.tsx
-import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { BoxCubeIcon, ChevronDownIcon, GridIcon, HorizontaLDots, UserCircleIcon } from "../icons";
+import { BoxCubeIcon, GridIcon, HorizontaLDots, UserCircleIcon } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 
-type SubItem = { name: string; path: string; };
-type MenuItem = { name: string; icon: React.ReactNode; path?: string; subItems?: SubItem[]; };
+type MenuItem = { name: string; icon: React.ReactNode; path: string; };
 
 const OrdersIcon = () => (<svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 7H20L18.5 16H9.5L8 7Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><path d="M8 7L7.3 4.8C7.12 4.27 6.62 3.9 6.06 3.9H4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><circle cx="10" cy="19" r="1.4" fill="currentColor"/><circle cx="17" cy="19" r="1.4" fill="currentColor"/></svg>);
 const AnalyticsIcon = () => (<svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 19V11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M12 19V7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M19 19V4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>);
@@ -13,159 +11,60 @@ const MarketingIcon = () => (<svg className="h-6 w-6" viewBox="0 0 24 24" fill="
 const StoreIcon = () => (<svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 10L6.2 5.8C6.39 5.12 7.01 4.65 7.72 4.65H16.28C16.99 4.65 17.61 5.12 17.8 5.8L19 10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><path d="M6 10H18V17.5C18 18.33 17.33 19 16.5 19H7.5C6.67 19 6 18.33 6 17.5V10Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/><path d="M9 14H15" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>);
 const SettingsIcon = () => (<svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 8.7C10.18 8.7 8.7 10.18 8.7 12C8.7 13.82 10.18 15.3 12 15.3C13.82 15.3 15.3 13.82 15.3 12C15.3 10.18 13.82 8.7 12 8.7Z" stroke="currentColor" strokeWidth="1.8"/><path d="M19.4 13.05V10.95L17.58 10.44C17.43 9.94 17.23 9.47 16.96 9.03L17.89 7.38L16.42 5.91L14.77 6.84C14.33 6.57 13.86 6.37 13.36 6.22L12.85 4.4H10.75L10.24 6.22C9.74 6.37 9.27 6.57 8.83 6.84L7.18 5.91L5.71 7.38L6.64 9.03C6.37 9.47 6.17 9.94 6.02 10.44L4.2 10.95V13.05L6.02 13.56C6.17 14.06 6.37 14.53 6.64 14.97L5.71 16.62L7.18 18.09L8.83 17.16C9.27 17.43 9.74 17.63 10.24 17.78L10.75 19.6H12.85L13.36 17.78C13.86 17.63 14.33 17.43 14.77 17.16L16.42 18.09L17.89 16.62L16.96 14.97C17.23 14.53 17.43 14.06 17.58 13.56L19.4 13.05Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/></svg>);
 
+// ── Flat top-level menu — each item is a single page that contains ──
+// ── all of its previous sub-section functionality internally (tabs/pills/modals) ──
 const menuItems: MenuItem[] = [
-  { name: "Dashboard", icon: <GridIcon />, path: "/" },
-  { name: "Products", icon: <BoxCubeIcon />, subItems: [
-    { name: "All Products", path: "/products" }, { name: "Add Product", path: "/products/add" },
-    { name: "Categories", path: "/products/categories" }, { name: "Inventory", path: "/products/inventory" },
-    { name: "Low Stock", path: "/products/low-stock" },
-  ]},
-  { name: "Orders", icon: <OrdersIcon />, subItems: [
-    { name: "All Orders", path: "/orders" }, { name: "Pending Orders", path: "/orders/pending" },
-    { name: "Processing Orders", path: "/orders/processing" }, { name: "Shipped Orders", path: "/orders/shipped" },
-    { name: "Delivered Orders", path: "/orders/delivered" }, { name: "Cancelled Orders", path: "/orders/cancelled" },
-    { name: "Returned Orders", path: "/orders/returned" },
-  ]},
-  { name: "Customers", icon: <UserCircleIcon />, subItems: [
-    { name: "All Customers", path: "/customers" }, { name: "Customer Review", path: "/customers/review" },
-    { name: "Messages", path: "/customers/messages" },
-  ]},
-  { name: "Analytics", icon: <AnalyticsIcon />, subItems: [
-    { name: "Sales Analytics", path: "/analytics/sales-analytics" },
-    { name: "Top Products", path: "/analytics/top-products" }, { name: "Revenue Report", path: "/analytics/revenue" },
-  ]},
-  { name: "Marketing", icon: <MarketingIcon />, subItems: [
-    { name: "Coupons", path: "/marketing/coupons" }, { name: "Campaigns", path: "/marketing/campaigns" },
-    { name: "Discount", path: "/marketing/discounts" }, { name: "Email Marketing", path: "/marketing/email" },
-  ]},
-  { name: "Store", icon: <StoreIcon />, subItems: [
-    { name: "Create Store", path: "/store/create-store" }, { name: "User Profile", path: "/store/user-profile" },
-    { name: "Store Profile", path: "/store/store-profile" }, { name: "Shipping", path: "/store/shipping" },
-    { name: "Payments", path: "/store/payments" },
-  ]},
-  { name: "Settings", icon: <SettingsIcon />, subItems: [
-    { name: "Account Settings", path: "/settings/account" }, { name: "Notifications", path: "/settings/notifications" },
-    { name: "Security", path: "/settings/security" }, { name: "Logout", path: "/settings/logout" },
-  ]},
+  { name: "Dashboard",  icon: <GridIcon />,        path: "/" },
+  { name: "Products",   icon: <BoxCubeIcon />,     path: "/products" },
+  { name: "Categories", icon: <BoxCubeIcon />,     path: "/categories" },
+  { name: "Orders",     icon: <OrdersIcon />,       path: "/orders" },
+  { name: "Store",      icon: <StoreIcon />,        path: "/store" },
+  { name: "Settings",   icon: <SettingsIcon />,     path: "/settings" },
 ];
 
-const dashboardItem = menuItems.find(i => i.name === "Dashboard");
+const dashboardItem  = menuItems.find(i => i.name === "Dashboard");
 const otherMenuItems = menuItems.filter(i => i.name !== "Dashboard");
 
 // ── Sidebar colour helpers — use CSS variables so light/dark mode both work ──
-// These resolve to different values depending on whether .dark is on <html>
 const sidebarStyles = {
-  default:    { color: "var(--navbar-text)" },
-  active:     { backgroundColor: "var(--navbar-item-active-bg)", color: "var(--navbar-text-active)" },
-  hoverOn:    { backgroundColor: "var(--navbar-item-hover-bg)", color: "var(--navbar-text-hover)" },
-  hoverOff:   { backgroundColor: "transparent" },
+  default: { color: "var(--navbar-text)" },
+  active:  { backgroundColor: "var(--navbar-item-active-bg)", color: "var(--navbar-text-active)" },
 };
 
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered, closeMobileSidebar } = useSidebar();
   const location = useLocation();
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
 
   const isSidebarOpen = isExpanded || isHovered || isMobileOpen;
-  const isActive = (path: string) => location.pathname === path;
 
-  useEffect(() => {
-    const activeParent = menuItems.find(item => item.subItems?.some(sub => isActive(sub.path)));
-    if (activeParent) setOpenMenu(activeParent.name);
-  }, [location.pathname]);
+  // A top-level section is "active" if the current path starts with its path
+  // (so /products/anything still highlights "Products" if any nested route remains)
+  const isActive = (path: string) =>
+    path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
 
   const renderMenuItem = (item: MenuItem) => (
     <li key={item.name}>
-      {item.subItems ? (
-        <>
-          <button
-            onClick={() => setOpenMenu(openMenu === item.name ? null : item.name)}
-            className={`menu-item group w-full cursor-pointer ${!isSidebarOpen ? "lg:justify-center" : "lg:justify-start"}`}
-            style={openMenu === item.name ? sidebarStyles.active : sidebarStyles.default}
-            onMouseEnter={e => {
-              if (openMenu !== item.name) {
-                e.currentTarget.style.backgroundColor = "var(--navbar-item-hover-bg)";
-                e.currentTarget.style.color = "var(--navbar-text-hover)";
-              }
-            }}
-            onMouseLeave={e => {
-              if (openMenu !== item.name) {
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.color = "var(--navbar-text)";
-              }
-            }}
-          >
-            <span className="menu-item-icon-size">{item.icon}</span>
-            {isSidebarOpen && (
-              <>
-                <span className="menu-item-text">{item.name}</span>
-                <ChevronDownIcon className={`ml-auto h-5 w-5 transition-transform duration-200 ${openMenu === item.name ? "rotate-180" : ""}`} />
-              </>
-            )}
-          </button>
-
-          {isSidebarOpen && openMenu === item.name && (
-            <ul className="ml-9 mt-2 space-y-1">
-              {item.subItems.map(subItem => (
-                <li key={subItem.name}>
-                  <Link
-                    to={subItem.path}
-                    onClick={closeMobileSidebar}
-                    className="menu-dropdown-item flex items-center gap-3 transition-colors"
-                    style={isActive(subItem.path) ? sidebarStyles.active : sidebarStyles.default}
-                    onMouseEnter={e => {
-                      if (!isActive(subItem.path)) {
-                        e.currentTarget.style.backgroundColor = "var(--navbar-item-hover-bg)";
-                        e.currentTarget.style.color = "var(--navbar-text-hover)";
-                      }
-                    }}
-                    onMouseLeave={e => {
-                      if (!isActive(subItem.path)) {
-                        e.currentTarget.style.backgroundColor = "transparent";
-                        e.currentTarget.style.color = "var(--navbar-text)";
-                      }
-                    }}
-                  >
-                    <span
-                      className="h-2 w-2 rounded-full flex-shrink-0"
-                      style={{
-                        backgroundColor: isActive(subItem.path)
-                          ? "var(--brand-400)"
-                          : "var(--navbar-subitem-dot)",
-                      }}
-                    />
-                    <span>{subItem.name}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </>
-      ) : (
-        item.path && (
-          <Link
-            to={item.path}
-            onClick={closeMobileSidebar}
-            className={`menu-item group transition-colors ${!isSidebarOpen ? "lg:justify-center" : "lg:justify-start"}`}
-            style={isActive(item.path) ? sidebarStyles.active : sidebarStyles.default}
-            onMouseEnter={e => {
-              if (!isActive(item.path!)) {
-                e.currentTarget.style.backgroundColor = "var(--navbar-item-hover-bg)";
-                e.currentTarget.style.color = "var(--navbar-text-hover)";
-              }
-            }}
-            onMouseLeave={e => {
-              if (!isActive(item.path!)) {
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.color = "var(--navbar-text)";
-              }
-            }}
-          >
-            <span className="menu-item-icon-size">{item.icon}</span>
-            {isSidebarOpen && <span className="menu-item-text">{item.name}</span>}
-          </Link>
-        )
-      )}
+      <Link
+        to={item.path}
+        onClick={closeMobileSidebar}
+        className={`menu-item group transition-colors ${!isSidebarOpen ? "lg:justify-center" : "lg:justify-start"}`}
+        style={isActive(item.path) ? sidebarStyles.active : sidebarStyles.default}
+        onMouseEnter={e => {
+          if (!isActive(item.path)) {
+            e.currentTarget.style.backgroundColor = "var(--navbar-item-hover-bg)";
+            e.currentTarget.style.color = "var(--navbar-text-hover)";
+          }
+        }}
+        onMouseLeave={e => {
+          if (!isActive(item.path)) {
+            e.currentTarget.style.backgroundColor = "transparent";
+            e.currentTarget.style.color = "var(--navbar-text)";
+          }
+        }}
+      >
+        <span className="menu-item-icon-size">{item.icon}</span>
+        {isSidebarOpen && <span className="menu-item-text">{item.name}</span>}
+      </Link>
     </li>
   );
 

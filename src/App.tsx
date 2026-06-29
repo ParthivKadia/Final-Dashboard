@@ -66,6 +66,9 @@ export default function App() {
             <Route path="/products/inventory" element={<Inventory />} />
             <Route path="/products/low-stock" element={<LowStock />} />
 
+            {/* Categories */}
+            <Route path="/categories" element={<Categories />} />
+
             {/* Orders */}
             <Route path="/orders" element={<AllOrders />} />
             <Route path="/orders/pending" element={<PendingOrders />} />
@@ -92,17 +95,19 @@ export default function App() {
             <Route path="/marketing/email" element={<EmailMarketing />} />
 
             {/* Store */}
-            <Route path="/store/create-store" element={<CreateStore />} />
+            <Route path="/store" element={<UserProfiles />} />
+            {/* <Route path="/store/create-store" element={<CreateStore />} />
             <Route path="/store/store-profile" element={<StoreProfile />} />
             <Route path="/store/shipping" element={<Shipping />} />
             <Route path="/store/payments" element={<Payments />} />
-            <Route path="/store/user-profile" element={<UserProfiles />} />
+            <Route path="/store/user-profile" element={<UserProfiles />} /> */}
 
             {/* Settings */}
-            <Route path="/settings/account" element={<AccountSettings />} />
+            <Route path="/settings" element={<LogoutPage />} />
+            {/* <Route path="/settings/account" element={<AccountSettings />} />
             <Route path="/settings/notifications" element={<Notifications />} />
             <Route path="/settings/security" element={<Security />} />
-            <Route path="/settings/logout" element={<LogoutPage />} />
+            <Route path="/settings/logout" element={<LogoutPage />} /> */}
           </Route>
 
           {/* Auth */}

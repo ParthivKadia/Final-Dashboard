@@ -162,6 +162,7 @@ const productToEditForm = (p: Product): EditForm => ({
 export default function AllProducts() {
   const navigate = useNavigate();
   const { isVerifying } = useAuth();
+  console.log(isVerifying)
 
   const { stores, activeStore, setActiveStore } = useAppStore();
   const { fetchPage, errors: cacheErrors, invalidate } = useProductStore();
@@ -191,9 +192,11 @@ export default function AllProducts() {
 
   const [showDialog, setShowDialog] = useState(false);
   const [form, setForm]             = useState<CreateProductRequestBody>(emptyForm());
+  console.log(form)
   const [tagsInput, setTagsInput]   = useState('');
   const [saving, setSaving]         = useState(false);
   const [formError, setFormError]   = useState<string | null>(null);
+  console.log(formError)
   const [activeTab, setActiveTab]   = useState<'basic' | 'pricing' | 'inventory'>('basic');
 
   // ── Edit modal state ──
@@ -460,7 +463,7 @@ export default function AllProducts() {
           //   className="site-stat-card text-left transition-colors"
           //   style={filterStatus === s.filter ? { borderColor: 'var(--btn-primary-bg)', boxShadow: '0 0 0 1px var(--btn-primary-bg)' } : undefined}
           // >
-          <div className="site-stat-card text-left transition-colors">
+          <div key={s.key} className="site-stat-card text-left transition-colors">
             <span className="site-stat-card-label">{s.label}</span>
             <div className="site-stat-card-value">
               {loading

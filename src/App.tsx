@@ -9,6 +9,7 @@ import SignIn from "./pages/AuthPages/SignIn";
 import Register from "./pages/AuthPages/Register";
 import CreateStore from "./pages/Store/CreateStore";
 import StoreProfile from "./pages/Store/StoreProfile";
+import Workflow from "./pages/Onboarding/Workflow";
 
 // Lazy load everything else
 const Home = lazy(() => import("./pages/Dashboard/Home"));
@@ -117,6 +118,7 @@ export default function App() {
           {/* Auth */}
           <Route path="/signin" element={<SignIn />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/workflow" element={<Workflow />} />
         </Routes>
         </Suspense>
       </Router>

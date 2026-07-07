@@ -16,6 +16,7 @@ import { generateSlug } from '../../utils/slug';
 import LayoutToggle from '../../layout/LayoutToggle';
 import { MobileDrawerRow, DrawerField } from '../../components/common/MobileDrawer';
 import { CardImageSlider } from './Inventory';
+import { getCloudinaryUrl } from '../../utils/cloudinaryUrlDisplay';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -583,7 +584,7 @@ export default function AllProducts() {
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="site-thumb site-thumb-md flex-shrink-0">
                           {p.imageUrl
-                            ? <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover"
+                            ? <img src={getCloudinaryUrl(p.imageUrl, 100)} alt={p.name} className="w-full h-full object-cover"
                                 onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                             : <span className="text-lg">📦</span>
                           }
@@ -786,7 +787,10 @@ export default function AllProducts() {
                     style={{ borderRadius: '1rem' }}>
 
                     <div className="relative">
-                      <CardImageSlider mainUrl={p.imageUrl ?? ''} extras={p.images ?? []} />
+                      <CardImageSlider
+                        mainUrl={getCloudinaryUrl(p.imageUrl, 400)}
+                        extras={(p.images ?? []).map(u => getCloudinaryUrl(u, 400))}
+                      />
                       <div className="absolute top-2 left-2 flex flex-col gap-1 z-10 pointer-events-none">
                         <span className={`site-badge site-badge--${status}`}>
                           <span className="site-badge-dot" />
@@ -836,7 +840,7 @@ export default function AllProducts() {
                           onClick={() => openEdit(p)}>
                           Edit
                         </button>
-                        <button className="site-btn site-btn-danger site-btn-sm"
+                        <button className="site-btn site-btn-danger site-btn-sm flex-1"
                           onClick={() => setDeleteTarget({ slug: p.slug, name: p.name })}>
                           Delete
                         </button>
@@ -912,7 +916,7 @@ export default function AllProducts() {
                       {form.imageUrl && (
                         <div className="relative w-16 h-16 site-thumb shrink-0"
                           style={{ border: '1px solid var(--border-medium)' }}>
-                          <img src={form.imageUrl} alt="Main" className="w-full h-full object-cover" />
+                          <img src={getCloudinaryUrl(form.imageUrl, 200)} alt="Main" className="w-full h-full object-cover" />
                           <button type="button"
                             className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center hover:bg-red-600"
                             onClick={() => setForm(f => ({ ...f, imageUrl: '' }))}>✕</button>

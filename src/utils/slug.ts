@@ -2,7 +2,6 @@
 import { customAlphabet } from 'nanoid';
 
 // lowercase letters + digits only — no uppercase, no underscore, no hyphen
-// (avoids backend slug-validation 400s from random uppercase chars)
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 8);
 
 export const generateSlug = (name: string): string => {

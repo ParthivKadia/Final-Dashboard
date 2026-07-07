@@ -3,6 +3,7 @@ import { ThemeToggleButton } from "../common/ThemeToggleButton";
 import NotificationDropdown from "./NotificationDropdown";
 import UserDropdown from "./UserDropdown";
 import { Link } from "react-router";
+import logo from "../../public/images/brand/logo.png"
 
 interface HeaderProps {
   onClick?: () => void;
@@ -46,7 +47,7 @@ const Header: React.FC<HeaderProps> = ({ onClick, onToggle }) => {
 
           {/* Logo — mobile only */}
           <Link to="/" className="lg:hidden flex items-center gap-2">
-            <img src="/images/logo/Storly-Trasn.png" alt="Storly" width={28} height={28} className="rounded-lg" />
+            <img src={logo} alt="Storely" width={28} height={28} className="rounded-lg" />
             <span className="text-white font-bold text-base tracking-tight">Seller Hub</span>
           </Link>
 

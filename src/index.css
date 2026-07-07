@@ -3,7 +3,7 @@
 @import "./site-theme.css";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
+/* @import "@fontsource-variable/geist"; */
 
 @custom-variant dark (&:is(.dark *));
 
@@ -224,6 +224,14 @@
   }
 }
 
+@font-face {
+  font-family: "Geist Variable";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/geist/geist-latin-wght-normal.woff2") format("woff2-variations");
+}
+
 @utility menu-item {
   @apply relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-theme-sm;
 }
@@ -308,7 +316,7 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    @apply bg-gray-200 rounded-full dark:bg-gray-700;
+    @apply bg-gray-200 rounded-full /* dark:bg-gray-700; */
   }
 }
 
@@ -783,7 +791,7 @@ span.flatpickr-weekday,
 }
 
 .simplebar-scrollbar::before {
-  @apply !bg-gray-200 !rounded-full dark:!bg-gray-700 !opacity-100;
+  @apply !bg-gray-200 !rounded-full /* dark:!bg-gray-700 */ !opacity-100;
 }
 .dark .simplebar-scrollbar::before {
   @apply !bg-gray-700;

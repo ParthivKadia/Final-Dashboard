@@ -2,6 +2,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { BoxCubeIcon, GridIcon, HorizontaLDots } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
+import logo from "../../public/images/brand/logo.png"
 
 type MenuItem = { name: string; icon: React.ReactNode; path: string; };
 
@@ -80,7 +81,7 @@ const AppSidebar: React.FC = () => {
       {/* Logo */}
       <div className={`flex py-8 ${!isSidebarOpen ? "lg:justify-center" : "justify-start"}`}>
         <Link to="/" onClick={closeMobileSidebar} className="flex items-center gap-3">
-          <img src="/images/logo/Storly-Trasn.png" alt="Logo" width={32} height={32} className="rounded-xl" />
+          <img src={logo} alt="Storely" width={32} height={32} className="" />
           {isSidebarOpen && (
             <span className="text-2xl font-semibold" style={{ color: "var(--navbar-text-hover)" }}>
               Seller Hub

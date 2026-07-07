@@ -7,6 +7,7 @@ import { useSidebar } from "../context/SidebarContext";
 import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
 import NotificationDropdown from "../components/header/NotificationDropdown";
 import UserDropdown from "../components/header/UserDropdown";
+import logo from "../../public/images/brand/logo.png"
 
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
@@ -78,8 +79,8 @@ const AppHeader: React.FC = () => {
           <Link to="/" className="lg:hidden flex items-center justify-center">
             <img
               className="h-10 w-auto object-contain sm:h-12"
-              src="./images/logo/Storly-Trasn.png"
-              alt="Storly"
+              src={logo}
+              alt="Storely"
             />
           </Link>
 

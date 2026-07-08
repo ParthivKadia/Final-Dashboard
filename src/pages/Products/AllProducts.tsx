@@ -4,30 +4,42 @@
 import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { createProduct, deleteProduct } from '../../services/productService';
+import { createProduct, deleteProduct, updateProduct } from '../../services/productService';
 import { useAppStore } from '../../store/useAppStore';
 import { useProductStore } from '../../store/useProductStore';
 import { useCategoryStore } from '../../store/useCategoryStore';
 import { useAuth } from '../../hooks/useAuth';
-import type { Product, CreateProductRequestBody, Store } from '../../types/store';
+import type { Product, CreateProductRequestBody, UpdateProductRequestBody, Store } from '../../types/store';
 import CategorySelector from '../Categories/CategorySelector';
 import CloudinaryUploadWidget from '../../ImageUpload';
 import { generateSlug } from '../../utils/slug';
 import LayoutToggle from '../../layout/LayoutToggle';
 import { MobileDrawerRow, DrawerField } from '../../components/common/MobileDrawer';
 import { CardImageSlider } from './Inventory';
+import { getCloudinaryUrl } from '../../utils/cloudinaryUrlDisplay';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
+export const LOW_STOCK_MAX = 9;
+
 const getStatus = (p: Product) => {
   if (!p.inStock || p.stockCount === 0) return 'out';
-  if (p.stockCount <= 10) return 'low';
+  if (p.stockCount <= LOW_STOCK_MAX) return 'low';
   return 'active';
 };
 
 const STATUS_LABEL: Record<string, string> = {
   active: 'Active', low: 'Low Stock', out: 'Out of Stock',
 };
+
+type StatusFilter = 'All' | 'active' | 'low' | 'out';
+
+const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
+  { value: 'All',    label: 'All Status'    },
+  { value: 'active', label: 'Active'        },
+  { value: 'low',    label: 'Low Stock'     },
+  { value: 'out',    label: 'Out of Stock'  },
+];
 
 const MAX_ADDITIONAL_IMAGES = 2;
 
@@ -123,11 +135,35 @@ export function SlugCell({ slug }: { slug: string }) {
   );
 }
 
+// ─── Edit form type ─────────────────────────────────────────────────────────────
+
+type EditForm = Omit<UpdateProductRequestBody, 'images' | 'tags'> & {
+  images:    string[];
+  tagsInput: string;
+};
+
+const productToEditForm = (p: Product): EditForm => ({
+  name:           p.name,
+  slug:           p.slug,
+  description:    p.description ?? '',
+  price:          p.price,
+  compareAtPrice: p.compareAtPrice ?? 0,
+  currency:       p.currency ?? 'INR',
+  imageUrl:       p.imageUrl ?? '',
+  images:         p.images ?? [],
+  categoryIds:    p.categoryIds ?? [],
+  inStock:        p.inStock,
+  stockCount:     p.stockCount,
+  isFeatured:     p.isFeatured ?? false,
+  tagsInput:      (p.tags ?? []).join(', '),
+});
+
 // ─── Main Component ────────────────────────────────────────────────────────────
 
 export default function AllProducts() {
   const navigate = useNavigate();
   const { isVerifying } = useAuth();
+  console.log(isVerifying)
 
   const { stores, activeStore, setActiveStore } = useAppStore();
   const { fetchPage, errors: cacheErrors, invalidate } = useProductStore();
@@ -148,18 +184,28 @@ export default function AllProducts() {
   const [fetchError, setFetchError]       = useState<string | null>(null);
   const [storeDropdown, setStoreDropdown] = useState(false);
 
-  const [search, setSearch]           = useState('');
-  const [filterCatId, setFilterCatId] = useState<number | 'All'>('All');
-  const [sortBy, setSortBy]           = useState('name');
-  const [viewMode, setViewMode]       = useState<'table' | 'grid'>('table');
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [search, setSearch]             = useState('');
+  const [filterCatId, setFilterCatId]   = useState<number | 'All'>('All');
+  const [filterStatus, setFilterStatus] = useState<StatusFilter>('All');
+  const [sortBy, setSortBy]             = useState('name');
+  const [viewMode, setViewMode]         = useState<'table' | 'grid'>('table');
+  const [selectedIds, setSelectedIds]   = useState<string[]>([]);
 
   const [showDialog, setShowDialog] = useState(false);
   const [form, setForm]             = useState<CreateProductRequestBody>(emptyForm());
+  console.log(form)
   const [tagsInput, setTagsInput]   = useState('');
   const [saving, setSaving]         = useState(false);
   const [formError, setFormError]   = useState<string | null>(null);
+  console.log(formError)
   const [activeTab, setActiveTab]   = useState<'basic' | 'pricing' | 'inventory'>('basic');
+
+  // ── Edit modal state ──
+  const [editItem, setEditItem]   = useState<Product | null>(null);
+  const [editForm, setEditForm]   = useState<EditForm | null>(null);
+  const [editTab, setEditTab]     = useState<'basic' | 'pricing' | 'inventory'>('basic');
+  const [editSaving, setEditSaving] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
 
   const [deleteTarget, setDeleteTarget] = useState<{ slug: string; name: string } | null>(null);
   const [deleting, setDeleting]         = useState(false);
@@ -191,15 +237,17 @@ export default function AllProducts() {
 
   const switchStore = (store: Store) => {
     setActiveStore(store); setStoreDropdown(false); setCurrentPage(1);
-    setFilterCatId('All'); setSearch('');
+    setFilterCatId('All'); setFilterStatus('All'); setSearch('');
     setSelectedIds([]); setProducts([]); setFetchError(null);
   };
 
-  // ── No status filter on AllProducts — show everything ──
+  // ── Search + status filter, then sort ──
   const filtered = products
     .filter(p => {
       const q = search.toLowerCase();
-      return !q || p.name.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q);
+      const matchSearch = !q || p.name.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q);
+      const matchStatus = filterStatus === 'All' || getStatus(p) === filterStatus;
+      return matchSearch && matchStatus;
     })
     .sort((a, b) => {
       if (sortBy === 'price-asc')  return a.price - b.price;
@@ -209,10 +257,10 @@ export default function AllProducts() {
     });
 
   const stats = [
-    { label: 'Total',        value: total,                                                  key: 'total'  },
-    { label: 'Active',       value: products.filter(p => getStatus(p) === 'active').length, key: 'active' },
-    { label: 'Low Stock',    value: products.filter(p => getStatus(p) === 'low').length,    key: 'low'    },
-    { label: 'Out of Stock', value: products.filter(p => getStatus(p) === 'out').length,    key: 'out'    },
+    { label: 'Total',        value: total,                                                  key: 'total',  filter: 'All'    as StatusFilter },
+    { label: 'Active',       value: products.filter(p => getStatus(p) === 'active').length, key: 'active', filter: 'active' as StatusFilter },
+    { label: 'Low Stock',    value: products.filter(p => getStatus(p) === 'low').length,    key: 'low',    filter: 'low'    as StatusFilter },
+    { label: 'Out of Stock', value: products.filter(p => getStatus(p) === 'out').length,    key: 'out',    filter: 'out'    as StatusFilter },
   ];
 
   const totalPages   = Math.ceil(total / PAGE_SIZE);
@@ -248,6 +296,69 @@ export default function AllProducts() {
       invalidate(storeUsername); setShowDialog(false); loadPage(currentPage, filterCatId, true);
     } catch (err: any) { setFormError(err?.message || 'Failed to create product.'); }
     finally { setSaving(false); }
+  };
+
+  // ── Edit handlers ──
+  const openEdit = (p: Product) => {
+    setEditItem(p); setEditForm(productToEditForm(p));
+    setEditTab('basic'); setEditError(null);
+  };
+
+  const closeEdit = () => { setEditItem(null); setEditForm(null); setEditError(null); };
+
+  const updateEditField = <K extends keyof EditForm>(key: K, value: EditForm[K]) =>
+    setEditForm(f => f ? { ...f, [key]: value } : f);
+
+  const handleEditNameChange = (name: string) =>
+    setEditForm(f => f ? { ...f, name, slug: f.slug } : f); // slug stays editable independently here
+
+  const handleEditMainImageUpload = useCallback((url: string) =>
+    setEditForm(f => f ? { ...f, imageUrl: url } : f), []);
+
+  const handleEditAdditionalImageUpload = useCallback((url: string) =>
+    setEditForm(f => {
+      if (!f) return f;
+      if ((f.images ?? []).length >= MAX_ADDITIONAL_IMAGES) return f;
+      return { ...f, images: [...(f.images ?? []), url] };
+    }), []);
+
+  const removeEditAdditionalImage = (index: number) =>
+    setEditForm(f => f ? { ...f, images: (f.images ?? []).filter((_, i) => i !== index) } : f);
+
+  const handleEditSave = async () => {
+    if (!editForm || !editItem) return;
+    if (!editForm.name.trim())             { setEditTab('basic');   setEditError('Product name is required.'); return; }
+    if (!editForm.slug.trim())             { setEditTab('basic');   setEditError('Slug is required.'); return; }
+    if (editForm.categoryIds.length === 0) { setEditTab('basic');   setEditError('Select at least one category.'); return; }
+    if (editForm.price <= 0)               { setEditTab('pricing'); setEditError('Price must be > 0.'); return; }
+    setEditSaving(true); setEditError(null);
+
+    const body: UpdateProductRequestBody = {
+      name:           editForm.name.trim(),
+      slug:           editForm.slug.trim(),
+      description:    editForm.description.trim(),
+      price:          editForm.price,
+      compareAtPrice: editForm.compareAtPrice,
+      currency:       editForm.currency,
+      imageUrl:       editForm.imageUrl.trim(),
+      images:         editForm.images ?? [],
+      categoryIds:    editForm.categoryIds,
+      inStock:        editForm.inStock,
+      stockCount:     editForm.stockCount,
+      isFeatured:     editForm.isFeatured,
+      tags:           editForm.tagsInput.split(',').map(t => t.trim()).filter(Boolean),
+    };
+
+    try {
+      await updateProduct(storeUsername, editItem.slug, body);
+      invalidate(storeUsername);
+      closeEdit();
+      loadPage(currentPage, filterCatId, true);
+    } catch (err: any) {
+      setEditError(err?.message || 'Failed to update product. Please try again.');
+    } finally {
+      setEditSaving(false);
+    }
   };
 
   const confirmDelete = async () => {
@@ -324,7 +435,7 @@ export default function AllProducts() {
 
         <div className="flex gap-2">
           <button className="site-btn site-btn-ghost site-btn-sm"
-            onClick={() => navigate('/products/categories')}>
+            onClick={() => navigate('/categories')}>
             Categories
           </button>
           <button className="site-btn site-btn-primary site-btn-sm"
@@ -343,10 +454,17 @@ export default function AllProducts() {
         </div>
       )}
 
-      {/* ── Stats ── */}
+      {/* ── Stats (clickable — sets the status filter) ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
         {stats.map(s => (
-          <div key={s.label} className="site-stat-card">
+          // <button TODO: remove this setFilterStatus logic
+          //   key={s.label}
+          //   type="button"
+          //   onClick={() => setFilterStatus(s.filter)}
+          //   className="site-stat-card text-left transition-colors"
+          //   style={filterStatus === s.filter ? { borderColor: 'var(--btn-primary-bg)', boxShadow: '0 0 0 1px var(--btn-primary-bg)' } : undefined}
+          // >
+          <div key={s.key} className="site-stat-card text-left transition-colors">
             <span className="site-stat-card-label">{s.label}</span>
             <div className="site-stat-card-value">
               {loading
@@ -354,7 +472,8 @@ export default function AllProducts() {
                 : s.value
               }
             </div>
-          </div>
+            </div>
+          // </button>
         ))}
       </div>
 
@@ -365,7 +484,16 @@ export default function AllProducts() {
             placeholder="Search by name or slug…" className="site-input" />
         </div>
 
-        <div className="flex gap-2 items-center flex-nowrap">
+        <div className="flex gap-2 items-center flex-nowrap flex-wrap sm:flex-nowrap">
+          <select
+            value={filterStatus}
+            onChange={e => { setFilterStatus(e.target.value as StatusFilter); setSelectedIds([]); }}
+            className="site-input" style={{ maxWidth: '140px', minWidth: '110px' }}>
+            {STATUS_FILTERS.map(f => (
+              <option key={f.value} value={f.value}>{f.label}</option>
+            ))}
+          </select>
+
           <select
             value={filterCatId === 'All' ? '' : String(filterCatId)}
             onChange={e => {
@@ -429,7 +557,7 @@ export default function AllProducts() {
 
         {/* ── Desktop table (hidden on mobile) ── */}
         <div className="hidden sm:block overflow-x-auto w-full" style={{ overflowY: 'hidden' }}>
-          <table className="site-table min-w-[750px]">
+          <table className="site-table min-w-[820px]">
             <thead>
               <tr>
                 <th className="py-3 pl-4 w-10">
@@ -456,7 +584,7 @@ export default function AllProducts() {
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="site-thumb site-thumb-md flex-shrink-0">
                           {p.imageUrl
-                            ? <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover"
+                            ? <img src={getCloudinaryUrl(p.imageUrl, 100)} alt={p.name} className="w-full h-full object-cover"
                                 onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                             : <span className="text-lg">📦</span>
                           }
@@ -475,12 +603,12 @@ export default function AllProducts() {
                     <td className="text-sm font-bold site-heading">₹{p.price.toLocaleString()}</td>
                     <td>
                       <span className={`text-sm font-semibold ${
-                        p.stockCount === 0      ? 'text-[var(--status-out-text)]'
-                        : p.stockCount <= 10    ? 'text-[var(--status-low-text)]'
+                        p.stockCount === 0           ? 'text-[var(--status-out-text)]'
+                        : p.stockCount <= LOW_STOCK_MAX ? 'text-[var(--status-low-text)]'
                         : 'site-heading'
                       }`}>
                         {p.stockCount}
-                        {p.stockCount > 0 && p.stockCount <= 10 && (
+                        {p.stockCount > 0 && p.stockCount <= LOW_STOCK_MAX && (
                           <span className="text-[10px] ml-1 font-bold text-[var(--status-out-text)]">LOW</span>
                         )}
                       </span>
@@ -498,10 +626,16 @@ export default function AllProducts() {
                       </span>
                     </td>
                     <td>
-                      <button className="site-btn site-btn-danger site-btn-sm"
-                        onClick={() => setDeleteTarget({ slug: p.slug, name: p.name })}>
-                        Delete
-                      </button>
+                      <div className="flex gap-1.5">
+                        <button className="site-btn site-btn-outline site-btn-sm"
+                          onClick={() => openEdit(p)}>
+                          Edit
+                        </button>
+                        <button className="site-btn site-btn-danger site-btn-sm"
+                          onClick={() => setDeleteTarget({ slug: p.slug, name: p.name })}>
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -564,10 +698,10 @@ export default function AllProducts() {
                       <DrawerField label="Stock">
                         <span className={
                           p.stockCount === 0 ? 'text-[var(--status-out-text)]'
-                          : p.stockCount <= 10 ? 'text-[var(--status-low-text)]' : ''
+                          : p.stockCount <= LOW_STOCK_MAX ? 'text-[var(--status-low-text)]' : ''
                         }>
                           {p.stockCount}
-                          {p.stockCount > 0 && p.stockCount <= 10 && (
+                          {p.stockCount > 0 && p.stockCount <= LOW_STOCK_MAX && (
                             <span className="text-[10px] ml-1">LOW</span>
                           )}
                         </span>
@@ -578,6 +712,10 @@ export default function AllProducts() {
                       <DrawerField label="Featured">{p.isFeatured ? '⭐ Yes' : '—'}</DrawerField>
                     </div>
                     <div className="flex gap-2 pt-1">
+                      <button className="site-btn site-btn-outline site-btn-sm flex-1"
+                        onClick={() => openEdit(p)}>
+                        Edit
+                      </button>
                       <button className="site-btn site-btn-danger site-btn-sm flex-1"
                         onClick={() => setDeleteTarget({ slug: p.slug, name: p.name })}>
                         Delete
@@ -649,7 +787,10 @@ export default function AllProducts() {
                     style={{ borderRadius: '1rem' }}>
 
                     <div className="relative">
-                      <CardImageSlider mainUrl={p.imageUrl ?? ''} extras={p.images ?? []} />
+                      <CardImageSlider
+                        mainUrl={getCloudinaryUrl(p.imageUrl, 400)}
+                        extras={(p.images ?? []).map(u => getCloudinaryUrl(u, 400))}
+                      />
                       <div className="absolute top-2 left-2 flex flex-col gap-1 z-10 pointer-events-none">
                         <span className={`site-badge site-badge--${status}`}>
                           <span className="site-badge-dot" />
@@ -663,7 +804,6 @@ export default function AllProducts() {
 
                     <div className="p-3 flex flex-col gap-1.5 flex-1">
                       <p className="text-sm font-semibold site-heading leading-snug line-clamp-2">{p.name}</p>
-                      {/* <p className="text-[10px] site-mono site-text-muted site-truncate">{p.slug}</p> */}
                       <div className="text-[10px]">
                         <SlugCell slug={p.slug} />
                       </div>
@@ -681,12 +821,12 @@ export default function AllProducts() {
 
                       <div className="flex items-center justify-between text-xs site-subtext">
                         <span className={`font-semibold ${
-                          p.stockCount === 0   ? 'text-[var(--status-out-text)]'
-                          : p.stockCount <= 9  ? 'text-[var(--status-low-text)]'
+                          p.stockCount === 0             ? 'text-[var(--status-out-text)]'
+                          : p.stockCount <= LOW_STOCK_MAX ? 'text-[var(--status-low-text)]'
                           : 'site-heading'
                         }`}>
                           Qty: {p.stockCount}
-                          {p.stockCount > 0 && p.stockCount <= 9 && (
+                          {p.stockCount > 0 && p.stockCount <= LOW_STOCK_MAX && (
                             <span className="text-[var(--status-out-text)] ml-1">LOW</span>
                           )}
                         </span>
@@ -695,10 +835,16 @@ export default function AllProducts() {
                         )}
                       </div>
 
-                      <button className="site-btn site-btn-danger site-btn-sm w-full mt-1"
-                        onClick={() => setDeleteTarget({ slug: p.slug, name: p.name })}>
-                        Delete
-                      </button>
+                      <div className="flex gap-1.5 mt-1">
+                        <button className="site-btn site-btn-outline site-btn-sm flex-1"
+                          onClick={() => openEdit(p)}>
+                          Edit
+                        </button>
+                        <button className="site-btn site-btn-danger site-btn-sm flex-1"
+                          onClick={() => setDeleteTarget({ slug: p.slug, name: p.name })}>
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -770,7 +916,7 @@ export default function AllProducts() {
                       {form.imageUrl && (
                         <div className="relative w-16 h-16 site-thumb shrink-0"
                           style={{ border: '1px solid var(--border-medium)' }}>
-                          <img src={form.imageUrl} alt="Main" className="w-full h-full object-cover" />
+                          <img src={getCloudinaryUrl(form.imageUrl, 200)} alt="Main" className="w-full h-full object-cover" />
                           <button type="button"
                             className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center hover:bg-red-600"
                             onClick={() => setForm(f => ({ ...f, imageUrl: '' }))}>✕</button>
@@ -892,14 +1038,14 @@ export default function AllProducts() {
 
                   <div className={`site-banner ${
                     !form.inStock || form.stockCount === 0 ? 'site-banner-error'
-                    : form.stockCount <= 10 ? ''
+                    : form.stockCount <= LOW_STOCK_MAX ? ''
                     : 'site-banner-success'
-                  }`} style={form.stockCount > 0 && form.stockCount <= 10
+                  }`} style={form.stockCount > 0 && form.stockCount <= LOW_STOCK_MAX
                     ? { backgroundColor: 'var(--status-low-bg)', border: '1px solid rgba(247,144,9,0.3)', color: 'var(--status-low-text)' }
                     : undefined}>
                     <p className="font-semibold text-sm">Status Preview</p>
                     <p className="text-sm">
-                      {!form.inStock || form.stockCount === 0 ? 'Out of Stock' : form.stockCount <= 10 ? 'Low Stock' : 'Active'}
+                      {!form.inStock || form.stockCount === 0 ? 'Out of Stock' : form.stockCount <= LOW_STOCK_MAX ? 'Low Stock' : 'Active'}
                     </p>
                   </div>
                 </div>
@@ -934,12 +1080,238 @@ export default function AllProducts() {
         document.body
       )}
 
+      {/* ── EDIT PRODUCT DIALOG (same layout as Add Product) ── */}
+      {editItem && editForm && createPortal(
+        <div className="site-modal-overlay">
+          <div className="site-modal">
+            <div className="site-modal-header">
+              <div>
+                <h2 className="h3 site-heading">Edit Product</h2>
+                <p className="text-xs site-mono site-subtext mt-0.5">{editItem.slug}</p>
+              </div>
+              <button className="site-btn-icon" onClick={closeEdit}>×</button>
+            </div>
+
+            <div className="site-tabs-underline shrink-0">
+              {([
+                { id: 'basic',     label: 'Basic',     desc: 'Name, slug, category' },
+                { id: 'pricing',   label: 'Pricing',   desc: 'Price, MRP'           },
+                { id: 'inventory', label: 'Inventory', desc: 'Stock, featured'      },
+              ] as const).map(tab => (
+                <button key={tab.id}
+                  className={`site-tab-underline ${editTab === tab.id ? 'site-tab-underline--active' : ''}`}
+                  onClick={() => setEditTab(tab.id)}>
+                  <div className="text-xs font-bold">{tab.label}</div>
+                  <div className="text-[10px] mt-0.5 hidden sm:block site-text-muted">{tab.desc}</div>
+                </button>
+              ))}
+            </div>
+
+            <div className="site-modal-body space-y-4">
+              {/* Basic Tab */}
+              {editTab === 'basic' && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="site-label">Product Name <span className="text-[var(--danger-solid)]">*</span></label>
+                    <input value={editForm.name} onChange={e => handleEditNameChange(e.target.value)}
+                      placeholder="e.g. Wireless Earbuds Pro" className="site-input" />
+                  </div>
+                  <div>
+                    <label className="site-label">Slug <span className="text-[var(--danger-solid)]">*</span></label>
+                    <input value={editForm.slug} onChange={e => updateEditField('slug', e.target.value)}
+                      placeholder="wireless-earbuds-pro" className="site-input site-input-mono" />
+                    <p className="text-[11px] mt-1 site-text-muted">⚠️ Changing slug will break existing links</p>
+                  </div>
+                  <CategorySelector storeUsername={storeUsername} selectedIds={editForm.categoryIds}
+                    onChange={ids => updateEditField('categoryIds', ids)} allowCreate required />
+                  <div>
+                    <label className="site-label">Tags <span className="font-normal text-xs site-text-muted">(comma separated)</span></label>
+                    <input value={editForm.tagsInput} onChange={e => updateEditField('tagsInput', e.target.value)}
+                      placeholder="wireless, earbuds" className="site-input" />
+                  </div>
+                  <div>
+                    <label className="site-label">Description</label>
+                    <textarea value={editForm.description}
+                      onChange={e => updateEditField('description', e.target.value)}
+                      placeholder="Describe your product…" rows={3} className="site-input" />
+                  </div>
+                  <div>
+                    <label className="site-label">Main Image</label>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <CloudinaryUploadWidget onUpload={handleEditMainImageUpload} />
+                      {editForm.imageUrl && (
+                        <div className="relative w-16 h-16 site-thumb shrink-0"
+                          style={{ border: '1px solid var(--border-medium)' }}>
+                          <img src={editForm.imageUrl} alt="Main" className="w-full h-full object-cover" />
+                          <button type="button"
+                            className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center hover:bg-red-600"
+                            onClick={() => updateEditField('imageUrl', '')}>✕</button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="site-label">
+                      Additional Images <span className="font-normal text-xs site-text-muted">({(editForm.images ?? []).length}/{MAX_ADDITIONAL_IMAGES})</span>
+                    </label>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      {(editForm.images ?? []).map((url, i) => (
+                        <div key={url} className="relative w-16 h-16 site-thumb shrink-0"
+                          style={{ border: '1px solid var(--border-medium)' }}>
+                          <img src={url} alt={`Extra ${i + 1}`} className="w-full h-full object-cover" />
+                          <button type="button"
+                            className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center hover:bg-red-600"
+                            onClick={() => removeEditAdditionalImage(i)}>✕</button>
+                        </div>
+                      ))}
+                      {(editForm.images ?? []).length < MAX_ADDITIONAL_IMAGES && (
+                        <CloudinaryUploadWidget onUpload={handleEditAdditionalImageUpload} />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Pricing Tab */}
+              {editTab === 'pricing' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="site-label">Selling Price <span className="text-[var(--danger-solid)]">*</span></label>
+                      <div className="site-input-prefix">
+                        <span className="site-input-prefix-icon">₹</span>
+                        <input type="number" min="0" value={editForm.price || ''}
+                          onChange={e => updateEditField('price', Number(e.target.value))}
+                          placeholder="0.00" className="site-input" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="site-label">MRP / Compare At</label>
+                      <div className="site-input-prefix">
+                        <span className="site-input-prefix-icon">₹</span>
+                        <input type="number" min="0" value={editForm.compareAtPrice || ''}
+                          onChange={e => updateEditField('compareAtPrice', Number(e.target.value))}
+                          placeholder="0.00" className="site-input" />
+                      </div>
+                    </div>
+                  </div>
+                  {editForm.compareAtPrice > editForm.price && editForm.price > 0 && (
+                    <div className="site-price-save">
+                      <span className="text-2xl">🎉</span>
+                      <div>
+                        <p className="font-bold">{Math.round((1 - editForm.price / editForm.compareAtPrice) * 100)}% OFF</p>
+                        <p className="text-xs font-normal site-text-muted">
+                          Customers save ₹{(editForm.compareAtPrice - editForm.price).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Inventory Tab */}
+              {editTab === 'inventory' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="site-label">Availability</label>
+                      <select value={editForm.inStock ? 'true' : 'false'}
+                        onChange={e => {
+                          const inStock = e.target.value === 'true';
+                          updateEditField('inStock', inStock);
+                          if (!inStock) updateEditField('stockCount', 0);
+                        }}
+                        className="site-input">
+                        <option value="true">In Stock</option>
+                        <option value="false">Out of Stock</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="site-label">
+                        Stock Count <span className="text-[var(--danger-solid)]">*</span>
+                      </label>
+                      <input
+                        type="number" min="0"
+                        value={editForm.inStock ? (editForm.stockCount || '') : 0}
+                        onChange={e => {
+                          if (editForm.inStock) updateEditField('stockCount', Number(e.target.value));
+                        }}
+                        disabled={!editForm.inStock}
+                        placeholder="0"
+                        className="site-input"
+                        style={!editForm.inStock ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
+                      />
+                      {!editForm.inStock && (
+                        <p className="text-[11px] mt-1 site-text-muted">Set availability to In Stock to edit</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="site-label">Featured / Sale Event</label>
+                    <div className={`site-toggle-wrap ${editForm.isFeatured ? 'site-toggle-wrap--on' : ''}`}
+                      onClick={() => updateEditField('isFeatured', !editForm.isFeatured)}>
+                      <div className={`site-toggle-track ${editForm.isFeatured ? 'site-toggle-track--on' : ''}`}>
+                        <span className="site-toggle-thumb" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className={`text-sm font-bold ${editForm.isFeatured ? 'text-[var(--featured-text)]' : 'site-heading'}`}>
+                          {editForm.isFeatured ? '⭐ Featured Product' : 'Not Featured'}
+                        </p>
+                        <p className="text-xs mt-0.5 site-text-muted">Flag for special occasions or sale campaigns</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={`site-banner ${
+                    !editForm.inStock || editForm.stockCount === 0 ? 'site-banner-error'
+                    : editForm.stockCount <= LOW_STOCK_MAX ? ''
+                    : 'site-banner-success'
+                  }`} style={editForm.stockCount > 0 && editForm.stockCount <= LOW_STOCK_MAX
+                    ? { backgroundColor: 'var(--status-low-bg)', border: '1px solid rgba(247,144,9,0.3)', color: 'var(--status-low-text)' }
+                    : undefined}>
+                    <p className="font-semibold text-sm">Status Preview</p>
+                    <p className="text-sm">
+                      {!editForm.inStock || editForm.stockCount === 0 ? 'Out of Stock' : editForm.stockCount <= LOW_STOCK_MAX ? 'Low Stock' : 'Active'}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {editError && (
+              <div className="site-banner site-banner-error mx-6 mb-0 shrink-0">
+                <span>⚠️ {editError}</span>
+                <button onClick={() => setEditError(null)} className="text-lg leading-none opacity-60 hover:opacity-100">×</button>
+              </div>
+            )}
+
+            <div className="site-modal-footer">
+              <div className="flex gap-2 mr-auto">
+                {editTab !== 'basic' && (
+                  <button className="site-btn site-btn-ghost site-btn-sm"
+                    onClick={() => setEditTab(editTab === 'inventory' ? 'pricing' : 'basic')}>← Back</button>
+                )}
+                {editTab !== 'inventory' && (
+                  <button className="site-btn site-btn-outline site-btn-sm"
+                    onClick={() => setEditTab(editTab === 'basic' ? 'pricing' : 'inventory')}>Next →</button>
+                )}
+              </div>
+              <button className="site-btn site-btn-ghost site-btn-sm" onClick={closeEdit}>Cancel</button>
+              <button className="site-btn site-btn-primary site-btn-sm" onClick={handleEditSave} disabled={editSaving}>
+                {editSaving ? <><span className="site-spinner" /> Saving…</> : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
       {/* ── DELETE CONFIRM ── */}
       {deleteTarget && createPortal(
         <div className="site-modal-overlay">
           <div className="site-modal site-modal-sm">
             <div className="site-modal-body text-center">
-              {/* <div className="text-4xl mb-3">🗑️</div> */}
               <h2 className="h3 site-heading mb-2">Delete Product?</h2>
               <p className="text-sm site-subtext mb-1">You are about to delete:</p>
               <p className="text-sm font-semibold site-heading mb-4">"{deleteTarget.name}"</p>

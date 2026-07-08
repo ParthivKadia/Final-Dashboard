@@ -1674,9 +1674,9 @@ a:hover .auth-logo-wrap {
   font-weight:    800;
   letter-spacing: -0.03em;
   line-height:    1;
-  background:     linear-gradient(135deg, #ffffff 0%, var(--brand-300) 100%);
+  /* background:     linear-gradient(135deg, #ffffff 0%, var(--brand-300) 100%); */
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  /* -webkit-text-fill-color: transparent; */
   background-clip: text;
 }
  
@@ -1695,7 +1695,7 @@ a:hover .auth-logo-wrap {
   font-weight:    700;
   line-height:    1.3;
   letter-spacing: -0.02em;
-  color:          #ffffff;
+  /* color:          #ffffff; */
   margin:         0;
 }
  

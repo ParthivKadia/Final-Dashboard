@@ -6,7 +6,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { updateStore } from "../../services/storeService";
 import { useAppStore } from "../../store/useAppStore";
 import type { Store, CreateStoreBody, StoreTheme } from "../../types/store";
-import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import CloudinaryUploadWidget from "../../ImageUpload";
 
@@ -205,7 +204,13 @@ export default function StoreProfile() {
   return (
     <div className="site-page site-page-padding">
       <PageMeta title="Store Profile | Storly Dashboard" description="Manage your store profile" />
-      <PageBreadcrumb pageTitle="Store Profile" />
+      <div className="flex items-center gap-3">
+          <button className="site-back-btn" onClick={() => navigate("/store")}>←</button>
+          <div>
+            <h1 className="site-page-title">Update Store Profile</h1>
+            <p className="site-page-subtitle">edit store details</p>
+          </div>
+        </div>
 
       <div className="space-y-5">
 

@@ -5,6 +5,7 @@ import React from "react";
 import GridShape from "../../components/common/GridShape";
 import { Link } from "react-router";
 import ThemeTogglerTwo from "../../components/common/ThemeTogglerTwo";
+import logo from "../../../public/images/brand/logo.png"
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -31,8 +32,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             {/* <Link to="/" className="flex flex-col items-center gap-3 group"> */}
               <div className="auth-logo-wrap">
                 <img
-                  src="/images/logo/Storly-Trasn.png"
-                  alt="Storly logo"
+                  src={logo}
+                  alt="Storely logo"
                   className="w-full h-full object-contain"
                 />
               </div>
@@ -56,8 +57,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <Link to="/" className="flex items-center gap-2">
             <div className="auth-logo-wrap-sm">
               <img
-                src="/images/logo/Storly-Trasn.png"
-                alt="Storly logo"
+                src={logo}
+                alt="Storely logo"
                 className="w-full h-full object-contain"
               />
             </div>

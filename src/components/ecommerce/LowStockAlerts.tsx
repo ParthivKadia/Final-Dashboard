@@ -5,9 +5,9 @@ import { useProductStore } from "../../store/useProductStore";
 import { useCategoryStore } from "../../store/useCategoryStore";
 import { getUrgency, LOW_STOCK_MAX, PAGE_SIZE, resolveCategory, Urgency } from "../../pages/Products/LowStock";
 
+
 // Constants 
 const PREVIEW_LIMIT = 5;
-
 const LowStockAlerts: React.FC = () => {
   const navigate = useNavigate();
 
@@ -179,6 +179,7 @@ const LowStockAlerts: React.FC = () => {
   // Main render
 
   return (
+
     <div className="site-card p-5">
 
       {/* Header */}
@@ -212,6 +213,7 @@ const LowStockAlerts: React.FC = () => {
           className="text-sm font-medium site-text-brand hover:underline shrink-0"
           onClick={() => navigate("/products/low-stock")}
         >
+
           Manage →
         </button>
       </div>
@@ -301,6 +303,7 @@ const LowStockAlerts: React.FC = () => {
           : `View ${warningCount} Low Stock Item${warningCount > 1 ? "s" : ""} →`
         }
       </button>
+
     </div>
   );
 };

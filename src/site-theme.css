@@ -1,27 +1,28 @@
 /* =============================================================================
    STORLY SITE THEME — Single source of truth
-   Primary: #1A56DB  |  White: #FFFFFF  |  Off-white: #F5F7FA
+   Recolored to match makeforme.in: Primary: #0D9488 (Teal)  |  Accent: #EC4899 → #F97316
+   (pink-orange gradient, used for hero/CTA moments)  |  White: #FFFFFF  |  Off-white: #FCFAF8
    Import AFTER tailwind in main CSS entry (index.css)
    ============================================================================= */
 
 /* ─── 1. DESIGN TOKENS — LIGHT MODE ────────────────────────────────────────── */
 :root {
   /* ── Raw brand palette ── */
-  --brand-50:   #eff7ff;
-  --brand-100:  #daecff;
-  --brand-200:  #bedeff;
-  --brand-300:  #91caff;
-  --brand-400:  #5eadfc;
-  --brand-500:  #388bf9;
-  --brand-600:  #226cee;
-  --brand-700:  #1a56db;   /* PRIMARY */
-  --brand-800:  #1c46b1;
-  --brand-900:  #1c3f8c;
-  --brand-950:  #162855;
+  --brand-50:   #f0fdfa;
+  --brand-100:  #ccfbf1;
+  --brand-200:  #99f6e4;
+  --brand-300:  #5eead4;
+  --brand-400:  #2dd4bf;
+  --brand-500:  #14b8a6;
+  --brand-600:  #10a697;
+  --brand-700:  #0d9488;   /* PRIMARY — teal, matches makeforme's Sign in / Follow buttons */
+  --brand-800:  #0f766e;
+  --brand-900:  #115e59;
+  --brand-950:  #042f2c;
 
   /* ── Raw neutrals ── */
   --white:          #ffffff;
-  --off-white:      #f5f7fa;
+  --off-white:      #fcfaf8;
   --gray-50:        #f9fafb;
   --gray-100:       #f2f4f7;
   --gray-200:       #e4e7ec;
@@ -33,6 +34,28 @@
   --gray-800:       #1d2939;
   --gray-900:       #101828;
 
+  /* ── Navbar / sidebar color tokens (light mode) ── */
+  --navbar-text:           var(--gray-600);           /* idle sidebar item text */
+  --navbar-text-hover:     var(--gray-900);           /* hovered sidebar item text */
+  --navbar-text-active:    var(--brand-700);          /* active sidebar item text */
+  --navbar-item-hover-bg:  rgba(13, 148, 136, 0.07); /* sidebar item hover bg */
+  --navbar-item-active-bg: rgba(13, 148, 136, 0.10); /* sidebar active item bg */
+  --navbar-section-label:  var(--gray-400);           /* "HOME", "MENU" labels */
+  --navbar-icon:           var(--gray-500);           /* hamburger / bell icons */
+  --navbar-icon-hover:     var(--gray-900);
+  --navbar-search-bg:      var(--white);
+  --navbar-search-border:  var(--gray-200);
+  --navbar-search-text:    var(--gray-900);
+  --navbar-search-placeholder: var(--gray-400);
+  --navbar-search-icon:    var(--gray-400);
+  --navbar-kbd-bg:         var(--gray-100);
+  --navbar-kbd-border:     var(--gray-200);
+  --navbar-kbd-text:       var(--gray-500);
+  --navbar-subtext:        var(--gray-500);           /* paragraph text inside sidebar widgets */
+  --navbar-subitem-text:   var(--gray-500);
+  --navbar-subitem-hover:  var(--gray-800);
+  --navbar-subitem-dot:    var(--gray-300);
+
   /* ── Semantic surface tokens ── */
   --page-bg:            var(--off-white);
   --surface-primary:    var(--white);
@@ -40,7 +63,7 @@
   --surface-tertiary:   var(--brand-50);
   --surface-elevated:   var(--white);
   --surface-hero:       var(--brand-700);
-  --surface-navbar:     var(--brand-950);
+  --surface-navbar:     var(--off-white);   /* light mode: same as page bg, text handled via --navbar-* tokens below */
 
   /* ── Semantic text tokens ── */
   --text-primary:   var(--gray-900);
@@ -51,9 +74,9 @@
   --text-on-brand:  var(--white);
 
   /* ── Semantic border tokens ── */
-  --border-subtle:   rgba(26, 86, 219, 0.10);
-  --border-medium:   rgba(26, 86, 219, 0.20);
-  --border-strong:   rgba(26, 86, 219, 0.35);
+  --border-subtle:   rgba(13, 148, 136, 0.10);
+  --border-medium:   rgba(13, 148, 136, 0.20);
+  --border-strong:   rgba(13, 148, 136, 0.35);
   --border-default:  var(--gray-200);
 
   /* ── Button tokens ── */
@@ -81,15 +104,15 @@
   --input-border-focus:  var(--brand-700);
   --input-text:          var(--text-primary);
   --input-placeholder:   var(--gray-400);
-  --input-ring:          rgba(26, 86, 219, 0.12);
+  --input-ring:          rgba(13, 148, 136, 0.12);
   --input-radius:        0.75rem;
 
   /* ── Card tokens ── */
   --card-bg:      var(--white);
   --card-border:  var(--border-subtle);
   --card-radius:  1rem;
-  --card-shadow:  0 1px 4px rgba(26, 86, 219, 0.06);
-  --card-shadow-hover: 0 12px 28px rgba(26, 86, 219, 0.13);
+  --card-shadow:  0 1px 4px rgba(13, 148, 136, 0.06);
+  --card-shadow-hover: 0 12px 28px rgba(13, 148, 136, 0.13);
 
   /* ── Status tokens ── */
   --status-active-bg:     rgba(18, 183, 106, 0.10);
@@ -101,8 +124,8 @@
   --status-out-bg:        rgba(240, 68, 56, 0.10);
   --status-out-text:      #b42318;
   --status-out-dot:       #f04438;
-  --status-featured-bg:   rgba(247, 144, 9, 0.10);
-  --status-featured-text: #b54708;
+  --status-featured-bg:   rgba(236, 72, 153, 0.10);
+  --status-featured-text: #be185d;
   --status-growth-bg:     rgba(18, 183, 106, 0.12);
   --status-growth-text:   #027a48;
 
@@ -120,9 +143,9 @@
   --progress-track:   var(--brand-50);
   --progress-fill:    linear-gradient(to right, var(--brand-700), #12b76a);
   --overlay-bg:       rgba(16, 24, 40, 0.70);
-  --featured-color:   #f79009;
-  --featured-bg:      rgba(247, 144, 9, 0.08);
-  --featured-text:    #b54708;
+  --featured-color:   #ec4899;
+  --featured-bg:      rgba(236, 72, 153, 0.08);
+  --featured-text:    #be185d;
 
   /* ── Shadows ── */
   --shadow-xs:  0 1px 2px rgba(16, 24, 40, 0.05);
@@ -140,19 +163,19 @@
   --surface-secondary: #1a2236;
   --surface-tertiary:  #1a2236;
   --surface-elevated:  #111827;
-  --surface-hero:      #1c3f8c;
+  --surface-hero:      #115e59;
   --surface-navbar:    #0b0f1a;
 
   --text-primary:   #f2f4f7;
   --text-secondary: #98a2b3;
   --text-muted:     #667085;
   --text-inverse:   #101828;
-  --text-brand:     #91caff;
+  --text-brand:     #5eead4;
   --text-on-brand:  #ffffff;
 
-  --border-subtle:   rgba(145, 202, 255, 0.10);
-  --border-medium:   rgba(145, 202, 255, 0.18);
-  --border-strong:   rgba(145, 202, 255, 0.30);
+  --border-subtle:   rgba(94, 234, 212, 0.10);
+  --border-medium:   rgba(94, 234, 212, 0.18);
+  --border-strong:   rgba(94, 234, 212, 0.30);
   --border-default:  rgba(255, 255, 255, 0.10);
 
   --btn-primary-bg:      var(--brand-700);
@@ -161,7 +184,7 @@
   --btn-ghost-hover:     var(--surface-tertiary);
   --btn-ghost-text:      var(--text-primary);
   --btn-ghost-border:    var(--border-medium);
-  --btn-outline-hover:   rgba(26, 86, 219, 0.15);
+  --btn-outline-hover:   rgba(13, 148, 136, 0.15);
   --btn-outline-text:    var(--brand-300);
   --btn-outline-border:  var(--brand-300);
   --btn-danger-bg:       rgba(240, 68, 56, 0.12);
@@ -196,8 +219,10 @@
 
   --progress-track:  rgba(255, 255, 255, 0.08);
   --overlay-bg:      rgba(0, 0, 0, 0.75);
-  --featured-bg:     rgba(247, 144, 9, 0.12);
-  --featured-text:   #fec84b;
+  --featured-bg:     rgba(236, 72, 153, 0.16);
+  --featured-text:   #f9a8d4;
+  --status-featured-bg:   rgba(236, 72, 153, 0.18);
+  --status-featured-text: #f9a8d4;
 
   --shadow-xs:  0 1px 2px rgba(0, 0, 0, 0.20);
   --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.30);
@@ -205,6 +230,28 @@
   --shadow-lg:  0 12px 16px rgba(0, 0, 0, 0.20);
   --shadow-xl:  0 20px 24px rgba(0, 0, 0, 0.22);
   --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.50);
+
+  /* ── Navbar / sidebar color tokens (dark mode) ── */
+  --navbar-text:           rgba(255, 255, 255, 0.55);
+  --navbar-text-hover:     rgba(255, 255, 255, 0.90);
+  --navbar-text-active:    #5eead4;
+  --navbar-item-hover-bg:  rgba(255, 255, 255, 0.07);
+  --navbar-item-active-bg: rgba(13, 148, 136, 0.22);
+  --navbar-section-label:  rgba(255, 255, 255, 0.25);
+  --navbar-icon:           rgba(255, 255, 255, 0.55);
+  --navbar-icon-hover:     rgba(255, 255, 255, 0.90);
+  --navbar-search-bg:      rgba(255, 255, 255, 0.06);
+  --navbar-search-border:  rgba(255, 255, 255, 0.12);
+  --navbar-search-text:    #ffffff;
+  --navbar-search-placeholder: rgba(255, 255, 255, 0.40);
+  --navbar-search-icon:    rgba(255, 255, 255, 0.40);
+  --navbar-kbd-bg:         rgba(255, 255, 255, 0.06);
+  --navbar-kbd-border:     rgba(255, 255, 255, 0.12);
+  --navbar-kbd-text:       rgba(255, 255, 255, 0.40);
+  --navbar-subtext:        rgba(255, 255, 255, 0.40);
+  --navbar-subitem-text:   rgba(255, 255, 255, 0.45);
+  --navbar-subitem-hover:  rgba(255, 255, 255, 0.85);
+  --navbar-subitem-dot:    rgba(255, 255, 255, 0.20);
 }
 
 /* ─── 3. BASE ELEMENT STYLES ────────────────────────────────────────────────── */
@@ -428,7 +475,7 @@ select.site-input {
 .site-btn-primary {
   background-color: var(--btn-primary-bg);
   color: var(--btn-primary-text);
-  box-shadow: 0 4px 12px rgba(26, 86, 219, 0.30);
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.30);
 }
 .site-btn-primary:hover:not(:disabled) {
   background-color: var(--btn-primary-hover);
@@ -557,7 +604,7 @@ select.site-input {
   white-space: nowrap;
 }
 .site-tab-underline:hover:not(.site-tab-underline--active) {
-  background-color: rgba(26, 86, 219, 0.04);
+  background-color: rgba(13, 148, 136, 0.04);
 }
 .site-tab-underline--active {
   color: var(--btn-primary-bg);
@@ -593,7 +640,7 @@ select.site-input {
 .site-badge--featured { background-color: var(--status-featured-bg); color: var(--status-featured-text); }
 .site-badge--growth   { background-color: var(--status-growth-bg);   color: var(--status-growth-text); }
 .site-badge--brand    { background-color: var(--brand-50);           color: var(--brand-800); }
-.dark .site-badge--brand { background-color: rgba(26,86,219,0.18);   color: var(--brand-300); }
+.dark .site-badge--brand { background-color: rgba(13,148,136,0.18);   color: var(--brand-300); }
 
 /* ─── 11. TABLE COMPONENT ───────────────────────────────────────────────────── */
 
@@ -613,7 +660,7 @@ select.site-input {
   color: var(--text-secondary);
 }
 .site-table tbody tr {
-  border-bottom: 1px solid rgba(26, 86, 219, 0.06);
+  border-bottom: 1px solid rgba(13, 148, 136, 0.06);
   transition: background-color 0.15s;
 }
 .site-table tbody tr:last-child { border-bottom: none; }
@@ -725,7 +772,7 @@ select.site-input {
   color: var(--brand-800);
 }
 .dark .site-banner-info {
-  background-color: rgba(26,86,219,0.12);
+  background-color: rgba(13,148,136,0.12);
   color: var(--brand-200);
 }
 
@@ -840,7 +887,7 @@ select.site-input {
   transition: background-color 0.15s;
 }
 .site-dropdown-item:hover { background-color: var(--surface-secondary); }
-.site-dropdown-item--active { background-color: rgba(26, 86, 219, 0.08); }
+.site-dropdown-item--active { background-color: rgba(13, 148, 136, 0.08); }
 .site-dropdown-label {
   font-size: 0.6875rem;
   font-weight: 700;
@@ -916,7 +963,7 @@ select.site-input {
 }
 .site-upload-zone--active {
   border-color: var(--btn-primary-bg);
-  background-color: rgba(26, 86, 219, 0.06);
+  background-color: rgba(13, 148, 136, 0.06);
 }
 
 /* ─── 22. IMAGE / THUMBNAIL ─────────────────────────────────────────────────── */
@@ -1042,7 +1089,7 @@ select.site-input {
 /* ─── 29. NAVBAR / SIDEBAR TOKENS ───────────────────────────────────────────── */
 
 .site-navbar { background-color: var(--surface-navbar); color: var(--text-inverse); }
-.site-sidebar { background-color: var(--surface-primary); border-right: 1px solid var(--border-subtle); }
+.site-sidebar { background-color: var(--surface-navbar); border-right: 1px solid var(--border-default); }
 
 /* ─── 30. FEATURED / SALE EVENT ─────────────────────────────────────────────── */
 
@@ -1070,7 +1117,7 @@ select.site-input {
   color: var(--brand-800);
 }
 .dark .site-discount-chip {
-  background-color: rgba(26,86,219,0.2);
+  background-color: rgba(13,148,136,0.2);
   color: var(--brand-300);
 }
 
@@ -1259,14 +1306,14 @@ select.site-input {
   justify-content: center !important;
   padding: 0 !important;
   line-height: 0 !important;
-  color: rgba(255, 255, 255, 0.55);
-  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--navbar-icon);
+  border-color: var(--navbar-search-border);
   background-color: transparent;
   transition: background-color 0.15s;
 }
 .header-icon-btn:hover {
-  background-color: rgba(255, 255, 255, 0.07);
-  color: rgba(255, 255, 255, 0.85);
+  background-color: var(--navbar-item-hover-bg);
+  color: var(--navbar-icon-hover);
 }
 .header-icon-btn svg {
   display: block;
@@ -1275,30 +1322,30 @@ select.site-input {
  
 /* Search bar in the navbar */
 .header-search-input {
-  background-color: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
+  background-color: var(--navbar-search-bg);
+  border-color: var(--navbar-search-border);
+  color: var(--navbar-search-text);
 }
 .header-search-input::placeholder {
-  color: rgba(255, 255, 255, 0.40);
+  color: var(--navbar-search-placeholder);
 }
 .header-search-input:focus {
   border-color: var(--brand-400);
   background-color: rgba(255, 255, 255, 0.09);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.20);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.20);
 }
  
 /* Search icon inside the navbar input */
 .header-search-icon {
-  color: rgba(255, 255, 255, 0.40);
+  color: var(--navbar-search-icon);
 }
  
 /* ⌘K keyboard shortcut badge */
 .header-search-kbd {
-  border-color: rgba(255, 255, 255, 0.12);
-  background-color: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.40);
+  border-color: var(--navbar-kbd-border);
+  background-color: var(--navbar-kbd-bg);
+  color: var(--navbar-kbd-text);
   cursor: default;
 }
  
@@ -1330,16 +1377,16 @@ select.site-input {
    transparent + white-ish colours regardless of light/dark mode. */
 .site-navbar .site-theme-toggle,
 .site-navbar .notif-bell {
-  background-color: transparent                !important;
-  border-color:     rgba(255, 255, 255, 0.14)  !important;
-  color:            rgba(255, 255, 255, 0.60)  !important;
+  background-color: transparent                    !important;
+  border-color:     var(--navbar-search-border)    !important;
+  color:            var(--navbar-icon)             !important;
   transform:        none !important;
 }
 .site-navbar .site-theme-toggle:hover,
 .site-navbar .notif-bell:hover {
-  background-color: rgba(255, 255, 255, 0.08) !important;
-  border-color:     rgba(255, 255, 255, 0.22) !important;
-  color:            rgba(255, 255, 255, 0.90) !important;
+  background-color: var(--navbar-item-hover-bg)    !important;
+  border-color:     var(--navbar-search-border)    !important;
+  color:            var(--navbar-icon-hover)       !important;
   transform:        none !important;
 }
  
@@ -1410,23 +1457,23 @@ select.site-input {
   cursor: pointer;
   border: none;
   background-color: transparent;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--navbar-text);
   transition: background-color 0.15s, color 0.15s;
   text-decoration: none;
   width: 100%;
   text-align: left;
 }
 .sidebar-item:hover {
-  background-color: rgba(255, 255, 255, 0.07);
-  color: rgba(255, 255, 255, 0.90);
+  background-color: var(--navbar-item-hover-bg);
+  color: var(--navbar-text-hover);
 }
 .sidebar-item--active {
-  background-color: rgba(26, 86, 219, 0.22);
-  color: #91caff;
+  background-color: var(--navbar-item-active-bg);
+  color: var(--navbar-text-active);
 }
 .sidebar-item--active:hover {
-  background-color: rgba(26, 86, 219, 0.28);
-  color: #91caff;
+  background-color: var(--navbar-item-active-bg);
+  color: var(--navbar-text-active);
 }
 
 .sidebar-item-label {
@@ -1445,20 +1492,20 @@ select.site-input {
   font-size: 0.8125rem;
   font-weight: 400;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--navbar-subitem-text);
   transition: background-color 0.15s, color 0.15s;
   text-decoration: none;
 }
 .sidebar-subitem:hover {
-  background-color: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.85);
+  background-color: var(--navbar-item-hover-bg);
+  color: var(--navbar-subitem-hover);
 }
 .sidebar-subitem--active {
-  color: #91caff;
+  color: var(--navbar-text-active);
   font-weight: 500;
 }
 .sidebar-subitem--active:hover {
-  background-color: rgba(26, 86, 219, 0.15);
+  background-color: var(--navbar-item-hover-bg);
 }
 
 .sidebar-subitem-dot {
@@ -1466,7 +1513,7 @@ select.site-input {
   height: 0.375rem;
   border-radius: 9999px;
   flex-shrink: 0;
-  background-color: rgba(255, 255, 255, 0.20);
+  background-color: var(--navbar-subitem-dot);
   transition: background-color 0.15s;
 }
 .sidebar-subitem-dot--active {
@@ -1479,7 +1526,7 @@ select.site-input {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: rgba(255, 255, 255, 0.25);
+  color: var(--navbar-section-label);
   padding: 0 0.75rem;
   margin-bottom: 0.375rem;
 }
@@ -1487,7 +1534,7 @@ select.site-input {
 /* ─── 47b. SIDEBAR SECTION LABELS — always on navy bg ──────────────────────── */
 
 .site-navbar h2 {
-  color: rgb(255, 255, 255) !important;
+  color: var(--navbar-section-label) !important;
   font-size: 0.6875rem;
   font-weight: 700;
   display: flex;
@@ -1544,7 +1591,7 @@ select.site-input {
 .site-layout-toggle-btn--active {
   background-color: var(--card-bg);
   color:            var(--btn-primary-bg);
-  box-shadow:       0 1px 3px rgba(26, 86, 219, 0.12), 0 1px 2px rgba(0,0,0,0.06);
+  box-shadow:       0 1px 3px rgba(13, 148, 136, 0.12), 0 1px 2px rgba(0,0,0,0.06);
 }
  
 /* Dark mode — active pill gets a subtle brand glow */
@@ -1578,7 +1625,7 @@ select.site-input {
   inset: 0;
   background: radial-gradient(
     ellipse 60% 50% at 50% 45%,
-    rgba(26, 86, 219, 0.25) 0%,
+    rgba(255, 255, 255, 0.15) 0%,
     transparent 70%
   );
   pointer-events: none;
@@ -1602,8 +1649,8 @@ select.site-input {
 }
 .auth-logo-wrap:hover,
 a:hover .auth-logo-wrap {
-  background-color: rgba(26, 86, 219, 0.30);
-  border-color:     rgba(26, 86, 219, 0.55);
+  background-color: rgba(13, 148, 136, 0.30);
+  border-color:     rgba(13, 148, 136, 0.55);
 }
  
 /* ── Logo mark (mobile bar) — 30px ── */
@@ -1814,7 +1861,7 @@ a:hover .auth-logo-wrap {
 }
 
 .dark .orders-row--selected {
-  background-color: rgba(26, 86, 219, 0.12) !important;
+  background-color: rgba(13, 148, 136, 0.12) !important;
 }
 
 /* Order ID link style */
@@ -1867,7 +1914,7 @@ a:hover .auth-logo-wrap {
 .dark .order-status--pending    { background-color: rgba(249, 115, 22, 0.15); color: #fb923c; }
 .dark .order-status--pending    .site-badge-dot { background-color: #fb923c; }
 
-.dark .order-status--processing { background-color: rgba(26, 86, 219, 0.18); color: var(--brand-300); }
+.dark .order-status--processing { background-color: rgba(13, 148, 136, 0.18); color: var(--brand-300); }
 .dark .order-status--processing .site-badge-dot { background-color: var(--brand-400); }
 
 .dark .order-status--shipped    { background-color: rgba(8, 145, 178, 0.18); color: #22d3ee; }
@@ -1893,7 +1940,7 @@ a:hover .auth-logo-wrap {
 /* Dark mode overrides */
 .dark .payment-status--paid     { background-color: var(--status-active-bg); color: var(--status-active-text); }
 .dark .payment-status--pending  { background-color: var(--status-low-bg);    color: var(--status-low-text); }
-.dark .payment-status--refunded { background-color: rgba(26, 86, 219, 0.18); color: var(--brand-300); }
+.dark .payment-status--refunded { background-color: rgba(13, 148, 136, 0.18); color: var(--brand-300); }
 .dark .payment-status--failed   { background-color: var(--status-out-bg);    color: var(--status-out-text); }
 
 /* ── Mobile card list ── */
@@ -1918,7 +1965,7 @@ a:hover .auth-logo-wrap {
 }
 
 .dark .orders-mobile-card--selected {
-  background-color: rgba(26, 86, 219, 0.12);
+  background-color: rgba(13, 148, 136, 0.12);
 }
 
 .orders-mobile-top {
@@ -2114,7 +2161,7 @@ a:hover .auth-logo-wrap {
 .cust-type--vip    { background-color: rgba(147, 51, 234, 0.10);     color: #9333ea; }
  
 /* Dark mode */
-.dark .cust-type--new    { background-color: rgba(26, 86, 219, 0.18);  color: var(--brand-300); }
+.dark .cust-type--new    { background-color: rgba(13, 148, 136, 0.18);  color: var(--brand-300); }
 .dark .cust-type--repeat { background-color: var(--status-active-bg);  color: var(--status-active-text); }
 .dark .cust-type--vip    { background-color: rgba(147, 51, 234, 0.18); color: #c084fc; }
  
@@ -2128,7 +2175,7 @@ a:hover .auth-logo-wrap {
  
 /* Dark mode */
 .dark .cust-rating--excellent { background-color: var(--status-active-bg); color: var(--status-active-text); }
-.dark .cust-rating--good      { background-color: rgba(26, 86, 219, 0.18); color: var(--brand-300); }
+.dark .cust-rating--good      { background-color: rgba(13, 148, 136, 0.18); color: var(--brand-300); }
 .dark .cust-rating--average   { background-color: var(--status-low-bg);    color: var(--status-low-text); }
 .dark .cust-rating--low       { background-color: var(--status-out-bg);    color: var(--status-out-text); }
  
@@ -2610,42 +2657,53 @@ a:hover .auth-logo-wrap {
   }
 }
 
-/* ─── 55. DASHBOARD COMPONENTS ──────────────────────────────────────────────── */
- 
-/* ── Recharts tooltip override — respects dark/light bg ── */
-.recharts-tooltip-wrapper .recharts-default-tooltip {
-  background-color: var(--card-bg) !important;
-  border: 1px solid var(--border-subtle) !important;
-  border-radius: 8px !important;
-  color: var(--text-primary) !important;
-  font-size: 12px !important;
+/* ─── 55. GRADIENT CTA BUTTON & "POPULAR" PILL (makeforme-style accent) ─────
+   Reserved for hero / highest-emphasis calls to action — mirrors the
+   pink-to-orange pill buttons used on makeforme ("Setup your store for
+   free", "Claim store"). Use sparingly: one per screen, for the single
+   most important action.
+
+   HTML pattern:
+     <button class="site-btn-cta">Claim store</button>
+     <span class="site-badge site-badge--popular">MOST POPULAR</span>
+   ──────────────────────────────────────────────────────────────────────── */
+
+.site-btn-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  border: none;
+  padding: 0.75rem 1.75rem;
+  line-height: 1;
+  color: #ffffff;
+  background: linear-gradient(135deg, #ec4899 0%, #f97316 100%);
+  box-shadow: 0 8px 20px rgba(236, 72, 153, 0.35);
+  white-space: nowrap;
+  text-decoration: none;
+  transition: box-shadow 0.2s ease, transform 0.1s ease, filter 0.2s ease;
 }
-.recharts-tooltip-item { color: var(--text-primary) !important; }
-.recharts-tooltip-label { color: var(--text-secondary) !important; }
- 
-/* ── Recharts axis ticks ── */
-.recharts-cartesian-axis-tick text {
-  fill: var(--text-muted) !important;
+.site-btn-cta:hover:not(:disabled) {
+  box-shadow: 0 10px 26px rgba(236, 72, 153, 0.45);
+  filter: brightness(1.05);
 }
- 
-/* ── RecentOrdersCard filter tab active state ── */
-.dash-tab--active {
-  background-color: var(--brand-50);
-  color: var(--text-brand);
+.site-btn-cta:active:not(:disabled) { transform: scale(0.98); }
+.site-btn-cta:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+
+.site-btn-cta-lg { padding: 0.875rem 2.25rem; font-size: 1.0625rem; }
+.site-btn-cta-sm { padding: 0.5rem 1.25rem;  font-size: 0.8125rem; }
+
+/* "MOST POPULAR" style solid pink pill — pairs with .site-badge */
+.site-badge--popular {
+  background-color: #ec4899;
+  color: #ffffff;
 }
-.dark .dash-tab--active {
-  background-color: rgba(26, 86, 219, 0.18);
-  color: var(--brand-300);
-}
- 
-/* ── StatCards responsive ── */
-@media (max-width: 768px) {
-  .dash-stat-cards-grid {
-    grid-template-columns: 1fr !important;
-  }
-}
- 
-/* ── LowStockAlerts restock button dark mode ── */
-.dark .dash-restock-btn {
-  opacity: 0.92;
+
+.dark .site-badge--popular {
+  background-color: #db2777;
+  color: #ffffff;
 }

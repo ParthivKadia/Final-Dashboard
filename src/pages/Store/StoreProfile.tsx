@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { updateStore } from "../../services/storeService";
 import { useAppStore } from "../../store/useAppStore";
-import type { Store, CreateStoreBody } from "../../types/store";
+import type { Store, CreateStoreBody, StoreTheme } from "../../types/store";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import CloudinaryUploadWidget from "../../ImageUpload";
@@ -28,6 +28,11 @@ const SOCIAL_FIELDS = [
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function formatTheme(themeId: string | undefined) {
+  if (!themeId) return "—";
+  return THEMES.find(t => t.id === themeId)?.label ?? themeId.replace(/_/g, " ");
+}
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-IN", {
@@ -151,7 +156,7 @@ export default function StoreProfile() {
       const updated: Store = {
         ...activeStore, ...response.data,
         name: draft.name, bio: draft.bio,
-        logoUrl: draft.logoUrl, bannerUrl: draft.bannerUrl, theme: draft.theme,
+        logoUrl: draft.logoUrl, bannerUrl: draft.bannerUrl, theme: draft.theme as StoreTheme,
         socialLinks: { instagram: draft.instagram, whatsapp: draft.whatsapp, facebook: draft.facebook, twitter: draft.twitter },
       };
       setLocalActive(updated); setDraft(storeToDraft(updated));
@@ -332,7 +337,7 @@ export default function StoreProfile() {
                       })}
                     </div>
                   ) : (
-                    <ReadonlyField value={activeStore.theme?.replace(/_/g, " ") ?? "—"} />
+                    <ReadonlyField value={formatTheme(activeStore.theme)} />
                   )}
                 </Field>
 
@@ -500,7 +505,7 @@ export default function StoreProfile() {
               <div>
                 <SideRow label="Store ID"  value={activeStore.id.slice(0, 8) + "…"} />
                 <SideRow label="Username"  value={activeStore.username} />
-                <SideRow label="Theme"     value={activeStore.theme?.replace(/_/g, " ") ?? "—"} />
+                <SideRow label="Theme" value={formatTheme(activeStore.theme)} />
                 <SideRow label="Created"   value={formatDate(activeStore.createdAt)} />
               </div>
             </div>

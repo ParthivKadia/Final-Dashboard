@@ -11,6 +11,7 @@ import Register from "./pages/AuthPages/Register";
 import CreateStore from "./pages/Store/CreateStore";
 import StoreProfile from "./pages/Store/StoreProfile";
 import Workflow from "./pages/Onboarding/Workflow";
+import CreateStorePolicy from "./pages/StorePolicy/CreateStorePolicy";
 
 // Lazy load everything else
 const Home = lazy(() => import("./pages/Dashboard/Home"));
@@ -72,6 +73,9 @@ export default function App() {
 
             {/* Categories */}
             <Route path="/categories" element={<Categories />} />
+
+            {/* Policy */}
+            <Route path="/policy" element={<CreateStorePolicy />} />
 
             {/* Orders */}
             <Route path="/orders" element={<AllOrders />} />

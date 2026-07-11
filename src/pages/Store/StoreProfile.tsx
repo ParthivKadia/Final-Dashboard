@@ -8,6 +8,7 @@ import { useAppStore } from "../../store/useAppStore";
 import type { Store, CreateStoreBody, StoreTheme } from "../../types/store";
 import PageMeta from "../../components/common/PageMeta";
 import CloudinaryUploadWidget from "../../ImageUpload";
+import { toast } from "sonner";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -150,8 +151,17 @@ export default function StoreProfile() {
       logoUrl: draft.logoUrl, bannerUrl: draft.bannerUrl, theme: draft.theme,
       socialLinks: { instagram: draft.instagram, whatsapp: draft.whatsapp, facebook: draft.facebook, twitter: draft.twitter },
     };
+  
     try {
-      const response = await updateStore(activeStore.username, body);
+      const response = await toast.promise(
+        updateStore(activeStore.username, body),
+        {
+          loading: "Saving changes…",
+          success: `"${draft.name}" saved`,
+          error: (err: any) => err?.data?.message || err?.message || "Failed to save changes.",
+        }
+      ).unwrap();
+  
       const updated: Store = {
         ...activeStore, ...response.data,
         name: draft.name, bio: draft.bio,
@@ -161,8 +171,10 @@ export default function StoreProfile() {
       setLocalActive(updated); setDraft(storeToDraft(updated));
       updateStoreInList(updated); setIsEditing(false);
     } catch (err: any) {
-      setSaveError(err?.message || "Failed to save changes.");
-    } finally { setSaving(false); }
+      setSaveError(err?.data?.message || err?.message || "Failed to save changes.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const updateDraft = (field: keyof DraftStore, value: string) =>

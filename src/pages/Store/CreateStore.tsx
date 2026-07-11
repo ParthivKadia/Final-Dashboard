@@ -5,8 +5,7 @@ import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { createStore } from "../../services/storeService";
 import CloudinaryUploadWidget from "../../ImageUpload";
-import { useApiError } from "../../hooks/useApiError";
-import ErrorToast from "../Error/ErrorToast";
+import { toast } from "sonner";
 
 const THEMES = [
   { id: "MINIMAL_LIGHT", label: "Minimal Light", desc: "Clean & airy",       icon: "☀️" },
@@ -40,7 +39,8 @@ export default function CreateStore() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"basic" | "appearance" | "social">("basic");
   const [saving, setSaving]       = useState(false);
-  const { error, handleError, clearError } = useApiError();
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  // const { error, handleError, clearError } = useApiError();
 
   const [form, setForm] = useState<FormData>({
     username: "", name: "", bio: "", logoUrl: "", bannerUrl: "",
@@ -50,7 +50,7 @@ export default function CreateStore() {
 
   const update = (field: keyof FormData, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }));
-    clearError();
+    // clearError();
   };
 
   const handleLogoUpload   = useCallback((url: string) => setForm(p => ({ ...p, logoUrl:   url })), []);
@@ -58,10 +58,12 @@ export default function CreateStore() {
 
   const handleSubmit = async () => {
     if (!form.username || !form.name) {
-      handleError(new Error("Store username and name are required."));
+      toast.error("Store username and name are required.");
+      if (!form.username) setActiveTab("basic");
       return;
     }
-    setSaving(true); clearError();
+    setSaving(true);
+    setUsernameError(null);
     try {
       await createStore({
         username:    form.username,
@@ -77,9 +79,17 @@ export default function CreateStore() {
           twitter:   form.twitter,
         },
       });
+      toast.success(`"${form.name}" is live 🎉`);
       navigate("/");
     } catch (err: any) {
-      handleError(err);
+      // This is exactly your "name already taken" case from earlier —
+      // toast it directly using the server's message.
+      const msg = err?.data?.message || err?.message || "Failed to create store.";
+      toast.error(msg);
+      if (msg.toLowerCase().includes("username") || msg.toLowerCase().includes("taken")) {
+        setUsernameError(msg);
+        setActiveTab("basic"); // jump them back to the field even if they're on Appearance/Social tab
+      }
     } finally {
       setSaving(false);
     }
@@ -117,7 +127,7 @@ export default function CreateStore() {
       </div>
 
       {/* ── Error Banner ── */}
-      <ErrorToast error={error} onDismiss={clearError} />
+      {/* <ErrorToast error={error} onDismiss={clearError} /> */}
 
       {/* ── Two-column layout ── */}
       <div className="flex flex-col lg:flex-row gap-5">
@@ -149,18 +159,28 @@ export default function CreateStore() {
                     Store Username <span className="text-[var(--danger-solid)]">*</span>
                   </label>
                   <div className="site-input-prefix">
-                    <span className="site-input-prefix-icon" style={{ fontSize: "0.75rem", left: "0.875rem", whiteSpace: "nowrap", width: "auto" }}>
+                    <span
+                      className="site-input-prefix-icon"
+                      style={{ fontSize: "0.75rem", left: "0.875rem", whiteSpace: "nowrap", width: "auto" }}
+                    >
                       storly.co.in/
                     </span>
                     <input
                       value={form.username}
-                      onChange={e => update("username", e.target.value.toLowerCase().replace(/\s+/g, ""))}
+                      onChange={e => {
+                        update("username", e.target.value.toLowerCase().replace(/\s+/g, ""));
+                        setUsernameError(null);
+                      }}
                       placeholder="yourstore"
-                      className="site-input site-input-mono"
+                      className={`site-input site-input-mono ${usernameError ? "border-red-500" : ""}`}
                       style={{ paddingLeft: "6.5rem" }}
                     />
                   </div>
-                  <p className="text-xs site-text-muted mt-1">Lowercase letters, numbers, and hyphens only</p>
+                  {usernameError ? (
+                    <p className="text-xs mt-1" style={{ color: "var(--danger-text)" }}>{usernameError}</p>
+                  ) : (
+                    <p className="text-xs site-text-muted mt-1">Lowercase letters, numbers, and hyphens only</p>
+                  )}
                 </div>
 
                 {/* Store Name */}

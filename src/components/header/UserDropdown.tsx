@@ -41,7 +41,7 @@ export default function UserDropdown() {
     <div className="relative">
       <button
         onClick={toggleDropdown}
-        className="flex items-center text-gray-700 dropdown-toggle"
+        className="flex items-center  dropdown-toggle"
       >
         <span className="mr-3 h-11 w-11 rounded-full overflow-hidden shrink-0">
           <img
@@ -51,7 +51,7 @@ export default function UserDropdown() {
           />
         </span>
 
-        <span className="block mr-1 font-medium text-theme-sm ">{user?.name ?? "No Username"}</span>
+        <span className="block mr-1 font-medium text-theme-sm text-gray-700 dark:text-gray-400 ">{user?.name ?? "No Username"}</span>
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""

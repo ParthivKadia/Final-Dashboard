@@ -1,5 +1,4 @@
 // src/pages/Products/Categories.tsx
-// All colours/surfaces come from site-theme.css — zero hardcoded hex or Tailwind colour classes.
 
 import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
@@ -19,6 +18,7 @@ import CloudinaryUploadWidget from '../../ImageUpload';
 import { generateSlug } from '../../utils/slug';
 import { SlugCell } from './AllProducts';
 import { MobileDrawerRow, DrawerField } from '../../components/common/MobileDrawer';
+import { toast } from 'sonner';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -116,11 +116,19 @@ function CategoryDialog({
         parentId:     form.parentId,
         displayOrder: resolvedOrder,
       };
-      if (mode === 'create') await createCategories(storeUsername, body);
-      else if (initial)      await updateCategories(initial.id, body);
+      await toast.promise(
+        mode === 'create'
+          ? createCategories(storeUsername, body)
+          : updateCategories(initial!.id, body),
+        {
+          loading: mode === 'create' ? 'Creating category…' : 'Saving changes…',
+          success: mode === 'create' ? `"${form.name}" created` : `"${form.name}" updated`,
+          error: (err: any) => err?.message || `Failed to ${mode}.`,
+        }
+      ).unwrap();
       onSuccess();
     } catch (err: any) {
-      setError(err?.message || `Failed to ${mode}.`);
+      setError(err?.message || `Failed to ${mode}.`); // stays inline — dialog is still open
       setSaving(false);
     }
   };
@@ -653,14 +661,26 @@ export default function Categories() {
     if (!toggleTarget) return;
     setToggling(true); setActionError(null);
     try {
-      if (toggleTarget.type === 'activate') await activateCategories(toggleTarget.category.id);
-      else                                  await deactivateCategories(toggleTarget.category.id);
+      await toast.promise(
+        toggleTarget.type === 'activate'
+          ? activateCategories(toggleTarget.category.id)
+          : deactivateCategories(toggleTarget.category.id),
+        {
+          loading: toggleTarget.type === 'activate' ? 'Activating…' : 'Deactivating…',
+          success: toggleTarget.type === 'activate'
+            ? `"${toggleTarget.category.name}" activated`
+            : `"${toggleTarget.category.name}" deactivated`,
+          error: (err: any) => err?.message || `Failed to ${toggleTarget.type}.`,
+        }
+      ).unwrap();
       invalidate(storeUsername);
       setToggleTarget(null);
       await load(true);
     } catch (err: any) {
-      setActionError(err?.message || `Failed to ${toggleTarget.type}.`);
-    } finally { setToggling(false); }
+      setToggleTarget(null); // close confirm modal — toast already carries the message
+    } finally {
+      setToggling(false);
+    }
   };
 
   const sortedCategories = sortByDisplayOrder(categories);

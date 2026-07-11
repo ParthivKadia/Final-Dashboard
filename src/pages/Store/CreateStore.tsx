@@ -5,8 +5,6 @@ import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { createStore } from "../../services/storeService";
 import CloudinaryUploadWidget from "../../ImageUpload";
-import { useApiError } from "../../hooks/useApiError";
-// import ErrorToast from "../Error/ErrorToast";
 import { toast } from "sonner";
 
 const THEMES = [

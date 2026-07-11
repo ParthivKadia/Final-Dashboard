@@ -15,48 +15,12 @@ const SettingsIcon = () => (<svg className="h-6 w-6" viewBox="0 0 24 24" fill="n
 // ── Flat top-level menu — each item is a single page that contains ──
 // ── all of its previous sub-section functionality internally (tabs/pills/modals) ──
 const menuItems: MenuItem[] = [
-<<<<<<< HEAD
   { name: "Dashboard",  icon: <GridIcon />,        path: "/" },
   { name: "Products",   icon: <BoxCubeIcon />,     path: "/products" },
   { name: "Categories", icon: <BoxCubeIcon />,     path: "/categories" },
   { name: "Orders",     icon: <OrdersIcon />,       path: "/orders" },
   { name: "Store",      icon: <StoreIcon />,        path: "/store" },
   { name: "Settings",   icon: <SettingsIcon />,     path: "/settings" },
-=======
-  { name: "Dashboard", icon: <GridIcon />, path: "/" },
-  { name: "Products", icon: <BoxCubeIcon />, subItems: [
-    { name: "All Products", path: "/products" }, { name: "Add Product", path: "/products/add" },
-    { name: "Categories", path: "/products/categories" }, { name: "Inventory", path: "/products/inventory" },
-    { name: "Low Stock", path: "/products/low-stock" },
-  ]},
-  { name: "Orders", icon: <OrdersIcon />, subItems: [
-    { name: "All Orders", path: "/orders" }, { name: "Pending Orders", path: "/orders/pending" },
-    { name: "Processing Orders", path: "/orders/processing" }, { name: "Shipped Orders", path: "/orders/shipped" },
-    { name: "Delivered Orders", path: "/orders/delivered" }, { name: "Cancelled Orders", path: "/orders/cancelled" },
-    { name: "Returned Orders", path: "/orders/returned" },
-  ]},
-  // { name: "Customers", icon: <UserCircleIcon />, subItems: [
-    // { name: "All Customers", path: "/customers" }, { name: "Customer Review", path: "/customers/review" },
-    // { name: "Messages", path: "/customers/messages" },
-  // ]},
-  // { name: "Analytics", icon: <AnalyticsIcon />, subItems: [
-  //   { name: "Sales Analytics", path: "/analytics/sales-analytics" },
-  //   { name: "Top Products", path: "/analytics/top-products" }, { name: "Revenue Report", path: "/analytics/revenue" },
-  // ]},
-  // { name: "Marketing", icon: <MarketingIcon />, subItems: [
-  //   { name: "Coupons", path: "/marketing/coupons" }, { name: "Campaigns", path: "/marketing/campaigns" },
-  //   { name: "Discount", path: "/marketing/discounts" }, { name: "Email Marketing", path: "/marketing/email" },
-  // ]},
-  { name: "Store", icon: <StoreIcon />, subItems: [
-    { name: "Create Store", path: "/store/create-store" }, { name: "User Profile", path: "/store/user-profile" },
-    { name: "Store Profile", path: "/store/store-profile" }, { name: "Shipping", path: "/store/shipping" },
-    { name: "Payments", path: "/store/payments" },
-  ]},
-  { name: "Settings", icon: <SettingsIcon />, subItems: [
-    { name: "Account Settings", path: "/settings/account" }, { name: "Notifications", path: "/settings/notifications" },
-    { name: "Security", path: "/settings/security" }, { name: "Logout", path: "/settings/logout" },
-  ]},
->>>>>>> parthiv
 ];
 
 const dashboardItem  = menuItems.find(i => i.name === "Dashboard");

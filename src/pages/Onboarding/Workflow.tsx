@@ -104,63 +104,83 @@ export default function Workflow() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-10">
-      <h1 className="text-center text-2xl font-bold tracking-tight text-slate-900">
+    <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:py-10">
+      <h1 className="text-center text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
         User Registration &amp; Verification
       </h1>
 
       <Tabs value={step} onValueChange={(v) => setStep(v as StepId)} className="mt-8">
-        {/* Real tablist for a11y — visually hidden, stepper below is the visible control */}
-        <TabsList className="sr-only">
-          {STEPS.map((s) => (
-            <TabsTrigger key={s.id} value={s.id}>
-              {s.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        {/* Real tablist for a11y — visually hidden, stepper below is the visible control.
+            Wrapped in its own sr-only div (rather than putting sr-only directly on
+            TabsList) so overflow:hidden always wins over any of shadcn's own
+            default TabsList classes — the hidden tablist can never push the
+            page into horizontal scroll this way. */}
+        <div className="sr-only">
+          <TabsList>
+            {STEPS.map((s) => (
+              <TabsTrigger key={s.id} value={s.id}>
+                {s.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
 
         {/* ── Visual stepper ── */}
-        <ol className="mb-10 flex items-center justify-between">
-          {STEPS.map((s, i) => {
-            const isDone = completed.has(s.id) || i < stepIndex;
-            const isActive = s.id === step;
-            return (
-              <li key={s.id} className="flex flex-1 items-center last:flex-none">
-                <button
-                  type="button"
-                  onClick={() => goTo(s.id)}
-                  className="flex flex-col items-center gap-1.5 focus:outline-none"
-                >
-                  <span
-                    className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-colors ${
-                      isDone
-                        ? "bg-emerald-600 text-white"
-                        : isActive
-                        ? `${STEP_ACCENT[s.id]} text-white`
-                        : "border-2 border-slate-200 bg-white text-slate-400"
-                    }`}
+        <div className="mb-8 sm:mb-10">
+          {/* Mobile-only caption: keeps the current step's name readable
+              without cramming all 5 text labels into a narrow screen */}
+          <div className="mb-3 flex items-center justify-between sm:hidden">
+            <span className="text-xs font-semibold text-slate-500">
+              Step {stepIndex + 1} of {STEPS.length}
+            </span>
+            <span className="text-xs font-semibold text-slate-700">
+              {STEPS[stepIndex].label}
+            </span>
+          </div>
+
+          <ol className="flex items-center justify-between">
+            {STEPS.map((s, i) => {
+              const isDone = completed.has(s.id) || i < stepIndex;
+              const isActive = s.id === step;
+              return (
+                <li key={s.id} className="flex min-w-0 flex-1 items-center last:flex-none">
+                  <button
+                    type="button"
+                    onClick={() => goTo(s.id)}
+                    className="flex shrink-0 flex-col items-center gap-1.5 focus:outline-none"
                   >
-                    {isDone ? <CheckCircle2 className="h-5 w-5" /> : i + 1}
-                  </span>
-                  <span
-                    className={`text-xs font-medium ${
-                      isDone || isActive ? "text-slate-700" : "text-slate-400"
-                    }`}
-                  >
-                    {s.label}
-                  </span>
-                </button>
-                {i < STEPS.length - 1 && (
-                  <span
-                    className={`mx-2 h-0.5 flex-1 rounded-full ${
-                      i < stepIndex ? "bg-emerald-500" : "bg-slate-200"
-                    }`}
-                  />
-                )}
-              </li>
-            );
-          })}
-        </ol>
+                    <span
+                      className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-colors sm:h-9 sm:w-9 ${
+                        isDone
+                          ? "bg-emerald-600 text-white"
+                          : isActive
+                          ? `${STEP_ACCENT[s.id]} text-white`
+                          : "border-2 border-slate-200 bg-white text-slate-400"
+                      }`}
+                    >
+                      {isDone ? <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" /> : i + 1}
+                    </span>
+                    {/* Full labels only from sm+ — mobile relies on the caption above */}
+                    <span
+                      className={`hidden text-xs font-medium sm:block ${
+                        isDone || isActive ? "text-slate-700" : "text-slate-400"
+                      }`}
+                    >
+                      {s.label}
+                    </span>
+                  </button>
+                  {i < STEPS.length - 1 && (
+                    <span
+                      className={`mx-1.5 h-0.5 flex-1 rounded-full sm:mx-2 ${
+                        i < stepIndex ? "bg-emerald-500" : "bg-slate-200"
+                      }`}
+                    />
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+        </div>
 
         {/* ── Step 1: Basic Details ── */}
         <TabsContent value="basic" className="mt-0">
@@ -179,7 +199,7 @@ export default function Workflow() {
                 <Input type="email" value={basic.email}
                   onChange={(e) => setBasic((b) => ({ ...b, email: e.target.value }))} />
               </Field>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field label="Date of Birth">
                   <Input type="date" value={basic.dob}
                     onChange={(e) => setBasic((b) => ({ ...b, dob: e.target.value }))} />
@@ -237,9 +257,9 @@ export default function Workflow() {
               </Field>
 
               <div className="rounded-lg border border-slate-200 p-4">
-                <div className="mb-3 flex items-center justify-between">
+                <div className="mb-3 flex items-center justify-between gap-2">
                   <span className="text-sm font-semibold text-slate-800">Fetched Details</span>
-                  <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                  <span className="flex shrink-0 items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
                     <CheckCircle2 className="h-3.5 w-3.5" /> Verified
                   </span>
                 </div>
@@ -252,7 +272,7 @@ export default function Workflow() {
               </div>
 
               <p className="flex items-center gap-1.5 text-xs text-slate-500">
-                <Lock className="h-3.5 w-3.5" /> Your information is safe and secure
+                <Lock className="h-3.5 w-3.5 shrink-0" /> Your information is safe and secure
               </p>
 
               <Button
@@ -347,18 +367,18 @@ export default function Workflow() {
               title="5. Verification Successful" subtitle="All your details have been verified">
               <ul className="space-y-2.5 text-sm">
                 {(["Basic Details", "DigiLocker KYC", "Bank Account", "₹1 Verification"] as const).map((label) => (
-                  <li key={label} className="flex items-center justify-between">
+                  <li key={label} className="flex items-center justify-between gap-2">
                     <span className="flex items-center gap-2 text-slate-700">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-600" /> {label}
+                      <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" /> {label}
                     </span>
-                    <span className="text-xs font-semibold text-emerald-600">Verified</span>
+                    <span className="shrink-0 text-xs font-semibold text-emerald-600">Verified</span>
                   </li>
                 ))}
               </ul>
               <Banner tone="success" className="mt-4">All verifications completed successfully!</Banner>
             </StepCard>
 
-            <div className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+            <div className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-8">
               <PartyPopper className="mb-2 h-10 w-10 text-emerald-500" />
               <h3 className="text-lg font-bold text-slate-900">Registration Complete!</h3>
               <p className="mt-1 text-sm text-slate-500">Welcome to our platform</p>
@@ -385,12 +405,12 @@ function StepCard({
   icon: React.ReactNode; iconBg: string; title: string; subtitle: string; children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
       <div className="mb-5 flex items-center gap-3">
-        <span className={`flex h-10 w-10 items-center justify-center rounded-full text-white ${iconBg}`}>
+        <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white ${iconBg}`}>
           {icon}
         </span>
-        <div>
+        <div className="min-w-0">
           <h2 className="text-base font-bold text-slate-900">{title}</h2>
           <p className="text-xs text-slate-500">{subtitle}</p>
         </div>
@@ -411,9 +431,9 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between py-0.5">
+    <div className="flex items-center justify-between gap-2 py-0.5">
       <dt className="text-slate-500">{label}</dt>
-      <dd className="font-medium text-slate-800">{value}</dd>
+      <dd className="text-right font-medium text-slate-800">{value}</dd>
     </div>
   );
 }

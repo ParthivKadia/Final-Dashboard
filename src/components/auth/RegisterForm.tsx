@@ -66,8 +66,8 @@ export default function RegisterForm() {
         password: formData.password,
         image: formData.image,
       });
-      // console.log(response)
 
+      // TODO: after successfully registing it should redirect to /sign page
       const token = response?.data?.token;
 
       if (token) {

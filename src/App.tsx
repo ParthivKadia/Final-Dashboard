@@ -1,3 +1,4 @@
+// App.tsx
 import { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AppLayout from "./layout/AppLayout";
@@ -28,18 +29,18 @@ const DeliveredOrders = lazy(() => import("./pages/Orders/DeliveredOrders"));
 const CancelledOrders = lazy(() => import("./pages/Orders/CancelledOrders"));
 const ReturnedOrders = lazy(() => import("./pages/Orders/ReturnedOrders"));
 
-const AllCustomers = lazy(() => import("./pages/Customers/AllCustomers"));
-const CustomerReviews = lazy(() => import("./pages/Customers/CustomerReviews"));
-const Messages = lazy(() => import("./pages/Customers/Messages"));
+// const AllCustomers = lazy(() => import("./pages/Customers/AllCustomers"));
+// const CustomerReviews = lazy(() => import("./pages/Customers/CustomerReviews"));
+// const Messages = lazy(() => import("./pages/Customers/Messages"));
 
-const SalesAnalytics = lazy(() => import("./pages/Analytics/SalesAnalytics"));
-const TopProducts = lazy(() => import("./pages/Analytics/TopProducts"));
-const RevenueReport = lazy(() => import("./pages/Analytics/RevenueReport"));
+// const SalesAnalytics = lazy(() => import("./pages/Analytics/SalesAnalytics"));
+// const TopProducts = lazy(() => import("./pages/Analytics/TopProducts"));
+// const RevenueReport = lazy(() => import("./pages/Analytics/RevenueReport"));
 
-const Coupons = lazy(() => import("./pages/Marketing/Coupons"));
-const Campaigns = lazy(() => import("./pages/Marketing/Campaigns"));
-const Discount = lazy(() => import("./pages/Marketing/Discount"));
-const EmailMarketing = lazy(() => import("./pages/Marketing/EmailMarketing"));
+// const Coupons = lazy(() => import("./pages/Marketing/Coupons"));
+// const Campaigns = lazy(() => import("./pages/Marketing/Campaigns"));
+// const Discount = lazy(() => import("./pages/Marketing/Discount"));
+// const EmailMarketing = lazy(() => import("./pages/Marketing/EmailMarketing"));
 
 // const StoreProfile = lazy(() => import("./pages/Store/StoreProfile"));
 const UserProfiles = lazy(() => import("./pages/Store/UserProfiles"));
@@ -82,20 +83,20 @@ export default function App() {
             <Route path="/orders/returned" element={<ReturnedOrders />} />
 
             {/* Customers */}
-            <Route path="/customers" element={<AllCustomers />} />
+            {/* <Route path="/customers" element={<AllCustomers />} />
             <Route path="/customers/review" element={<CustomerReviews />} />
-            <Route path="/customers/messages" element={<Messages />} />
+            <Route path="/customers/messages" element={<Messages />} /> */}
 
             {/* Analytics */}
-            <Route path="/analytics/sales-analytics" element={<SalesAnalytics />} />
+            {/* <Route path="/analytics/sales-analytics" element={<SalesAnalytics />} />
             <Route path="/analytics/top-products" element={<TopProducts />} />
-            <Route path="/analytics/revenue" element={<RevenueReport />} />
+            <Route path="/analytics/revenue" element={<RevenueReport />} /> */}
 
             {/* Marketing */}
-            <Route path="/marketing/coupons" element={<Coupons />} />
+            {/* <Route path="/marketing/coupons" element={<Coupons />} />
             <Route path="/marketing/campaigns" element={<Campaigns />} />
             <Route path="/marketing/discounts" element={<Discount />} />
-            <Route path="/marketing/email" element={<EmailMarketing />} />
+            <Route path="/marketing/email" element={<EmailMarketing />} /> */}
 
             {/* Store */}
             <Route path="/store" element={<UserProfiles />} />

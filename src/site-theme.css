@@ -1,5 +1,5 @@
 /* =============================================================================
-   STORLY SITE THEME — Single source of truth
+   STORLY WEBSITE THEME — Single source of truth
    Recolored to match makeforme.in: Primary: #0D9488 (Teal)  |  Accent: #EC4899 → #F97316
    (pink-orange gradient, used for hero/CTA moments)  |  White: #FFFFFF  |  Off-white: #FCFAF8
    Import AFTER tailwind in main CSS entry (index.css)
@@ -8,17 +8,17 @@
 /* ─── 1. DESIGN TOKENS — LIGHT MODE ────────────────────────────────────────── */
 :root {
   /* ── Raw brand palette ── */
-  --brand-50:   #f0fdfa;
-  --brand-100:  #ccfbf1;
-  --brand-200:  #99f6e4;
-  --brand-300:  #5eead4;
-  --brand-400:  #2dd4bf;
-  --brand-500:  #14b8a6;
-  --brand-600:  #10a697;
-  --brand-700:  #0d9488;   /* PRIMARY — teal, matches makeforme's Sign in / Follow buttons */
-  --brand-800:  #0f766e;
-  --brand-900:  #115e59;
-  --brand-950:  #042f2c;
+  --brand-50:   #eff7ff;
+  --brand-100:  #daecff;
+  --brand-200:  #bedeff;
+  --brand-300:  #91caff;
+  --brand-400:  #5eadfc;
+  --brand-500:  #388bf9;
+  --brand-600:  #226cee;
+  --brand-700:  #1a56db;   /* PRIMARY — blue */
+  --brand-800:  #1c46b1;
+  --brand-900:  #1c3f8c;
+  --brand-950:  #162855;
 
   /* ── Raw neutrals ── */
   --white:          #ffffff;
@@ -38,8 +38,8 @@
   --navbar-text:           var(--gray-600);           /* idle sidebar item text */
   --navbar-text-hover:     var(--gray-900);           /* hovered sidebar item text */
   --navbar-text-active:    var(--brand-700);          /* active sidebar item text */
-  --navbar-item-hover-bg:  rgba(13, 148, 136, 0.07); /* sidebar item hover bg */
-  --navbar-item-active-bg: rgba(13, 148, 136, 0.10); /* sidebar active item bg */
+  --navbar-item-hover-bg:  rgba(26, 86, 219, 0.07); /* sidebar item hover bg */
+  --navbar-item-active-bg: rgba(26, 86, 219, 0.10); /* sidebar active item bg */
   --navbar-section-label:  var(--gray-400);           /* "HOME", "MENU" labels */
   --navbar-icon:           var(--gray-500);           /* hamburger / bell icons */
   --navbar-icon-hover:     var(--gray-900);
@@ -74,9 +74,9 @@
   --text-on-brand:  var(--white);
 
   /* ── Semantic border tokens ── */
-  --border-subtle:   rgba(13, 148, 136, 0.10);
-  --border-medium:   rgba(13, 148, 136, 0.20);
-  --border-strong:   rgba(13, 148, 136, 0.35);
+  --border-subtle:   rgba(26, 86, 219, 0.10);
+  --border-medium:   rgba(26, 86, 219, 0.20);
+  --border-strong:   rgba(26, 86, 219, 0.35);
   --border-default:  var(--gray-200);
 
   /* ── Button tokens ── */
@@ -104,15 +104,15 @@
   --input-border-focus:  var(--brand-700);
   --input-text:          var(--text-primary);
   --input-placeholder:   var(--gray-400);
-  --input-ring:          rgba(13, 148, 136, 0.12);
+  --input-ring:          rgba(26, 86, 219, 0.12);
   --input-radius:        0.75rem;
 
   /* ── Card tokens ── */
   --card-bg:      var(--white);
   --card-border:  var(--border-subtle);
   --card-radius:  1rem;
-  --card-shadow:  0 1px 4px rgba(13, 148, 136, 0.06);
-  --card-shadow-hover: 0 12px 28px rgba(13, 148, 136, 0.13);
+  --card-shadow:  0 1px 4px rgba(26, 86, 219, 0.06);
+  --card-shadow-hover: 0 12px 28px rgba(26, 86, 219, 0.13);
 
   /* ── Status tokens ── */
   --status-active-bg:     rgba(18, 183, 106, 0.10);
@@ -163,19 +163,19 @@
   --surface-secondary: #1a2236;
   --surface-tertiary:  #1a2236;
   --surface-elevated:  #111827;
-  --surface-hero:      #115e59;
+  --surface-hero:      #1c3f8c;
   --surface-navbar:    #0b0f1a;
 
   --text-primary:   #f2f4f7;
   --text-secondary: #98a2b3;
   --text-muted:     #667085;
   --text-inverse:   #101828;
-  --text-brand:     #5eead4;
+  --text-brand:     #91caff;
   --text-on-brand:  #ffffff;
 
-  --border-subtle:   rgba(94, 234, 212, 0.10);
-  --border-medium:   rgba(94, 234, 212, 0.18);
-  --border-strong:   rgba(94, 234, 212, 0.30);
+  --border-subtle:   rgba(145, 202, 255, 0.10);
+  --border-medium:   rgba(145, 202, 255, 0.18);
+  --border-strong:   rgba(145, 202, 255, 0.30);
   --border-default:  rgba(255, 255, 255, 0.10);
 
   --btn-primary-bg:      var(--brand-700);
@@ -184,7 +184,7 @@
   --btn-ghost-hover:     var(--surface-tertiary);
   --btn-ghost-text:      var(--text-primary);
   --btn-ghost-border:    var(--border-medium);
-  --btn-outline-hover:   rgba(13, 148, 136, 0.15);
+  --btn-outline-hover:   rgba(26, 86, 219, 0.15);
   --btn-outline-text:    var(--brand-300);
   --btn-outline-border:  var(--brand-300);
   --btn-danger-bg:       rgba(240, 68, 56, 0.12);
@@ -234,9 +234,9 @@
   /* ── Navbar / sidebar color tokens (dark mode) ── */
   --navbar-text:           rgba(255, 255, 255, 0.55);
   --navbar-text-hover:     rgba(255, 255, 255, 0.90);
-  --navbar-text-active:    #5eead4;
+  --navbar-text-active:    #91caff;
   --navbar-item-hover-bg:  rgba(255, 255, 255, 0.07);
-  --navbar-item-active-bg: rgba(13, 148, 136, 0.22);
+  --navbar-item-active-bg: rgba(26, 86, 219, 0.22);
   --navbar-section-label:  rgba(255, 255, 255, 0.25);
   --navbar-icon:           rgba(255, 255, 255, 0.55);
   --navbar-icon-hover:     rgba(255, 255, 255, 0.90);
@@ -475,7 +475,7 @@ select.site-input {
 .site-btn-primary {
   background-color: var(--btn-primary-bg);
   color: var(--btn-primary-text);
-  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.30);
+  box-shadow: 0 4px 12px rgba(26, 86, 219, 0.30);
 }
 .site-btn-primary:hover:not(:disabled) {
   background-color: var(--btn-primary-hover);
@@ -604,7 +604,7 @@ select.site-input {
   white-space: nowrap;
 }
 .site-tab-underline:hover:not(.site-tab-underline--active) {
-  background-color: rgba(13, 148, 136, 0.04);
+  background-color: rgba(26, 86, 219, 0.04);
 }
 .site-tab-underline--active {
   color: var(--btn-primary-bg);
@@ -640,7 +640,7 @@ select.site-input {
 .site-badge--featured { background-color: var(--status-featured-bg); color: var(--status-featured-text); }
 .site-badge--growth   { background-color: var(--status-growth-bg);   color: var(--status-growth-text); }
 .site-badge--brand    { background-color: var(--brand-50);           color: var(--brand-800); }
-.dark .site-badge--brand { background-color: rgba(13,148,136,0.18);   color: var(--brand-300); }
+.dark .site-badge--brand { background-color: rgba(26,86,219,0.18);   color: var(--brand-300); }
 
 /* ─── 11. TABLE COMPONENT ───────────────────────────────────────────────────── */
 
@@ -660,7 +660,7 @@ select.site-input {
   color: var(--text-secondary);
 }
 .site-table tbody tr {
-  border-bottom: 1px solid rgba(13, 148, 136, 0.06);
+  border-bottom: 1px solid rgba(26, 86, 219, 0.06);
   transition: background-color 0.15s;
 }
 .site-table tbody tr:last-child { border-bottom: none; }
@@ -772,7 +772,7 @@ select.site-input {
   color: var(--brand-800);
 }
 .dark .site-banner-info {
-  background-color: rgba(13,148,136,0.12);
+  background-color: rgba(26,86,219,0.12);
   color: var(--brand-200);
 }
 
@@ -887,7 +887,7 @@ select.site-input {
   transition: background-color 0.15s;
 }
 .site-dropdown-item:hover { background-color: var(--surface-secondary); }
-.site-dropdown-item--active { background-color: rgba(13, 148, 136, 0.08); }
+.site-dropdown-item--active { background-color: rgba(26, 86, 219, 0.08); }
 .site-dropdown-label {
   font-size: 0.6875rem;
   font-weight: 700;
@@ -963,7 +963,7 @@ select.site-input {
 }
 .site-upload-zone--active {
   border-color: var(--btn-primary-bg);
-  background-color: rgba(13, 148, 136, 0.06);
+  background-color: rgba(26, 86, 219, 0.06);
 }
 
 /* ─── 22. IMAGE / THUMBNAIL ─────────────────────────────────────────────────── */
@@ -1117,7 +1117,7 @@ select.site-input {
   color: var(--brand-800);
 }
 .dark .site-discount-chip {
-  background-color: rgba(13,148,136,0.2);
+  background-color: rgba(26,86,219,0.2);
   color: var(--brand-300);
 }
 
@@ -1333,7 +1333,7 @@ select.site-input {
   border-color: var(--brand-400);
   background-color: rgba(255, 255, 255, 0.09);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.20);
+  box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.20);
 }
  
 /* Search icon inside the navbar input */
@@ -1591,7 +1591,7 @@ select.site-input {
 .site-layout-toggle-btn--active {
   background-color: var(--card-bg);
   color:            var(--btn-primary-bg);
-  box-shadow:       0 1px 3px rgba(13, 148, 136, 0.12), 0 1px 2px rgba(0,0,0,0.06);
+  box-shadow:       0 1px 3px rgba(26, 86, 219, 0.12), 0 1px 2px rgba(0,0,0,0.06);
 }
  
 /* Dark mode — active pill gets a subtle brand glow */
@@ -1610,6 +1610,15 @@ select.site-input {
 /* ── Left form side ── */
 .auth-form-side {
   background-color: var(--surface-primary);
+}
+
+/* Reserve space for the fixed mobile top bar (logo) so page content,
+   like the "Register"/"Sign In" heading, isn't hidden underneath it.
+   1024px matches Tailwind's `lg` breakpoint used for `lg:hidden` on the bar. */
+@media (max-width: 1023.98px) {
+  .auth-form-side {
+    padding-top: 5rem;
+  }
 }
  
 /* ── Right brand panel ── */
@@ -1649,8 +1658,8 @@ select.site-input {
 }
 .auth-logo-wrap:hover,
 a:hover .auth-logo-wrap {
-  background-color: rgba(13, 148, 136, 0.30);
-  border-color:     rgba(13, 148, 136, 0.55);
+  background-color: rgba(26, 86, 219, 0.30);
+  border-color:     rgba(26, 86, 219, 0.55);
 }
  
 /* ── Logo mark (mobile bar) — 30px ── */
@@ -1861,7 +1870,7 @@ a:hover .auth-logo-wrap {
 }
 
 .dark .orders-row--selected {
-  background-color: rgba(13, 148, 136, 0.12) !important;
+  background-color: rgba(26, 86, 219, 0.12) !important;
 }
 
 /* Order ID link style */
@@ -1914,7 +1923,7 @@ a:hover .auth-logo-wrap {
 .dark .order-status--pending    { background-color: rgba(249, 115, 22, 0.15); color: #fb923c; }
 .dark .order-status--pending    .site-badge-dot { background-color: #fb923c; }
 
-.dark .order-status--processing { background-color: rgba(13, 148, 136, 0.18); color: var(--brand-300); }
+.dark .order-status--processing { background-color: rgba(26, 86, 219, 0.18); color: var(--brand-300); }
 .dark .order-status--processing .site-badge-dot { background-color: var(--brand-400); }
 
 .dark .order-status--shipped    { background-color: rgba(8, 145, 178, 0.18); color: #22d3ee; }
@@ -1940,7 +1949,7 @@ a:hover .auth-logo-wrap {
 /* Dark mode overrides */
 .dark .payment-status--paid     { background-color: var(--status-active-bg); color: var(--status-active-text); }
 .dark .payment-status--pending  { background-color: var(--status-low-bg);    color: var(--status-low-text); }
-.dark .payment-status--refunded { background-color: rgba(13, 148, 136, 0.18); color: var(--brand-300); }
+.dark .payment-status--refunded { background-color: rgba(26, 86, 219, 0.18); color: var(--brand-300); }
 .dark .payment-status--failed   { background-color: var(--status-out-bg);    color: var(--status-out-text); }
 
 /* ── Mobile card list ── */
@@ -1965,7 +1974,7 @@ a:hover .auth-logo-wrap {
 }
 
 .dark .orders-mobile-card--selected {
-  background-color: rgba(13, 148, 136, 0.12);
+  background-color: rgba(26, 86, 219, 0.12);
 }
 
 .orders-mobile-top {
@@ -2161,7 +2170,7 @@ a:hover .auth-logo-wrap {
 .cust-type--vip    { background-color: rgba(147, 51, 234, 0.10);     color: #9333ea; }
  
 /* Dark mode */
-.dark .cust-type--new    { background-color: rgba(13, 148, 136, 0.18);  color: var(--brand-300); }
+.dark .cust-type--new    { background-color: rgba(26, 86, 219, 0.18);  color: var(--brand-300); }
 .dark .cust-type--repeat { background-color: var(--status-active-bg);  color: var(--status-active-text); }
 .dark .cust-type--vip    { background-color: rgba(147, 51, 234, 0.18); color: #c084fc; }
  
@@ -2175,7 +2184,7 @@ a:hover .auth-logo-wrap {
  
 /* Dark mode */
 .dark .cust-rating--excellent { background-color: var(--status-active-bg); color: var(--status-active-text); }
-.dark .cust-rating--good      { background-color: rgba(13, 148, 136, 0.18); color: var(--brand-300); }
+.dark .cust-rating--good      { background-color: rgba(26, 86, 219, 0.18); color: var(--brand-300); }
 .dark .cust-rating--average   { background-color: var(--status-low-bg);    color: var(--status-low-text); }
 .dark .cust-rating--low       { background-color: var(--status-out-bg);    color: var(--status-out-text); }
  

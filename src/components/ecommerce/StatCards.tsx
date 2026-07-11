@@ -78,7 +78,7 @@ const StatCard: React.FC<StatCardProps> = ({
 );
 
 const StatCards: React.FC = () => (
-  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+  <div className="grid grid-cols-1 gap-4 md:grid-cols-3 h-full">
     <StatCard
       icon="₹"
       label="Total Revenue"

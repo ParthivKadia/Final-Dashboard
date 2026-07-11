@@ -1,5 +1,4 @@
 // src/pages/Products/AllProducts.tsx
-// All colours/surfaces come from site-theme.css — zero inline style={{ color/bg }} needed.
 
 import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
@@ -17,6 +16,7 @@ import LayoutToggle from '../../layout/LayoutToggle';
 import { MobileDrawerRow, DrawerField } from '../../components/common/MobileDrawer';
 import { CardImageSlider } from './Inventory';
 import { getCloudinaryUrl } from '../../utils/cloudinaryUrlDisplay';
+import { toast } from 'sonner';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -163,7 +163,6 @@ const productToEditForm = (p: Product): EditForm => ({
 export default function AllProducts() {
   const navigate = useNavigate();
   const { isVerifying } = useAuth();
-  console.log(isVerifying)
 
   const { stores, activeStore, setActiveStore } = useAppStore();
   const { fetchPage, errors: cacheErrors, invalidate } = useProductStore();
@@ -193,11 +192,9 @@ export default function AllProducts() {
 
   const [showDialog, setShowDialog] = useState(false);
   const [form, setForm]             = useState<CreateProductRequestBody>(emptyForm());
-  console.log(form)
   const [tagsInput, setTagsInput]   = useState('');
   const [saving, setSaving]         = useState(false);
   const [formError, setFormError]   = useState<string | null>(null);
-  console.log(formError)
   const [activeTab, setActiveTab]   = useState<'basic' | 'pricing' | 'inventory'>('basic');
 
   // ── Edit modal state ──
@@ -292,10 +289,23 @@ export default function AllProducts() {
     if (form.price <= 0)               { setActiveTab('pricing'); setFormError('Price must be > 0.'); return; }
     setSaving(true); setFormError(null);
     try {
-      await createProduct(storeUsername, { ...form, tags: tagsInput.split(',').map(t => t.trim()).filter(Boolean) });
-      invalidate(storeUsername); setShowDialog(false); loadPage(currentPage, filterCatId, true);
-    } catch (err: any) { setFormError(err?.message || 'Failed to create product.'); }
-    finally { setSaving(false); }
+      await toast.promise(
+        createProduct(storeUsername, { ...form, tags: tagsInput.split(',').map(t => t.trim()).filter(Boolean) }),
+        {
+          loading: 'Adding product…',
+          success: `"${form.name}" added successfully`,
+          error: (err: any) => err?.message || 'Failed to create product.',
+        }
+      ).unwrap();
+      invalidate(storeUsername);
+      setShowDialog(false);
+      loadPage(currentPage, filterCatId, true);
+    } catch (err: any) {
+      const msg = err?.message || 'Failed to create product.';
+      setFormError(msg); // stays inline — modal is still open, user can fix and retry right there
+    } finally {
+      setSaving(false);
+    }
   };
 
   // ── Edit handlers ──
@@ -332,7 +342,7 @@ export default function AllProducts() {
     if (editForm.categoryIds.length === 0) { setEditTab('basic');   setEditError('Select at least one category.'); return; }
     if (editForm.price <= 0)               { setEditTab('pricing'); setEditError('Price must be > 0.'); return; }
     setEditSaving(true); setEditError(null);
-
+  
     const body: UpdateProductRequestBody = {
       name:           editForm.name.trim(),
       slug:           editForm.slug.trim(),
@@ -348,9 +358,16 @@ export default function AllProducts() {
       isFeatured:     editForm.isFeatured,
       tags:           editForm.tagsInput.split(',').map(t => t.trim()).filter(Boolean),
     };
-
+  
     try {
-      await updateProduct(storeUsername, editItem.slug, body);
+      await toast.promise(
+        updateProduct(storeUsername, editItem.slug, body),
+        {
+          loading: 'Saving changes…',
+          success: `"${editForm.name}" updated`,
+          error: (err: any) => err?.message || 'Failed to update product. Please try again.',
+        }
+      ).unwrap();
       invalidate(storeUsername);
       closeEdit();
       loadPage(currentPage, filterCatId, true);
@@ -365,10 +382,22 @@ export default function AllProducts() {
     if (!deleteTarget) return;
     setDeleting(true);
     try {
-      await deleteProduct(storeUsername, deleteTarget.slug);
-      invalidate(storeUsername); setDeleteTarget(null); loadPage(currentPage, filterCatId, true);
-    } catch (err: any) { setFetchError(err?.message || 'Failed to delete product.'); }
-    finally { setDeleting(false); }
+      await toast.promise(
+        deleteProduct(storeUsername, deleteTarget.slug),
+        {
+          loading: `Deleting "${deleteTarget.name}"…`,
+          success: `"${deleteTarget.name}" deleted`,
+          error: (err: any) => err?.message || 'Failed to delete product.',
+        }
+      ).unwrap();
+      invalidate(storeUsername);
+      setDeleteTarget(null);
+      loadPage(currentPage, filterCatId, true);
+    } catch (err: any) {
+      setDeleteTarget(null); // close the confirm modal even on failure — toast already carries the message
+    } finally {
+      setDeleting(false);
+    }
   };
 
   if (isVerifying) return (

@@ -41,12 +41,18 @@ interface ProductState {
     loading: Record<string, boolean>;
     errors:  Record<string, string | null>;
 
+    // In-flight request promises, keyed the same way as cache.
+    // Lets concurrent callers for the same key await the SAME network request
+    // instead of racing and one of them getting a premature null.
+    inflight: Record<string, Promise<PageData | null>>;
+
     // ── Actions ───────────────────────────────────────────────────────────────
 
     /**
      * Fetch a page of products for a store.
      * Returns cached data immediately if fresh; otherwise fetches from API.
      * `force` skips the TTL check and always refetches.
+     * Concurrent calls for the same key share one network request.
      */
     fetchPage: (key: PageKey, force?: boolean) => Promise<PageData | null>;
 
@@ -64,9 +70,10 @@ interface ProductState {
 }
 
 export const useProductStore = create<ProductState>((set, get) => ({
-    cache:   {},
-    loading: {},
-    errors:  {},
+    cache:    {},
+    loading:  {},
+    errors:   {},
+    inflight: {},
 
     // ── fetchPage ─────────────────────────────────────────────────────────────
     fetchPage: async (key, force = false) => {
@@ -76,42 +83,62 @@ export const useProductStore = create<ProductState>((set, get) => ({
 
         // Return fresh cache without a network call
         if (!force && existing && now - existing.fetchedAt < CACHE_TTL_MS) {
-        return existing;
+            return existing;
         }
 
-        // Already in-flight for this key
-        if (get().loading[k]) return existing ?? null;
-
-        set(state => ({ loading: { ...state.loading, [k]: true }, errors: { ...state.errors, [k]: null } }));
-
-        try {
-        const res     = await getProducts(key.username, {
-            page:     key.page,
-            pageSize: key.pageSize,
-            ...(key.category ? { category: key.category } : {}),
-        });
-
-        const payload = res?.data ?? (res as any);
-        const data: PageData = {
-            products:  payload?.products ?? [],
-            total:     payload?.meta?.total    ?? 0,
-            hasMore:   payload?.meta?.hasMore  ?? false,
-            fetchedAt: Date.now(),
-        };
+        // Already in-flight for this key — await the SAME promise instead of
+        // returning null. This is what fixes the spurious "Failed to load"
+        // on first mount (React 18 double-effect / concurrent callers).
+        const inflight = get().inflight[k];
+        if (inflight) return inflight;
 
         set(state => ({
-            cache:   { ...state.cache,   [k]: data },
-            loading: { ...state.loading, [k]: false },
+            loading: { ...state.loading, [k]: true },
+            errors:  { ...state.errors,  [k]: null },
         }));
 
-        return data;
-        } catch (err: any) {
-        set(state => ({
-            loading: { ...state.loading, [k]: false },
-            errors:  { ...state.errors,  [k]: err?.message || 'Failed to fetch products.' },
-        }));
-        return null;
-        }
+        const promise = (async (): Promise<PageData | null> => {
+            try {
+                const res = await getProducts(key.username, {
+                    page:     key.page,
+                    pageSize: key.pageSize,
+                    ...(key.category ? { category: key.category } : {}),
+                });
+
+                const payload = res?.data ?? (res as any);
+                const data: PageData = {
+                    products:  payload?.products ?? [],
+                    total:     payload?.meta?.total   ?? 0,
+                    hasMore:   payload?.meta?.hasMore ?? false,
+                    fetchedAt: Date.now(),
+                };
+
+                set(state => {
+                    const { [k]: _drop, ...restInflight } = state.inflight;
+                    return {
+                        cache:    { ...state.cache,   [k]: data },
+                        loading:  { ...state.loading, [k]: false },
+                        inflight: restInflight,
+                    };
+                });
+
+                return data;
+            } catch (err: any) {
+                set(state => {
+                    const { [k]: _drop, ...restInflight } = state.inflight;
+                    return {
+                        loading:  { ...state.loading, [k]: false },
+                        errors:   { ...state.errors,  [k]: err?.message || 'Failed to fetch products.' },
+                        inflight: restInflight,
+                    };
+                });
+                return null;
+            }
+        })();
+
+        set(state => ({ inflight: { ...state.inflight, [k]: promise } }));
+
+        return promise;
     },
 
     // ── getPage ───────────────────────────────────────────────────────────────
@@ -120,13 +147,14 @@ export const useProductStore = create<ProductState>((set, get) => ({
     // ── invalidate ────────────────────────────────────────────────────────────
     invalidate: (username) =>
         set(state => {
-        const prefix = `${username}::`;
-        const cache   = Object.fromEntries(Object.entries(state.cache).filter(([k]) => !k.startsWith(prefix)));
-        const loading = Object.fromEntries(Object.entries(state.loading).filter(([k]) => !k.startsWith(prefix)));
-        const errors  = Object.fromEntries(Object.entries(state.errors).filter(([k]) => !k.startsWith(prefix)));
-        return { cache, loading, errors };
+            const prefix   = `${username}::`;
+            const cache    = Object.fromEntries(Object.entries(state.cache).filter(([k]) => !k.startsWith(prefix)));
+            const loading  = Object.fromEntries(Object.entries(state.loading).filter(([k]) => !k.startsWith(prefix)));
+            const errors   = Object.fromEntries(Object.entries(state.errors).filter(([k]) => !k.startsWith(prefix)));
+            const inflight = Object.fromEntries(Object.entries(state.inflight).filter(([k]) => !k.startsWith(prefix)));
+            return { cache, loading, errors, inflight };
         }),
 
     // ── invalidateAll ─────────────────────────────────────────────────────────
-    invalidateAll: () => set({ cache: {}, loading: {}, errors: {} }),
+    invalidateAll: () => set({ cache: {}, loading: {}, errors: {}, inflight: {} }),
 }));

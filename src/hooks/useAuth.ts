@@ -1,52 +1,22 @@
 // src/hooks/useAuth.ts
 //
-// Drop-in replacement for the repeated "verify token + redirect" pattern
-// that currently lives in Home, Inventory, and every other protected page.
+// Thin read-only selector over auth state. The actual bootstrap() call and
+// redirect logic now live in AppLayout (runs once, centrally, before any
+// child route mounts) — this hook just exposes the resolved state so pages
+// can show a loading fallback if they render before AppLayout has settled.
 //
-// Usage (replaces the entire useEffect + useState in each page):
+// Usage (unchanged for every existing page):
 //
 //   const { isVerifying } = useAuth();
 //   if (isVerifying) return <Spinner />;
 
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
 
-interface UseAuthOptions {
-    /** Redirect to this path if not authenticated. Default: '/signin' */
-    redirectTo?: string;
-    /** Redirect here if authenticated but has no stores. Default: '/store/create-store' */
-    noStoreRedirect?: string;
-}
-
-export function useAuth(options: UseAuthOptions = {}) {
-    const { redirectTo = '/signin', noStoreRedirect = '/store/create-store' } = options;
-    const navigate    = useNavigate();
-    const { authStatus, bootstrap } = useAppStore();
-
-    useEffect(() => {
-        let cancelled = false;
-
-        const run = async () => {
-        const result = await bootstrap();
-        if (cancelled) return;
-
-        if (result === 'no-token' || result === 'unauthorized') {
-            navigate(redirectTo, { replace: true });
-        } else if (result === 'no-store') {
-            navigate(noStoreRedirect, { replace: true });
-        }
-        // 'ok' or 'error' → stay on page
-        };
-
-        run();
-        return () => { cancelled = true; };
-    // bootstrap is stable (Zustand action ref never changes)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+export function useAuth() {
+    const { authStatus } = useAppStore();
 
     return {
-        /** True while the first auth check is in flight */
+        /** True while the app-level auth check is in flight */
         isVerifying: authStatus === 'idle' || authStatus === 'loading',
         isAuthenticated: authStatus === 'authenticated',
         authStatus,

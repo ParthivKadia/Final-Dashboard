@@ -28,43 +28,50 @@ const badgeBg: Record<NonNullable<StatCardProps["badgeType"]>, { bg: string; col
 };
 
 const StatCard: React.FC<StatCardProps> = ({ icon, label, subLabel, value, badge, badgeType, bgColor, iconBg }) => (
-  <div style={{
-    backgroundColor: bgColor,
-    borderRadius: 16, padding: "20px 24px",
-    display: "flex", flexDirection: "column", justifyContent: "space-between",
-    minHeight: 180,
-    boxShadow: "var(--shadow-md)",
-  }}>
-    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-      <div style={{
-        backgroundColor: iconBg,
-        width: 48, height: 48, borderRadius: 12,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        fontSize: 20, color: "#ffffff", flexShrink: 0,
-      }}>
+  <div
+    className="flex flex-col justify-between min-h-[150px] sm:min-h-[180px] rounded-2xl p-4 sm:p-5 md:p-6"
+    style={{
+      backgroundColor: bgColor,
+      boxShadow: "var(--shadow-md)",
+    }}
+  >
+    <div className="flex items-start justify-between gap-3">
+      <div
+        className="flex items-center justify-center shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl text-lg sm:text-xl"
+        style={{ backgroundColor: iconBg, color: "#ffffff" }}
+      >
         {icon}
       </div>
       {badge && badgeType && (
-        <span style={{
-          fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 999,
-          backgroundColor: badgeBg[badgeType].bg, color: badgeBg[badgeType].color,
-          backdropFilter: "blur(4px)",
-        }}>
+        <span
+          className="text-[11px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap"
+          style={{
+            backgroundColor: badgeBg[badgeType].bg,
+            color: badgeBg[badgeType].color,
+            backdropFilter: "blur(4px)",
+          }}
+        >
           {badge}
         </span>
       )}
     </div>
 
-    <div style={{ marginTop: 24 }}>
-      <p style={{ fontSize: 32, fontWeight: 700, lineHeight: 1, color: "#ffffff", margin: 0 }}>{value}</p>
-      <p style={{ fontSize: 18, fontWeight: 600, color: "#ffffff", margin: "10px 0 0" }}>{label}</p>
-      <p style={{ fontSize: 14, color: "rgba(255,255,255,0.80)", margin: "4px 0 0" }}>{subLabel}</p>
+    <div className="mt-4 sm:mt-6">
+      <p className="text-2xl sm:text-3xl font-bold leading-none m-0" style={{ color: "#ffffff" }}>
+        {value}
+      </p>
+      <p className="text-base sm:text-lg font-semibold mt-2 mb-0" style={{ color: "#ffffff" }}>
+        {label}
+      </p>
+      <p className="text-xs sm:text-sm mt-1 mb-0" style={{ color: "rgba(255,255,255,0.80)" }}>
+        {subLabel}
+      </p>
     </div>
   </div>
 );
 
 const StatCards: React.FC = () => (
-  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 h-full">
     <StatCard
       icon="₹"
       label="Total Revenue"

@@ -447,6 +447,9 @@ select.site-input {
 }
 
 /* ─── 8. BUTTON COMPONENTS ──────────────────────────────────────────────────── */
+.site-btn-sm  { padding: 0.4rem 0.875rem; font-size: 0.8125rem; }
+
+/* .site-btn-lg  { padding: 0.5rem 1rem; font-size: 0.875rem; } */
 
 .site-btn {
   display: inline-flex;

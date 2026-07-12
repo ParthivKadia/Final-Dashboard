@@ -78,7 +78,7 @@ function StoreCard({ store, onManage }: { store: Store; onManage: () => void }) 
       </span> */}
 
       {/* Manage button */}
-      <button className="site-btn site-btn-ghost site-btn-sm shrink-0" onClick={onManage}>
+      <button className="site-btn site-btn-ghost shrink-0" onClick={onManage}>
         Manage
       </button>
     </div>
@@ -197,7 +197,7 @@ export default function UserProfiles() {
                   {stores.length}
                 </span>
               </h3>
-              <button className="site-btn site-btn-primary site-btn-sm"
+              <button className="site-btn site-btn-primary"
                 onClick={() => navigate("/store/create-store")}>
                 + New Store
               </button>

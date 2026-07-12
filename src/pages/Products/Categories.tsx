@@ -231,7 +231,7 @@ function CategoryDialog({
                 </div>
               ) : (
                 <div className="site-upload-zone shrink-0 flex items-center justify-center text-2xl"
-                  style={{ width: '4rem', height: '4rem', padding: 0 }}>🖼️</div>
+                  style={{ width: '4rem', height: '4rem', padding: 0 }}></div>
               )}
             </div>
             {form.imageUrl && (
@@ -265,7 +265,7 @@ function CategoryDialog({
           <button className="site-btn site-btn-primary flex-1" onClick={handleSave} disabled={saving}>
             {saving
               ? <><span className="site-spinner" /> Saving…</>
-              : mode === 'create' ? '🏷️ Create Category' : '✓ Save Changes'
+              : mode === 'create' ? 'Create Category' : 'Save Changes'
             }
           </button>
         </div>
@@ -715,8 +715,8 @@ export default function Categories() {
             setActiveStore={setActiveStore} onSwitch={() => setCategories([])} />
         </div>
         <div className="flex gap-2 shrink-0">
-          <button className="site-btn site-btn-ghost site-btn-sm" onClick={() => load(true)}>Refresh</button>
-          <button className="site-btn site-btn-primary site-btn-sm" disabled={!storeUsername}
+          <button className="site-btn site-btn-ghost" onClick={() => load(true)}>Refresh</button>
+          <button className="site-btn site-btn-primary" disabled={!storeUsername}
             onClick={() => setDialog({ mode: 'create', defaultParentId: 0 })}>
             + Add Category
           </button>
@@ -870,7 +870,7 @@ export default function Categories() {
                   : `${parentCount} parent · ${childCount} sub-categories`}
               </span>
               <button className="text-xs site-text-brand font-semibold hover:underline"
-                onClick={() => navigate('/products/add')}>
+                onClick={() => navigate('/products')}>
                 + Add product →
               </button>
             </div>

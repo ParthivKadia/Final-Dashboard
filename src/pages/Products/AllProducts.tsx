@@ -170,9 +170,14 @@ export default function AllProducts() {
 
   const storeUsername    = activeStore?.username ?? '';
   const cachedCategories = getCategories(storeUsername) ?? [];
-  const catPathMap       = buildCatPathMap(cachedCategories);
+  // const catPathMap       = buildCatPathMap(cachedCategories);
+  const categoryMap = new Map(
+    cachedCategories.map(c => [c.id, c.name])
+  );
   const resolveCategoryNames = (ids: number[]) =>
-    ids.length === 0 ? '—' : ids.map(id => catPathMap.get(id) ?? `#${id}`).join(', ');
+    ids.length === 0
+      ? '—'
+      : ids.map(id => categoryMap.get(id) ?? `#${id}`).join(', ');
   const sortedCategories = flattenAndSort(cachedCategories).filter(c => c.isActive !== false);
 
   const [products, setProducts]           = useState<Product[]>([]);
@@ -463,11 +468,11 @@ export default function AllProducts() {
         </div>
 
         <div className="flex gap-2">
-          <button className="site-btn site-btn-ghost site-btn-sm"
+          <button className="site-btn site-btn-ghost"
             onClick={() => navigate('/categories')}>
             Categories
           </button>
-          <button className="site-btn site-btn-primary site-btn-sm"
+          <button className="site-btn site-btn-primary"
             onClick={openDialog} disabled={!storeUsername}>
             + Add Product
           </button>
@@ -513,11 +518,11 @@ export default function AllProducts() {
             placeholder="Search by name or slug…" className="site-input" />
         </div>
 
-        <div className="flex gap-2 items-center flex-nowrap flex-wrap sm:flex-nowrap">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-2 sm:items-center">
           <select
             value={filterStatus}
             onChange={e => { setFilterStatus(e.target.value as StatusFilter); setSelectedIds([]); }}
-            className="site-input" style={{ maxWidth: '140px', minWidth: '110px' }}>
+            className="site-input w-full sm:w-auto sm:max-w-[140px] sm:min-w-[110px]">
             {STATUS_FILTERS.map(f => (
               <option key={f.value} value={f.value}>{f.label}</option>
             ))}
@@ -529,7 +534,7 @@ export default function AllProducts() {
               setFilterCatId(e.target.value === '' ? 'All' : Number(e.target.value));
               setCurrentPage(1); setSelectedIds([]);
             }}
-            className="site-input" style={{ maxWidth: '160px', minWidth: '120px' }}>
+            className="site-input w-full sm:w-auto sm:max-w-[160px] sm:min-w-[120px]">
             <option value="">All Categories</option>
             {sortedCategories.map(c => (
               <option key={c.id} value={c.id}>{c.name}</option>
@@ -537,14 +542,14 @@ export default function AllProducts() {
           </select>
 
           <select value={sortBy} onChange={e => setSortBy(e.target.value)}
-            className="site-input" style={{ maxWidth: '100px', minWidth: '80px' }}>
+            className="site-input w-full sm:w-auto sm:max-w-[100px] sm:min-w-[80px]">
             <option value="name">Name A–Z</option>
             <option value="price-asc">Price ↑</option>
             <option value="price-desc">Price ↓</option>
             <option value="stock">Stock ↓</option>
           </select>
 
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 flex items-center justify-center sm:justify-start">
             <LayoutToggle
               value={viewMode}
               onChange={setViewMode}
@@ -1091,16 +1096,16 @@ export default function AllProducts() {
             <div className="site-modal-footer">
               <div className="flex gap-2 mr-auto">
                 {activeTab !== 'basic' && (
-                  <button className="site-btn site-btn-ghost site-btn-sm"
+                  <button className="site-btn site-btn-ghost"
                     onClick={() => setActiveTab(activeTab === 'inventory' ? 'pricing' : 'basic')}>← Back</button>
                 )}
                 {activeTab !== 'inventory' && (
-                  <button className="site-btn site-btn-outline site-btn-sm"
+                  <button className="site-btn site-btn-outline"
                     onClick={() => setActiveTab(activeTab === 'basic' ? 'pricing' : 'inventory')}>Next →</button>
                 )}
               </div>
-              <button className="site-btn site-btn-ghost site-btn-sm" onClick={() => setShowDialog(false)}>Cancel</button>
-              <button className="site-btn site-btn-primary site-btn-sm" onClick={handleSave} disabled={saving}>
+              <button className="site-btn site-btn-ghost" onClick={() => setShowDialog(false)}>Cancel</button>
+              <button className="site-btn site-btn-primary" onClick={handleSave} disabled={saving}>
                 {saving ? <><span className="site-spinner" /> Saving…</> : 'Add Product'}
               </button>
             </div>
@@ -1318,16 +1323,16 @@ export default function AllProducts() {
             <div className="site-modal-footer">
               <div className="flex gap-2 mr-auto">
                 {editTab !== 'basic' && (
-                  <button className="site-btn site-btn-ghost site-btn-sm"
+                  <button className="site-btn site-btn-ghost"
                     onClick={() => setEditTab(editTab === 'inventory' ? 'pricing' : 'basic')}>← Back</button>
                 )}
                 {editTab !== 'inventory' && (
-                  <button className="site-btn site-btn-outline site-btn-sm"
+                  <button className="site-btn site-btn-outline"
                     onClick={() => setEditTab(editTab === 'basic' ? 'pricing' : 'inventory')}>Next →</button>
                 )}
               </div>
-              <button className="site-btn site-btn-ghost site-btn-sm" onClick={closeEdit}>Cancel</button>
-              <button className="site-btn site-btn-primary site-btn-sm" onClick={handleEditSave} disabled={editSaving}>
+              <button className="site-btn site-btn-ghost" onClick={closeEdit}>Cancel</button>
+              <button className="site-btn site-btn-primary" onClick={handleEditSave} disabled={editSaving}>
                 {editSaving ? <><span className="site-spinner" /> Saving…</> : 'Save Changes'}
               </button>
             </div>

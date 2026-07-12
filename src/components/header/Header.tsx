@@ -3,7 +3,8 @@ import { ThemeToggleButton } from "../common/ThemeToggleButton";
 import NotificationDropdown from "./NotificationDropdown";
 import UserDropdown from "./UserDropdown";
 import { Link } from "react-router";
-import logo from "../../public/images/brand/logo.png"
+
+const logo = "/images/brand/logo.png";
 
 interface HeaderProps {
   onClick?: () => void;

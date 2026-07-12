@@ -272,20 +272,20 @@ export default function StoreProfile() {
           <div className="flex gap-2 shrink-0">
             {!isEditing ? (
               <>
-                <button className="site-btn site-btn-ghost site-btn-sm"
+                <button className="site-btn site-btn-ghost"
                   onClick={() => navigate("/store/create-store")}>
-                  + New store
+                  + New Store
                 </button>
-                <button className="site-btn site-btn-primary site-btn-sm" onClick={handleEdit}>
-                  Edit profile
+                <button className="site-btn site-btn-primary" onClick={handleEdit}>
+                  Edit Profile
                 </button>
               </>
             ) : (
               <>
-                <button className="site-btn site-btn-ghost site-btn-sm" onClick={handleCancel}>
+                <button className="site-btn site-btn-ghost" onClick={handleCancel}>
                   Cancel
                 </button>
-                <button className="site-btn site-btn-primary site-btn-sm" onClick={handleSave} disabled={saving}>
+                <button className="site-btn site-btn-primary" onClick={handleSave} disabled={saving}>
                   {saving ? <><span className="site-spinner" /> Saving…</> : "Save changes"}
                 </button>
               </>

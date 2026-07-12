@@ -114,10 +114,10 @@ export default function CreateStore() {
           </div>
         </div>
         <div className="flex gap-2 shrink-0">
-          <button className="site-btn site-btn-ghost site-btn-sm" onClick={() => navigate("/")}>
+          <button className="site-btn site-btn-ghost" onClick={() => navigate("/")}>
             Cancel
           </button>
-          <button className="site-btn site-btn-primary site-btn-sm" onClick={handleSubmit} disabled={saving}>
+          <button className="site-btn site-btn-primary" onClick={handleSubmit} disabled={saving}>
             {saving
               ? <><span className="site-spinner" /> Creating…</>
               : "Launch Store"

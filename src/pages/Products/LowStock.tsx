@@ -428,7 +428,13 @@ export default function LowStock() {
       {/* ── Header ── */}
       <div className="site-page-header">
         <div>
-          <h1 className="site-page-title">Low Stock Alerts</h1>
+          {/* <h1 className="site-page-title">Low Stock Alerts</h1> */}
+          <div className="flex items-center gap-3">
+            <button className="site-back-btn" onClick={() => navigate("/products")}>←</button>
+            <div>
+              <h1 className="site-page-title">Low Stock Alerts</h1>
+            </div>
+          </div>
           <StoreSwitcher
             stores={stores} activeStore={activeStore}
             setActiveStore={setActiveStore} onSwitch={switchStore}
@@ -436,10 +442,10 @@ export default function LowStock() {
           />
         </div>
         <div className="flex gap-2 flex-wrap shrink-0">
-          <button className="site-btn site-btn-ghost site-btn-sm" onClick={() => fetchLowStock(true)}>
+          <button className="site-btn site-btn-ghost" onClick={() => fetchLowStock(true)}>
             Refresh
           </button>
-          <button className="site-btn site-btn-primary site-btn-sm" onClick={() => navigate('/products/add')}>
+          <button className="site-btn site-btn-primary" onClick={() => navigate('/products')}>
             + Add Stock
           </button>
         </div>

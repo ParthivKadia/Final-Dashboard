@@ -159,7 +159,7 @@ const LowStockAlerts: React.FC = () => {
       <div className="site-card p-5">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <span className="text-green-500">✅</span>
+            {/* <span className="text-green-500">✅</span> */}
             <h3 className="text-base font-semibold site-heading">Low Stock Alerts</h3>
           </div>
           <button

@@ -57,20 +57,20 @@ type FlatCategory = { id: number; name: string; parentId?: number | null; isActi
 
 const isRoot = (c: FlatCategory) => c.parentId == null || c.parentId === 0;
 
-function buildCatPathMap(cats: FlatCategory[]): Map<number, string> {
-  const byId = new Map<number, FlatCategory>(cats.map(c => [c.id, c]));
-  const getPath = (id: number, visited = new Set<number>()): string => {
-    if (visited.has(id)) return byId.get(id)?.name ?? `#${id}`;
-    visited.add(id);
-    const cat = byId.get(id);
-    if (!cat) return `#${id}`;
-    if (isRoot(cat)) return cat.name;
-    return `${getPath(cat.parentId as number, visited)} > ${cat.name}`;
-  };
-  const map = new Map<number, string>();
-  for (const cat of cats) map.set(cat.id, getPath(cat.id));
-  return map;
-}
+// function buildCatPathMap(cats: FlatCategory[]): Map<number, string> {
+//   const byId = new Map<number, FlatCategory>(cats.map(c => [c.id, c]));
+//   const getPath = (id: number, visited = new Set<number>()): string => {
+//     if (visited.has(id)) return byId.get(id)?.name ?? `#${id}`;
+//     visited.add(id);
+//     const cat = byId.get(id);
+//     if (!cat) return `#${id}`;
+//     if (isRoot(cat)) return cat.name;
+//     return `${getPath(cat.parentId as number, visited)} > ${cat.name}`;
+//   };
+//   const map = new Map<number, string>();
+//   for (const cat of cats) map.set(cat.id, getPath(cat.id));
+//   return map;
+// }
 
 function flattenAndSort(cats: FlatCategory[]): FlatCategory[] {
   const byId = new Map<number, FlatCategory>(cats.map(c => [c.id, c]));

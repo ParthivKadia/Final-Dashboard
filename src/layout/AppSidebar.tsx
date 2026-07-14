@@ -2,7 +2,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { BoxCubeIcon, GridIcon, HorizontaLDots } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
-const logo = "/images/brand/logo.png";
+const logo = "/images/brand/storely_logo.png";
 
 type MenuItem = { name: string; icon: React.ReactNode; path: string; };
 

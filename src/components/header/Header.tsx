@@ -4,7 +4,7 @@ import NotificationDropdown from "./NotificationDropdown";
 import UserDropdown from "./UserDropdown";
 import { Link } from "react-router";
 
-const logo = "/images/brand/logo.png";
+const logo = "/images/brand/storely_logo.png";
 
 interface HeaderProps {
   onClick?: () => void;

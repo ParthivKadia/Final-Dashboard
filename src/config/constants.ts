@@ -1,0 +1,1 @@
+export const STORELY_LOGO_URL = "https://res.cloudinary.com/dqhodqx6d/image/upload/v1787150042/STORELY_LOGO_2_zwqyyf.png"

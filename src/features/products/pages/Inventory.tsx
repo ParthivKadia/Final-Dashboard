@@ -14,7 +14,7 @@ import type { Product, Store, UpdateProductRequestBody } from "@/shared/types/st
 import LayoutToggle from "@/shared/components/layout/LayoutToggle";
 import { SlugCell } from './AllProducts';
 import { MobileDrawerRow, DrawerField } from "@/shared/components/ui/MobileDrawer";
-import { Store as StoreIcon, PackageOpen } from "lucide-react";
+import { Store as StoreIcon } from "lucide-react";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
